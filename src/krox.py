@@ -2,9 +2,9 @@
 
 import sys
 
-from krox_ast_printer import ASTPrinter
 from krox_error_reporter import ErrorReporter
 from krox_expr import Expr
+from krox_interpreter import Interpreter
 from krox_parser import Parser
 from krox_scanner import Scanner
 from krox_token import Token
@@ -16,10 +16,14 @@ class Krox:
     error_reporter: ErrorReporter
     """ The error reporter to pass through the interpreter. """
     
+    interpreter: Interpreter
+    """ The Krox interpreter. """
+    
     def __init__(self: Self) -> None:
         """ Initialize Krox. """
         
         self.error_reporter = ErrorReporter()
+        self.interpreter = Interpreter(self.error_reporter)
     
     
     def main(self: Self, args: list[str]) -> None:
@@ -67,7 +71,7 @@ class Krox:
         if self.error_reporter.had_error() or expression is None:
             return
         
-        print(ASTPrinter().print(expression))
+        self.interpreter.interpret(expression)
 
 
 if __name__ == "__main__":

@@ -1,2 +1,2 @@
-// Say hello.
-print "Hello, Krox!";
+// Statements are not yet supported.
+"Hello, Krox!"
