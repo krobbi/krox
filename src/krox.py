@@ -56,11 +56,39 @@ class Krox:
     def run(self: Self, source: str) -> None:
         """ Run Krox from source code. """
         
+        if source == "$test":
+            self.test()
+            return
+        
         scanner: Scanner = Scanner(self.error_reporter, source)
         tokens: list[Token] = scanner.scan_tokens()
         
         for token in tokens:
             print(token)
+    
+    
+    def test(self: Self) -> None:
+        """ Test Krox. """
+        
+        from krox_ast_printer import ASTPrinter
+        from krox_expr import BinaryExpr, Expr, GroupingExpr, LiteralExpr
+        from krox_expr import UnaryExpr
+        from krox_token import Token
+        from krox_token_type import TokenType
+        
+        # Equivalent to `-123 * (45.67)`.
+        expression: Expr = BinaryExpr(
+                UnaryExpr(
+                        Token(TokenType.MINUS, "-", None, 1),
+                        LiteralExpr(123)),
+                Token(TokenType.STAR, "*", None, 1),
+                GroupingExpr(
+                        LiteralExpr(45.67)))
+        
+        result: str = ASTPrinter().print(expression)
+        print(result)
+        
+        assert result == "(* (- 123) (group 45.67))", "AST printer failed!"
 
 
 if __name__ == "__main__":
