@@ -1,7 +1,8 @@
-from krox_expr import AssignExpr, BinaryExpr, ExprVisitor, GroupingExpr
-from krox_expr import LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr
-from krox_stmt import BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt
-from krox_stmt import StmtVisitor, VarStmt, WhileStmt
+from krox_expr import AssignExpr, BinaryExpr, CallExpr, ExprVisitor
+from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr
+from krox_expr import VariableExpr
+from krox_stmt import BlockStmt, ExpressionStmt, FunctionStmt, IfStmt
+from krox_stmt import ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
 from typing import Any, Self
 
 class PrinterNode:
@@ -72,6 +73,28 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         return PrinterNode("{expression}", stmt.expression.accept(self))
     
     
+    def visit_function_stmt(self: Self, stmt: FunctionStmt) -> PrinterNode:
+        """ Visit a function statement and return a printer node. """
+        
+        name: str = f"{{fun {stmt.name.lexeme}("
+        name_has_comma: bool = False
+        
+        for param in stmt.params:
+            if name_has_comma:
+                name = f"{name}, {param.lexeme}"
+            else:
+                name = f"{name}{param.lexeme}"
+            
+            name_has_comma = True
+        
+        node: PrinterNode = PrinterNode(f"{name})}}")
+        
+        for statement in stmt.body:
+            node.children.append(statement.accept(self))
+        
+        return node
+    
+    
     def visit_if_stmt(self: Self, stmt: IfStmt) -> PrinterNode:
         """ Visit an if statement and return a printer node. """
         
@@ -85,10 +108,15 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         return node
     
     
-    def visit_print_stmt(self: Self, stmt: PrintStmt) -> PrinterNode:
-        """ Visit a print statement and return a printer node. """
+    def visit_return_stmt(self: Self, stmt: ReturnStmt) -> PrinterNode:
+        """ Visit a return statement and return a printer node. """
         
-        return PrinterNode("{print}", stmt.expression.accept(self))
+        node: PrinterNode = PrinterNode("{return}")
+        
+        if stmt.value is not None:
+            node.children.append(stmt.value.accept(self))
+        
+        return node
     
     
     def visit_var_stmt(self: Self, stmt: VarStmt) -> PrinterNode:
@@ -113,6 +141,17 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         """ Visit an assign expression and return a printer node. """
         
         return PrinterNode(f"({expr.name.lexeme} =)", expr.value.accept(self))
+    
+    
+    def visit_call_expr(self: Self, expr: CallExpr) -> PrinterNode:
+        """ Visit a call expression and return a printer node. """
+        
+        node: PrinterNode = PrinterNode("(<call>)", expr.callee.accept(self))
+        
+        for argument in expr.arguments:
+            node.children.append(argument.accept(self))
+        
+        return node
     
     
     def visit_binary_expr(self: Self, expr: BinaryExpr) -> PrinterNode:

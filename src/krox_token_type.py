@@ -96,9 +96,6 @@ class TokenType(Enum):
     OR = auto()
     """ `or`. """
     
-    PRINT = auto()
-    """ `print`. """
-    
     RETURN = auto()
     """ `return`. """
     

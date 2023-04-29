@@ -1,73 +1,23 @@
 // Display the truthiness of values.
 
-if(nil){
-	print "`nil` is truthy.";
-} else {
-	print "`nil` is falsy.";
+fun print_truthiness(value, message){
+	if(value){
+		print(message + " is truthy.");
+	} else {
+		print(message + " is falsy.");
+	}
 }
 
-if(false){
-	print "`false` is truthy.";
-} else {
-	print "`false` is falsy.";
-}
-
-if(true){
-	print "`true` is truthy.";
-} else {
-	print "`true` is falsy.";
-}
-
-if(0){
-	print "`0` is truthy.";
-} else {
-	print "`0` is falsy.";
-}
-
-if(-0){
-	print "`-0` is truthy.";
-} else {
-	print "`-0` is falsy.";
-}
-
-if(123){
-	print "`123` is truthy.";
-} else {
-	print "`123` is falsy.";
-}
-
-if(-123){
-	print "`-123` is truthy.";
-} else {
-	print "`-123` is falsy.";
-}
-
-if(""){
-	print "Empty string is truthy.";
-} else {
-	print "Empty string is falsy.";
-}
-
-if("nil"){
-	print "String containing `nil` is truthy.";
-} else {
-	print "String containing `nil` is falsy.";
-}
-
-if("false"){
-	print "String containing `false` is truthy.";
-} else {
-	print "String containing `false` is falsy.";
-}
-
-if("0"){
-	print "String containing `0` is truthy.";
-} else {
-	print "String containing `0` is falsy.";
-}
-
-if("Hello, Krox!"){
-	print "String containing `Hello, Krox!` is truthy.";
-} else {
-	print "String containing `Hello, Krox!` is falsy.";
-}
+print_truthiness(nil, "`nil`");
+print_truthiness(false, "`false`");
+print_truthiness(true, "`true`");
+print_truthiness(0, "`0`");
+print_truthiness(-0, "`-0`");
+print_truthiness(123, "`123`");
+print_truthiness(-123, "`-123`");
+print_truthiness("", "Empty string");
+print_truthiness("nil", "String containing `nil`");
+print_truthiness("false", "String containing `false`");
+print_truthiness("0", "String containing `0`");
+print_truthiness("Hello, Krox!", "String containing `Hello, Krox!`");
+print_truthiness(print_truthiness, "Function object");

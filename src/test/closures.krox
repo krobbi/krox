@@ -1,0 +1,29 @@
+// Demonstrate closures.
+
+fun make_counter(){
+	var i = 0;
+	
+	fun count(){
+		i = i + 1;
+		print(i);
+	}
+	
+	return count;
+}
+
+var counter_a = make_counter();
+var counter_b = make_counter();
+
+print("Counter A:");
+counter_a();
+counter_a();
+
+print("Counter B:");
+counter_b();
+counter_b();
+counter_b();
+counter_b();
+
+print("Counter A:");
+counter_a();
+counter_a();

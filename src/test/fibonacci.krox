@@ -1,10 +1,13 @@
-// Display the Fibonacci numbers below 10,000.
+// Calculate the first 20 Fibonacci numbers recursively.
 
-var a = 0;
-var temp;
+fun fib(n){
+	if(n <= 1){
+		return n;
+	}
+	
+	return fib(n - 2) + fib(n - 1);
+}
 
-for(var b = 1; a < 10000; b = temp + b){
-	print a;
-	temp = a;
-	a = b;
+for(var i = 0; i < 20; i = i + 1){
+	print(fib(i));
 }

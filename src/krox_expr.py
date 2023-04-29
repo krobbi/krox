@@ -62,6 +62,38 @@ class BinaryExpr(Expr):
         return visitor.visit_binary_expr(self)
 
 
+class CallExpr(Expr):
+    """ A call expression in a tree. """
+    
+    callee: Expr
+    """ The call expression's callee. """
+    
+    paren: Token
+    """ The call expression's closing parenthesis for error logging. """
+    
+    arguments: list[Expr]
+    """ The call expression's arguments. """
+    
+    def __init__(
+            self: Self,
+            callee: Expr, paren: Token, arguments: list[Expr]) -> None:
+        """
+        Initialize the call expression's callee, closing parenthesis,
+        and arguments.
+        """
+        
+        super().__init__()
+        self.callee = callee
+        self.paren = paren
+        self.arguments = arguments
+    
+    
+    def accept(self: Self, visitor: Any) -> Any:
+        """ Accept an expression visitor. """
+        
+        return visitor.visit_call_expr(self)
+
+
 class GroupingExpr(Expr):
     """ A grouping expression in a tree. """
     
@@ -174,6 +206,12 @@ class ExprVisitor:
     
     def visit_assign_expr(self: Self, expr: AssignExpr) -> Any:
         """ Visit an assign expression. """
+        
+        pass
+    
+    
+    def visit_call_expr(self: Self, expr: CallExpr) -> Any:
+        """ Visit a call expression. """
         
         pass
     

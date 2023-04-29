@@ -4,12 +4,13 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 
 # Contents
 1. [About](#about)
+2. [Differences from Lox](#differences-from-lox)
 2. [License](#license)
 
 # About
-Krox is a programming language that will gradually be created as I follow along
-with the book [Crafting Interpreters](https://craftinginterpreters.com) by
-[Robert Nystrom](https://github.com/munificent).
+Krox is a programming language that is gradually being created as I follow
+along with the book [Crafting Interpreters](https://craftinginterpreters.com)
+by [Robert Nystrom](https://github.com/munificent).
 
 The book describes a language named Lox that is implemented over the course of
 the book. First with a tree-walk interpreter written in Java, and then with a
@@ -28,11 +29,18 @@ and design choices involved in designing a language. Lox also appears to be
 much more practical than Funcy, and has object oriented capabilities, which I
 have never attempted to implement.
 
-The initial implementation of Krox will be written in Python as I find it much
-more convenient than Java. This may be reconsidered later on.
+The initial implementation of Krox is written in Python as I find it much more
+convenient than Java.
 
-Finally, I intend Krox to eventually diverge away from Lox and gain features to
-become more practical.
+Finally, I intend for Krox to diverge away from Lox and gain features to become
+more practical.
+
+# Differences from Lox
+* Krox is named 'Krox' instead of 'Lox'.
+* Krox is currently unfinished and is not yet a full implementation of Lox.
+* The `print` statement has been replaced with a native function. Because of
+this, parentheses are required for printing. The `print` function always
+returns `nil`.
 
 # License
 Krox is released under the MIT License:  

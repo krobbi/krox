@@ -1,0 +1,17 @@
+// Demonstrate a sleep function.
+
+fun sleep(duration){
+	var start = clock();
+	
+	while(clock() - start < duration){
+		// No-op.
+	}
+}
+
+print("Sleeping for 1 second...");
+sleep(1);
+print("Done!");
+
+print("Sleeping for 2 seconds...");
+sleep(2);
+print("Done!");

@@ -1,9 +1,13 @@
+from krox_callable import KroxCallable
 from krox_environment import Environment
 from krox_error_reporter import ErrorReporter
-from krox_expr import AssignExpr, BinaryExpr, Expr, ExprVisitor, GroupingExpr
-from krox_expr import LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr
-from krox_stmt import BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt
-from krox_stmt import StmtVisitor, VarStmt, WhileStmt
+from krox_expr import AssignExpr, BinaryExpr, CallExpr, Expr, ExprVisitor
+from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr
+from krox_expr import VariableExpr
+from krox_function import ReturnException, KroxFunction
+from krox_native_function import ClockNativeFunction, PrintNativeFunction
+from krox_stmt import BlockStmt, ExpressionStmt, FunctionStmt, IfStmt
+from krox_stmt import ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
 from krox_token import Token
 from krox_token_type import TokenType
 from typing import Any, Self
@@ -14,6 +18,9 @@ class Interpreter(StmtVisitor, ExprVisitor):
     error_reporter: ErrorReporter
     """ The interpreter's error reporter. """
     
+    globals: Environment
+    """ The interpreter's global environment. """
+    
     environment: Environment
     """ The interpreter's environment. """
     
@@ -22,11 +29,16 @@ class Interpreter(StmtVisitor, ExprVisitor):
         
         super().__init__()
         self.error_reporter = error_reporter
-        self.environment = Environment(error_reporter)
+        self.globals = Environment(error_reporter)
+        self.environment = self.globals
     
     
     def interpret(self: Self, statements: list[Stmt]) -> None:
         """ Interpret a list of statements. """
+        
+        # Install the standard library.
+        ClockNativeFunction(self.globals)
+        PrintNativeFunction(self.globals)
         
         try:
             for statement in statements:
@@ -77,6 +89,15 @@ class Interpreter(StmtVisitor, ExprVisitor):
         self.evaluate(stmt.expression)
     
     
+    def visit_function_stmt(self: Self, stmt: FunctionStmt) -> None:
+        """ Visit and execute a function statement. """
+        
+        function: KroxFunction = KroxFunction(
+                self.error_reporter,
+                self.environment, self.execute_block, stmt)
+        self.environment.define(stmt.name.lexeme, function)
+    
+    
     def visit_if_stmt(self: Self, stmt: IfStmt) -> None:
         """ Visit and execute an if statement. """
         
@@ -86,11 +107,15 @@ class Interpreter(StmtVisitor, ExprVisitor):
             self.execute(stmt.else_branch)
     
     
-    def visit_print_stmt(self: Self, stmt: PrintStmt) -> None:
-        """ Visit and execute a print statement. """
+    def visit_return_stmt(self: Self, stmt: ReturnStmt) -> None:
+        """ Visit and execute a return statement. """
         
-        value: Any = self.evaluate(stmt.expression)
-        print(self.stringify(value))
+        value: Any = None
+        
+        if stmt.value is not None:
+            value = self.evaluate(stmt.value)
+        
+        raise ReturnException(value)
     
     
     def visit_var_stmt(self: Self, stmt: VarStmt) -> None:
@@ -117,6 +142,29 @@ class Interpreter(StmtVisitor, ExprVisitor):
         value: Any = self.evaluate(expr.value)
         self.environment.assign(expr.name, value)
         return value
+    
+    
+    def visit_call_expr(self: Self, expr: CallExpr) -> Any:
+        """ Visit a call expression and return a value. """
+        
+        callee: Any = self.evaluate(expr.callee)
+        arguments: list[Any] = []
+        
+        for argument in expr.arguments:
+            arguments.append(self.evaluate(argument))
+        
+        if not isinstance(callee, KroxCallable):
+            raise self.error(
+                    expr.paren, "Can only call functions and classes.")
+        
+        arity: int = callee.arity()
+        
+        if len(arguments) != arity:
+            raise self.error(
+                    expr.paren,
+                    f"Expected {arity} arguments but got {len(arguments)}.")
+        
+        return callee.call(arguments)
     
     
     def visit_binary_expr(self: Self, expr: BinaryExpr) -> Any:
@@ -236,32 +284,6 @@ class Interpreter(StmtVisitor, ExprVisitor):
             return False
         
         return a == b
-    
-    
-    def stringify(self: Self, value: Any) -> str:
-        """ Convert a Krox value to a string. """
-        
-        if value is True:
-            return "true"
-        
-        if value is False:
-            return "false"
-        
-        if value is None:
-            return "nil"
-        
-        if isinstance(value, float):
-            text: str = str(value)
-            
-            if text == "-0.0":
-                return "0"
-            
-            if text.endswith(".0"):
-                return text[:-2]
-            
-            return text
-        
-        return str(value)
     
     
     def check_number_operand(self: Self, operator: Token, right: Any) -> None:
