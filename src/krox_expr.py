@@ -10,8 +10,31 @@ class Expr:
         pass
 
 
+class AssignExpr(Expr):
+    """ An assign expression in a tree. """
+    
+    name: Token
+    """ The assign expression's name. """
+    
+    value: Expr
+    """ The assign expression's value. """
+    
+    def __init__(self: Self, name: Token, value: Expr) -> None:
+        """ Initialize the assign expression's name and value. """
+        
+        super().__init__()
+        self.name = name
+        self.value = value
+    
+    
+    def accept(self: Self, visitor: Any) -> Any:
+        """ Accept an expression visitor. """
+        
+        return visitor.visit_assign_expr(self)
+
+
 class BinaryExpr(Expr):
-    """ A binary expression in a tree """
+    """ A binary expression in a tree. """
     
     left: Expr
     """ The binary expression's left operand. """
@@ -100,8 +123,33 @@ class UnaryExpr(Expr):
         return visitor.visit_unary_expr(self)
 
 
+class VariableExpr(Expr):
+    """ A variable expression in a tree. """
+    
+    name: Token
+    """ The variable expression's name. """
+    
+    def __init__(self: Self, name: Token) -> None:
+        """ Initialize the variable expression's name. """
+        
+        super().__init__()
+        self.name = name
+    
+    
+    def accept(self: Self, visitor: Any) -> Any:
+        """ Accept an expression visitor. """
+        
+        return visitor.visit_variable_expr(self)
+
+
 class ExprVisitor:
     """ Visits expressions. """
+    
+    def visit_assign_expr(self: Self, expr: AssignExpr) -> Any:
+        """ Visit an assign expression. """
+        
+        pass
+    
     
     def visit_binary_expr(self: Self, expr: BinaryExpr) -> Any:
         """ Visit a binary expression. """
@@ -123,5 +171,11 @@ class ExprVisitor:
     
     def visit_unary_expr(self: Self, expr: UnaryExpr) -> Any:
         """ Visit a unary expression. """
+        
+        pass
+    
+    
+    def visit_variable_expr(self: Self, expr: VariableExpr) -> Any:
+        """ Visit a variable expression. """
         
         pass

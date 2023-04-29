@@ -1,6 +1,8 @@
 from collections.abc import Callable
 from krox_error_reporter import ErrorReporter
-from krox_expr import BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr
+from krox_expr import AssignExpr, BinaryExpr, Expr, GroupingExpr, LiteralExpr
+from krox_expr import UnaryExpr, VariableExpr
+from krox_stmt import BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt
 from krox_token import Token
 from krox_token_type import TokenType
 from typing import Self
@@ -26,19 +28,111 @@ class Parser:
         self.tokens = tokens
     
     
-    def parse(self: Self) -> Expr | None:
-        """ Parse an abstract syntax tree. """
+    def parse(self: Self) -> list[Stmt]:
+        """ Parse a list of statements. """
         
-        try:
-            return self.expression()
-        except SyntaxError:
-            return None
+        statements: list[Stmt] = []
+        
+        while not self.is_at_end():
+            declaration: Stmt | None = self.declaration()
+            
+            if declaration is not None:
+                statements.append(declaration)
+        
+        return statements
     
     
     def expression(self: Self) -> Expr:
         """ Parse an expression. """
         
-        return self.equality()
+        return self.assignment()
+    
+    
+    def declaration(self: Self) -> Stmt | None:
+        """ Parse a declartion. """
+        
+        try:
+            if self.match(TokenType.VAR):
+                return self.var_declaration()
+            
+            return self.statement()
+        except SyntaxError:
+            self.synchronize()
+            return None
+    
+    
+    def statement(self: Self) -> Stmt:
+        """ Parse a statement. """
+        
+        if self.match(TokenType.PRINT):
+            return self.print_statement()
+        
+        if self.match(TokenType.LEFT_BRACE):
+            return BlockStmt(self.block())
+        
+        return self.expression_statement()
+    
+    
+    def print_statement(self: Self) -> Stmt:
+        """ Parse a print statement. """
+        
+        value: Expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect `;` after value.")
+        return PrintStmt(value)
+    
+    
+    def var_declaration(self: Self) -> Stmt:
+        """ Parse a var declaration. """
+        
+        name: Token = self.consume(
+                TokenType.IDENTIFIER, "Expect variable name.")
+        initializer: Expr = (
+                self.expression() if self.match(TokenType.EQUAL)
+                else LiteralExpr(None))
+        self.consume(
+                TokenType.SEMICOLON, "Expect `;` after variable declaration.")
+        return VarStmt(name, initializer)
+    
+    
+    def expression_statement(self: Self) -> Stmt:
+        """ Parse an expression statement. """
+        
+        expr: Expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect `;` after expression.")
+        return ExpressionStmt(expr)
+    
+    
+    def block(self: Self) -> list[Stmt]:
+        """ Parse a list of statements from a block statement. """
+        
+        statements: list[Stmt] = []
+        
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
+            declaration: Stmt | None = self.declaration()
+            
+            if declaration is not None:
+                statements.append(declaration)
+        
+        self.consume(TokenType.RIGHT_BRACE, "Expect `}` after block.")
+        return statements
+    
+    
+    def assignment(self: Self) -> Expr:
+        """ Parse an assignment expression. """
+        
+        expr: Expr = self.equality()
+        
+        if self.match(TokenType.EQUAL):
+            equals: Token = self.previous()
+            value: Expr = self.assignment()
+            
+            if isinstance(expr, VariableExpr):
+                name: Token = expr.name
+                return AssignExpr(name, value)
+            
+            self.error(equals, "Invalid assignment target.")
+        
+        return expr
     
     
     def equality(self: Self) -> Expr:
@@ -94,6 +188,9 @@ class Parser:
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return LiteralExpr(self.previous().literal)
         
+        if self.match(TokenType.IDENTIFIER):
+            return VariableExpr(self.previous())
+        
         if self.match(TokenType.LEFT_PAREN):
             expr: Expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect `)` after expression.")
@@ -114,7 +211,7 @@ class Parser:
         
         while self.match(*types):
             operator: Token = self.previous()
-            right: Expr = self.term()
+            right: Expr = rule()
             expr = BinaryExpr(expr, operator, right)
         
         return expr

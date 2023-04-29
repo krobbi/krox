@@ -2,11 +2,12 @@
 
 import sys
 
+from krox_ast_printer import ASTPrinter
 from krox_error_reporter import ErrorReporter
-from krox_expr import Expr
 from krox_interpreter import Interpreter
 from krox_parser import Parser
 from krox_scanner import Scanner
+from krox_stmt import Stmt
 from krox_token import Token
 from typing import Self
 
@@ -66,12 +67,20 @@ class Krox:
         scanner: Scanner = Scanner(self.error_reporter, source)
         tokens: list[Token] = scanner.scan_tokens()
         parser: Parser = Parser(self.error_reporter, tokens)
-        expression: Expr | None = parser.parse()
+        statements: list[Stmt] = parser.parse()
         
-        if self.error_reporter.had_error() or expression is None:
+        if self.error_reporter.had_error():
             return
         
-        self.interpreter.interpret(expression)
+        if source.endswith("//ast"):
+            ast_printer: ASTPrinter = ASTPrinter()
+            
+            for statement in statements:
+                print(ast_printer.print(statement))
+            
+            return
+        
+        self.interpreter.interpret(statements)
 
 
 if __name__ == "__main__":

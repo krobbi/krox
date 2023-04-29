@@ -1,29 +1,36 @@
+from krox_environment import Environment
 from krox_error_reporter import ErrorReporter
-from krox_expr import BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr
-from krox_expr import UnaryExpr
+from krox_expr import AssignExpr, BinaryExpr, Expr, ExprVisitor, GroupingExpr
+from krox_expr import LiteralExpr, UnaryExpr, VariableExpr
+from krox_stmt import BlockStmt, ExpressionStmt, PrintStmt, Stmt, StmtVisitor
+from krox_stmt import VarStmt
 from krox_token import Token
 from krox_token_type import TokenType
 from typing import Any, Self
 
-class Interpreter(ExprVisitor):
-    """ Interprets an expression tree. """
+class Interpreter(StmtVisitor, ExprVisitor):
+    """ Interprets a list of statements. """
     
     error_reporter: ErrorReporter
     """ The interpreter's error reporter. """
+    
+    environment: Environment
+    """ The interpreter's environment. """
     
     def __init__(self: Self, error_reporter: ErrorReporter) -> None:
         """ Initialize the interpreter. """
         
         super().__init__()
         self.error_reporter = error_reporter
+        self.environment = Environment(error_reporter)
     
     
-    def interpret(self: Self, expr: Expr) -> None:
-        """ Interpret an expression. """
+    def interpret(self: Self, statements: list[Stmt]) -> None:
+        """ Interpret a list of statements. """
         
         try:
-            value: Any = self.evaluate(expr)
-            print(self.to_string(value))
+            for statement in statements:
+                self.execute(statement)
         except RuntimeError:
             pass
     
@@ -32,6 +39,64 @@ class Interpreter(ExprVisitor):
         """ Evaluate an expression as a value. """
         
         return expr.accept(self)
+    
+    
+    def execute(self: Self, stmt: Stmt) -> None:
+        """ Execute a statement. """
+        
+        stmt.accept(self)
+    
+    
+    def execute_block(
+            self: Self,
+            statements: list[Stmt], environment: Environment) -> None:
+        """ Execute a block of statements in a new environment. """
+        
+        previous: Environment = self.environment
+        
+        try:
+            self.environment = environment
+            
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment = previous
+    
+    
+    def visit_block_stmt(self: Self, stmt: BlockStmt) -> None:
+        """ Visit and execute a block statement. """
+        
+        self.execute_block(
+                stmt.statements,
+                Environment(self.error_reporter, self.environment))
+    
+    
+    def visit_expression_stmt(self: Self, stmt: ExpressionStmt) -> None:
+        """ Visit and execute an expression statement. """
+        
+        self.evaluate(stmt.expression)
+    
+    
+    def visit_print_stmt(self: Self, stmt: PrintStmt) -> None:
+        """ Visit and execute a print statement. """
+        
+        value: Any = self.evaluate(stmt.expression)
+        print(self.stringify(value))
+    
+    
+    def visit_var_stmt(self: Self, stmt: VarStmt) -> None:
+        """ Visit and execute a var statement. """
+        
+        value: Any = self.evaluate(stmt.initializer)
+        self.environment.define(stmt.name.lexeme, value)
+    
+    
+    def visit_assign_expr(self: Self, expr: AssignExpr) -> Any:
+        """ Visit an assign expression and return a value. """
+        
+        value: Any = self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+        return value
     
     
     def visit_binary_expr(self: Self, expr: BinaryExpr) -> Any:
@@ -111,6 +176,12 @@ class Interpreter(ExprVisitor):
         raise self.error(expr.operator, "Unimplemented unary operator.")
     
     
+    def visit_variable_expr(self: Self, expr: VariableExpr) -> Any:
+        """ Visit a variable expression and return a value. """
+        
+        return self.environment.get(expr.name)
+    
+    
     def is_truthy(self: Self, value: Any) -> bool:
         """ Return whether a value is truthy in Krox. """
         
@@ -132,8 +203,8 @@ class Interpreter(ExprVisitor):
         return a == b
     
     
-    def to_string(self: Self, value: Any) -> str:
-        """ Represent a value as a Krox string. """
+    def stringify(self: Self, value: Any) -> str:
+        """ Convert a Krox value to a string. """
         
         if value is True:
             return "true"
@@ -143,6 +214,17 @@ class Interpreter(ExprVisitor):
         
         if value is None:
             return "nil"
+        
+        if isinstance(value, float):
+            text: str = str(value)
+            
+            if text == "-0.0":
+                return "0"
+            
+            if text.endswith(".0"):
+                return text[:-2]
+            
+            return text
         
         return str(value)
     

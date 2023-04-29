@@ -1,0 +1,29 @@
+// Demonstrate variable shadowing.
+
+var a = " * Global A.";
+var b = " * Global B.";
+var c = " * Global C.";
+
+{
+	var a = " * Outer A.";
+	var b = " * Outer B.";
+	
+	{
+		var a = " * Inner A.";
+		
+		print "At inner scope:";
+		print a;
+		print b;
+		print c;
+	}
+	
+	print "At outer scope:";
+	print a;
+	print b;
+	print c;
+}
+
+print "At global scope:";
+print a;
+print b;
+print c;

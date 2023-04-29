@@ -1,18 +1,20 @@
-from krox_expr import BinaryExpr, Expr, ExprVisitor, GroupingExpr, LiteralExpr
-from krox_expr import UnaryExpr
-from typing import Self
+from krox_expr import AssignExpr, BinaryExpr, ExprVisitor, GroupingExpr
+from krox_expr import LiteralExpr, UnaryExpr, VariableExpr
+from krox_stmt import BlockStmt, ExpressionStmt, PrintStmt, Stmt, StmtVisitor
+from krox_stmt import VarStmt
+from typing import Any, Self
 
 class PrinterNode:
     """ Contains a name and child printer nodes. """
     
     name: str
-    children: tuple[Self]
+    children: list[Self]
     
     def __init__(self: Self, name: str, *children: Self) -> None:
         """ Initialize the printer node's name and children. """
         
         self.name = name
-        self.children = children
+        self.children = list(children)
     
     
     def __repr__(self: Self) -> str:
@@ -34,7 +36,7 @@ class PrinterNode:
             else:
                 result = f"{result}{'│' if is_connected else ' '}   "
         
-        result = f"{result}[{self.name}]"
+        result = f"{result}{self.name}"
         
         for index, child in enumerate(self.children):
             indent_flags.append(index != len(self.children) - 1)
@@ -44,20 +46,56 @@ class PrinterNode:
         return result
 
 
-class ASTPrinter(ExprVisitor):
-    """ Creates an unambiguous string from an expression tree. """
+class ASTPrinter(StmtVisitor, ExprVisitor):
+    """ Creates an unambiguous string from a statement tree. """
     
-    def print(self: Self, expr: Expr) -> str:
-        """ Represent an expression tree as a string. """
+    def print(self: Self, statement: Stmt) -> str:
+        """ Represent an statement tree as a string. """
         
-        return str(expr.accept(self))
+        return str(statement.accept(self))
+    
+    
+    def visit_block_stmt(self: Self, stmt: BlockStmt) -> Any:
+        """ Visit a block statement and return a printer node. """
+        
+        node: PrinterNode = PrinterNode("{}")
+        
+        for statement in stmt.statements:
+            node.children.append(statement.accept(self))
+        
+        return node
+    
+    
+    def visit_expression_stmt(self: Self, stmt: ExpressionStmt) -> PrinterNode:
+        """ Visit an expression statement and return a printer node. """
+        
+        return PrinterNode("{expression}", stmt.expression.accept(self))
+    
+    
+    def visit_print_stmt(self: Self, stmt: PrintStmt) -> PrinterNode:
+        """ Visit a print statement and return a printer node. """
+        
+        return PrinterNode("{print}", stmt.expression.accept(self))
+    
+    
+    def visit_var_stmt(self: Self, stmt: VarStmt) -> Any:
+        """ Visit a var statement and return a printer node. """
+        
+        return PrinterNode(
+                f"{{var {stmt.name.lexeme}}}", stmt.initializer.accept(self))
+    
+    
+    def visit_assign_expr(self: Self, expr: AssignExpr) -> Any:
+        """ Visit an assign expression and return a printer node. """
+        
+        return PrinterNode(f"({expr.name.lexeme} =)", expr.value.accept(self))
     
     
     def visit_binary_expr(self: Self, expr: BinaryExpr) -> PrinterNode:
         """ Visit a binary expression and return a printer node. """
         
         return PrinterNode(
-                expr.operator.lexeme,
+                f"({expr.operator.lexeme})",
                 expr.left.accept(self), expr.right.accept(self))
     
     
@@ -71,21 +109,27 @@ class ASTPrinter(ExprVisitor):
         """ Visit a literal expression and return a printer node. """
         
         if expr.value is True:
-            return PrinterNode("true")
+            return PrinterNode("(true)")
         
         if expr.value is False:
-            return PrinterNode("false")
+            return PrinterNode("(false)")
         
         if expr.value is None:
-            return PrinterNode("nil")
+            return PrinterNode("(nil)")
         
         if isinstance(expr.value, str):
-            return PrinterNode(f'"{expr.value}"')
+            return PrinterNode(f'("{expr.value}")')
         
-        return PrinterNode(str(expr.value))
+        return PrinterNode(f"({expr.value})")
     
     
     def visit_unary_expr(self: Self, expr: UnaryExpr) -> PrinterNode:
         """ Visit a unary expression and return a printer node. """
         
         return PrinterNode(expr.operator.lexeme, expr.right.accept(self))
+    
+    
+    def visit_variable_expr(self: Self, expr: VariableExpr) -> PrinterNode:
+        """ Visit a variable expression and return a printer node. """
+        
+        return PrinterNode(f"({expr.name.lexeme})")
