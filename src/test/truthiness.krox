@@ -1,0 +1,73 @@
+// Display the truthiness of values.
+
+if(nil){
+	print "`nil` is truthy.";
+} else {
+	print "`nil` is falsy.";
+}
+
+if(false){
+	print "`false` is truthy.";
+} else {
+	print "`false` is falsy.";
+}
+
+if(true){
+	print "`true` is truthy.";
+} else {
+	print "`true` is falsy.";
+}
+
+if(0){
+	print "`0` is truthy.";
+} else {
+	print "`0` is falsy.";
+}
+
+if(-0){
+	print "`-0` is truthy.";
+} else {
+	print "`-0` is falsy.";
+}
+
+if(123){
+	print "`123` is truthy.";
+} else {
+	print "`123` is falsy.";
+}
+
+if(-123){
+	print "`-123` is truthy.";
+} else {
+	print "`-123` is falsy.";
+}
+
+if(""){
+	print "Empty string is truthy.";
+} else {
+	print "Empty string is falsy.";
+}
+
+if("nil"){
+	print "String containing `nil` is truthy.";
+} else {
+	print "String containing `nil` is falsy.";
+}
+
+if("false"){
+	print "String containing `false` is truthy.";
+} else {
+	print "String containing `false` is falsy.";
+}
+
+if("0"){
+	print "String containing `0` is truthy.";
+} else {
+	print "String containing `0` is falsy.";
+}
+
+if("Hello, Krox!"){
+	print "String containing `Hello, Krox!` is truthy.";
+} else {
+	print "String containing `Hello, Krox!` is falsy.";
+}

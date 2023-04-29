@@ -1,9 +1,9 @@
 from krox_environment import Environment
 from krox_error_reporter import ErrorReporter
 from krox_expr import AssignExpr, BinaryExpr, Expr, ExprVisitor, GroupingExpr
-from krox_expr import LiteralExpr, UnaryExpr, VariableExpr
-from krox_stmt import BlockStmt, ExpressionStmt, PrintStmt, Stmt, StmtVisitor
-from krox_stmt import VarStmt
+from krox_expr import LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr
+from krox_stmt import BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt
+from krox_stmt import StmtVisitor, VarStmt, WhileStmt
 from krox_token import Token
 from krox_token_type import TokenType
 from typing import Any, Self
@@ -77,6 +77,15 @@ class Interpreter(StmtVisitor, ExprVisitor):
         self.evaluate(stmt.expression)
     
     
+    def visit_if_stmt(self: Self, stmt: IfStmt) -> None:
+        """ Visit and execute an if statement. """
+        
+        if self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.then_branch)
+        elif stmt.else_branch is not None:
+            self.execute(stmt.else_branch)
+    
+    
     def visit_print_stmt(self: Self, stmt: PrintStmt) -> None:
         """ Visit and execute a print statement. """
         
@@ -87,8 +96,19 @@ class Interpreter(StmtVisitor, ExprVisitor):
     def visit_var_stmt(self: Self, stmt: VarStmt) -> None:
         """ Visit and execute a var statement. """
         
-        value: Any = self.evaluate(stmt.initializer)
+        value: Any = None
+        
+        if stmt.initializer is not None:
+            value = self.evaluate(stmt.initializer)
+        
         self.environment.define(stmt.name.lexeme, value)
+    
+    
+    def visit_while_stmt(self: Self, stmt: WhileStmt) -> None:
+        """ Visit and execute a while statement. """
+        
+        while self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.body)
     
     
     def visit_assign_expr(self: Self, expr: AssignExpr) -> Any:
@@ -159,6 +179,21 @@ class Interpreter(StmtVisitor, ExprVisitor):
         """ Visit a literal expression and return a value. """
         
         return expr.value
+    
+    
+    def visit_logical_expr(self: Self, expr: LogicalExpr) -> Any:
+        """ Visit a logical expression and return a value. """
+        
+        left: Any = self.evaluate(expr.left)
+        
+        if expr.operator.type == TokenType.OR:
+            if self.is_truthy(left):
+                return left
+        else:
+            if not self.is_truthy(left):
+                return left
+        
+        return self.evaluate(expr.right)
     
     
     def visit_unary_expr(self: Self, expr: UnaryExpr) -> Any:

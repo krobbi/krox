@@ -100,6 +100,33 @@ class LiteralExpr(Expr):
         return visitor.visit_literal_expr(self)
 
 
+class LogicalExpr(Expr):
+    """ A logical expression in a tree. """
+    
+    left: Expr
+    """ The logical expression's left operand. """
+    
+    operator: Token
+    """ The logical expression's operator. """
+    
+    right: Expr
+    """ The logical expression's right operand. """
+    
+    def __init__(self: Self, left: Expr, operator: Token, right: Expr) -> None:
+        """ Initialize the logical expression's operator and operands. """
+        
+        super().__init__()
+        self.left = left
+        self.operator = operator
+        self.right = right
+    
+    
+    def accept(self: Self, visitor: Any) -> Any:
+        """ Accept an expression visitor. """
+        
+        return visitor.visit_logical_expr(self)
+
+
 class UnaryExpr(Expr):
     """ A unary expression in a tree. """
     
@@ -165,6 +192,12 @@ class ExprVisitor:
     
     def visit_literal_expr(self: Self, expr: LiteralExpr) -> Any:
         """ Visit a literal expression. """
+        
+        pass
+    
+    
+    def visit_logical_expr(self: Self, expr: LogicalExpr) -> Any:
+        """ Visit a logical expression. """
         
         pass
     

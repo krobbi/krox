@@ -1,7 +1,7 @@
 from krox_expr import AssignExpr, BinaryExpr, ExprVisitor, GroupingExpr
-from krox_expr import LiteralExpr, UnaryExpr, VariableExpr
-from krox_stmt import BlockStmt, ExpressionStmt, PrintStmt, Stmt, StmtVisitor
-from krox_stmt import VarStmt
+from krox_expr import LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr
+from krox_stmt import BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt
+from krox_stmt import StmtVisitor, VarStmt, WhileStmt
 from typing import Any, Self
 
 class PrinterNode:
@@ -55,7 +55,7 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         return str(statement.accept(self))
     
     
-    def visit_block_stmt(self: Self, stmt: BlockStmt) -> Any:
+    def visit_block_stmt(self: Self, stmt: BlockStmt) -> PrinterNode:
         """ Visit a block statement and return a printer node. """
         
         node: PrinterNode = PrinterNode("{}")
@@ -72,20 +72,44 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         return PrinterNode("{expression}", stmt.expression.accept(self))
     
     
+    def visit_if_stmt(self: Self, stmt: IfStmt) -> PrinterNode:
+        """ Visit an if statement and return a printer node. """
+        
+        node: PrinterNode = PrinterNode(
+                "{if}",
+                stmt.condition.accept(self), stmt.then_branch.accept(self))
+        
+        if stmt.else_branch is not None:
+            node.children.append(stmt.else_branch.accept(self))
+        
+        return node
+    
+    
     def visit_print_stmt(self: Self, stmt: PrintStmt) -> PrinterNode:
         """ Visit a print statement and return a printer node. """
         
         return PrinterNode("{print}", stmt.expression.accept(self))
     
     
-    def visit_var_stmt(self: Self, stmt: VarStmt) -> Any:
+    def visit_var_stmt(self: Self, stmt: VarStmt) -> PrinterNode:
         """ Visit a var statement and return a printer node. """
         
+        node: PrinterNode = PrinterNode(f"{{var {stmt.name.lexeme}}}")
+        
+        if stmt.initializer is not None:
+            node.children.append(stmt.initializer.accept(self))
+        
+        return node
+    
+    
+    def visit_while_stmt(self: Self, stmt: WhileStmt) -> PrinterNode:
+        """ Visit a while statement and return a printer node. """
+        
         return PrinterNode(
-                f"{{var {stmt.name.lexeme}}}", stmt.initializer.accept(self))
+                "{while}", stmt.condition.accept(self), stmt.body.accept(self))
     
     
-    def visit_assign_expr(self: Self, expr: AssignExpr) -> Any:
+    def visit_assign_expr(self: Self, expr: AssignExpr) -> PrinterNode:
         """ Visit an assign expression and return a printer node. """
         
         return PrinterNode(f"({expr.name.lexeme} =)", expr.value.accept(self))
@@ -121,6 +145,14 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
             return PrinterNode(f'("{expr.value}")')
         
         return PrinterNode(f"({expr.value})")
+    
+    
+    def visit_logical_expr(self: Self, expr: LogicalExpr) -> PrinterNode:
+        """ Visit a logical expression and return a printer node. """
+        
+        return PrinterNode(
+                f"({expr.operator.lexeme})",
+                expr.left.accept(self), expr.right.accept(self))
     
     
     def visit_unary_expr(self: Self, expr: UnaryExpr) -> PrinterNode:

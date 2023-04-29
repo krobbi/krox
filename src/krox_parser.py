@@ -1,8 +1,9 @@
 from collections.abc import Callable
 from krox_error_reporter import ErrorReporter
 from krox_expr import AssignExpr, BinaryExpr, Expr, GroupingExpr, LiteralExpr
-from krox_expr import UnaryExpr, VariableExpr
-from krox_stmt import BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt
+from krox_expr import LogicalExpr, UnaryExpr, VariableExpr
+from krox_stmt import BlockStmt, ExpressionStmt, IfStmt, PrintStmt, Stmt
+from krox_stmt import VarStmt, WhileStmt
 from krox_token import Token
 from krox_token_type import TokenType
 from typing import Self
@@ -64,13 +65,77 @@ class Parser:
     def statement(self: Self) -> Stmt:
         """ Parse a statement. """
         
+        if self.match(TokenType.FOR):
+            return self.for_statement()
+        
+        if self.match(TokenType.IF):
+            return self.if_statement()
+        
         if self.match(TokenType.PRINT):
             return self.print_statement()
+        
+        if self.match(TokenType.WHILE):
+            return self.while_statement()
         
         if self.match(TokenType.LEFT_BRACE):
             return BlockStmt(self.block())
         
         return self.expression_statement()
+    
+    
+    def for_statement(self: Self) -> Stmt:
+        """ Parse a for statement. """
+        
+        self.consume(TokenType.LEFT_PAREN, "Expect `(` after `for`.")
+        initializer: Stmt | None = None
+        
+        if self.match(TokenType.VAR):
+            initializer = self.var_declaration()
+        elif not self.match(TokenType.SEMICOLON):
+            initializer = self.expression_statement()
+        
+        condition: Expr
+        
+        if self.match(TokenType.SEMICOLON):
+            condition = LiteralExpr(True)
+        else:
+            condition = self.expression()
+            self.consume(
+                    TokenType.SEMICOLON, "Expect `;` after loop condition.")
+        
+        increment: Expr | None = None
+        
+        if not self.check(TokenType.RIGHT_PAREN):
+            increment = self.expression()
+        
+        self.consume(TokenType.RIGHT_PAREN, "Expect `)` after for clauses.")
+        body: Stmt = self.statement()
+        
+        if increment is not None:
+            body = BlockStmt([body, ExpressionStmt(increment)])
+        
+        body = WhileStmt(condition, body)
+        
+        if initializer is not None:
+            body = BlockStmt([initializer, body])
+        
+        return body
+    
+    
+    def if_statement(self: Self) -> Stmt:
+        """ Parse an if statement. """
+        
+        self.consume(TokenType.LEFT_PAREN, "Expect `(` after `if`.")
+        condition: Expr = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect `)` after if condition.")
+        
+        then_branch: Stmt = self.statement()
+        else_branch: Stmt | None = None
+        
+        if self.match(TokenType.ELSE):
+            else_branch = self.statement()
+        
+        return IfStmt(condition, then_branch, else_branch)
     
     
     def print_statement(self: Self) -> Stmt:
@@ -86,12 +151,24 @@ class Parser:
         
         name: Token = self.consume(
                 TokenType.IDENTIFIER, "Expect variable name.")
-        initializer: Expr = (
-                self.expression() if self.match(TokenType.EQUAL)
-                else LiteralExpr(None))
+        initializer: Expr | None = None
+        
+        if self.match(TokenType.EQUAL):
+            initializer = self.expression()
+        
         self.consume(
                 TokenType.SEMICOLON, "Expect `;` after variable declaration.")
         return VarStmt(name, initializer)
+    
+    
+    def while_statement(self: Self) -> Stmt:
+        """ Parse a while statement. """
+        
+        self.consume(TokenType.LEFT_PAREN, "Expect `(` after while.")
+        condition: Expr = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect `)` after condition.")
+        body: Stmt = self.statement()
+        return WhileStmt(condition, body)
     
     
     def expression_statement(self: Self) -> Stmt:
@@ -120,7 +197,7 @@ class Parser:
     def assignment(self: Self) -> Expr:
         """ Parse an assignment expression. """
         
-        expr: Expr = self.equality()
+        expr: Expr = self.or_expression()
         
         if self.match(TokenType.EQUAL):
             equals: Token = self.previous()
@@ -131,6 +208,32 @@ class Parser:
                 return AssignExpr(name, value)
             
             self.error(equals, "Invalid assignment target.")
+        
+        return expr
+    
+    
+    def or_expression(self: Self) -> Expr:
+        """ Parse an or expression. """
+        
+        expr: Expr = self.and_expression()
+        
+        while self.match(TokenType.OR):
+            operator: Token = self.previous()
+            right: Expr = self.and_expression()
+            expr = LogicalExpr(expr, operator, right)
+        
+        return expr
+    
+    
+    def and_expression(self: Self) -> Expr:
+        """ Parse an and expression. """
+        
+        expr: Expr = self.equality()
+        
+        while self.match(TokenType.AND):
+            operator: Token = self.previous()
+            right: Expr = self.equality()
+            expr = LogicalExpr(expr, operator, right)
         
         return expr
     
@@ -200,8 +303,7 @@ class Parser:
     
     
     def binary(
-                self: Self,
-                rule: Callable[[], Expr], *types: TokenType) -> Expr:
+            self: Self, rule: Callable[[], Expr], *types: TokenType) -> Expr:
         """
         Parse a left-associative binary expression from its
         sub-expression rule and operator types.
