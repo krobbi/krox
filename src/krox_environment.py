@@ -57,3 +57,33 @@ class Environment:
         """ Define a name and value in the environment. """
         
         self.values[name] = value
+    
+    
+    def ancestor(self: Self, distance: int) -> Self:
+        """ Return the environment's ancestor at a distance. """
+        
+        environment: Environment = self
+        
+        for i in range(distance):
+            if environment.enclosing is None:
+                break
+            
+            environment = environment.enclosing
+        
+        return environment
+    
+    
+    def get_at(self: Self, distance: int, name: str) -> Any:
+        """
+        Get a value from the environment's ancestor at a distance.
+        """
+        
+        return self.ancestor(distance).values[name]
+    
+    
+    def assign_at(self: Self, distance: int, name: Token, value: Any) -> None:
+        """
+        Assign a value in the environment's ancestor at a distance.
+        """
+        
+        self.ancestor(distance).values[name.lexeme] = value

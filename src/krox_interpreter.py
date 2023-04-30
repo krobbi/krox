@@ -24,6 +24,9 @@ class Interpreter(StmtVisitor, ExprVisitor):
     environment: Environment
     """ The interpreter's environment. """
     
+    locals: dict[Expr, int]
+    """ The interpreter's resolved local variables. """
+    
     def __init__(self: Self, error_reporter: ErrorReporter) -> None:
         """ Initialize the interpreter. """
         
@@ -31,6 +34,7 @@ class Interpreter(StmtVisitor, ExprVisitor):
         self.error_reporter = error_reporter
         self.globals = Environment(error_reporter)
         self.environment = self.globals
+        self.locals = {}
     
     
     def interpret(self: Self, statements: list[Stmt]) -> None:
@@ -57,6 +61,12 @@ class Interpreter(StmtVisitor, ExprVisitor):
         """ Execute a statement. """
         
         stmt.accept(self)
+    
+    
+    def resolve(self: Self, expr: Expr, depth: int) -> None:
+        """ Resolve an expression's variable to a depth. """
+        
+        self.locals[expr] = depth
     
     
     def execute_block(
@@ -140,7 +150,12 @@ class Interpreter(StmtVisitor, ExprVisitor):
         """ Visit an assign expression and return a value. """
         
         value: Any = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+        
+        if expr in self.locals:
+            self.environment.assign_at(self.locals[expr], expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
+        
         return value
     
     
@@ -262,7 +277,16 @@ class Interpreter(StmtVisitor, ExprVisitor):
     def visit_variable_expr(self: Self, expr: VariableExpr) -> Any:
         """ Visit a variable expression and return a value. """
         
-        return self.environment.get(expr.name)
+        return self.look_up_variable(expr.name, expr)
+    
+    
+    def look_up_variable(self: Self, name: Token, expr: Expr) -> Any:
+        """ Look up a variable's value from its name and expression. """
+        
+        if expr in self.locals:
+            return self.environment.get_at(self.locals[expr], name.lexeme)
+        else:
+            return self.globals.get(name)
     
     
     def is_truthy(self: Self, value: Any) -> bool:

@@ -6,6 +6,7 @@ from krox_ast_printer import ASTPrinter
 from krox_error_reporter import ErrorReporter
 from krox_interpreter import Interpreter
 from krox_parser import Parser
+from krox_resolver import Resolver
 from krox_scanner import Scanner
 from krox_stmt import Stmt
 from krox_token import Token
@@ -78,6 +79,12 @@ class Krox:
             for statement in statements:
                 print(ast_printer.print(statement))
             
+            return
+        
+        resolver: Resolver = Resolver(self.error_reporter, self.interpreter)
+        resolver.resolve(statements)
+        
+        if self.error_reporter.had_error():
             return
         
         self.interpreter.interpret(statements)
