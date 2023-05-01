@@ -7,7 +7,7 @@ from krox_expr import GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
 from krox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
 from krox_function import ReturnException, KroxFunction
 from krox_instance import KroxInstance
-from krox_native_function import ClockNativeFunction, PrintNativeFunction
+from krox_native_function import install_native_functions
 from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
 from krox_stmt import IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
 from krox_token import Token
@@ -43,8 +43,7 @@ class Interpreter(StmtVisitor, ExprVisitor):
         """ Interpret a list of statements. """
         
         # Install the standard library.
-        ClockNativeFunction(self.globals)
-        PrintNativeFunction(self.globals)
+        install_native_functions(self.globals)
         
         try:
             for statement in statements:

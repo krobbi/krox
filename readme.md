@@ -5,7 +5,11 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 # Contents
 1. [About](#about)
 2. [Differences from Lox](#differences-from-lox)
-2. [License](#license)
+3. [Standard Library](#standard-library)
+   * [`clock`](#clock)
+   * [`input`](#input)
+   * [`print`](#print)
+4. [License](#license)
 
 # About
 Krox is a programming language that is gradually being created as I follow
@@ -42,6 +46,64 @@ more practical.
 * The `print` statement has been replaced with a native function. Because of
 this, parentheses are required for printing. The `print` function always
 returns `nil`.
+* The standard library has been expanded to include more useful I/O features.
+
+# Standard Library
+Krox includes some standard functions for input, output, and timing.
+
+The parameter and return types for these functions are notated below with
+`[any]`, `[nil]`, `[bool]`, `[number]`, and `[string]`. Please note that Krox
+is dynamically typed and does not support a type notation system. Any arguments
+that do not match the parameter type will silently be cast to it.
+
+---
+
+## `clock`
+Return the number of seconds since the program started.
+
+__Signature:__  
+`clock() -> [number]`
+
+__Parameters:__  
+* _None._
+
+__Return value:__  
+`[number]` - The duration since the program started in seconds. Includes a
+fractional part.
+
+---
+
+## `input`
+Read input from the user.
+
+__Signature:__  
+`input(prompt: [string]) -> [string]`
+
+__Parameters:__  
+* `prompt: [string]` - The prompt message to display to the user. The prompt is
+displayed as text and the user must input a line of text immediately following
+it. The program halts until the user presses return to input the text. After
+the text is input, a trailing line break is displayed.
+
+__Return value:__  
+`[string]` - The text inputted by the user. If the user pressed return without
+inputting any text then this will be an empty string.
+
+---
+
+## `print`
+Display a value to the user.
+
+__Signature:__  
+`print(value: [any]) -> [nil]`
+
+__Parameters:__  
+* `value: [any]` - The value to display to the user. All types of values are
+displayed as text with a trailing line break.
+
+__Return value:__  
+`[nil]` - No value. The function is not intended to be called outside of
+standalone expressions.
 
 # License
 Krox is released under the MIT License:  

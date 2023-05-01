@@ -1,0 +1,13 @@
+print("Copycat program. Enter `exit` to exit.");
+
+var is_running = true;
+
+while(is_running){
+	var message = input("> ");
+	
+	if(message == "exit"){
+		is_running = false;
+	} else {
+		print(message);
+	}
+}
