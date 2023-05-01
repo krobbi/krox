@@ -1,0 +1,177 @@
+// Pancake-themed benchmark for classes.
+// Some of this code is poorly optimized, but it is a benchmark.
+
+var benchmark = clock();
+
+class Stack {
+	init(){
+		this.head = nil;
+	}
+	
+	get_size(){
+		var size = 0;
+		var node = this.head;
+		
+		while(node != nil){
+			size = size + 1;
+			node = node.get_next();
+		}
+		
+		return size;
+	}
+	
+	is_empty(){
+		return this.get_size() == 0;
+	}
+	
+	push(value){
+		class StackNode {
+			init(value, next){
+				this.value = value;
+				this.next = next;
+			}
+			
+			get_value(){
+				return this.value;
+			}
+			
+			get_next(){
+				return this.next;
+			}
+		}
+		
+		this.head = StackNode(value, this.head);
+		return value;
+	}
+	
+	pop(){
+		if(this.is_empty()){
+			return nil;
+		}
+		
+		var node = this.head;
+		this.head = node.get_next();
+		return node.get_value();
+	}
+	
+	peek(depth){
+		if(depth >= this.get_size()){
+			return nil;
+		}
+		
+		var node = this.head;
+		
+		for(var iteration = 0; iteration < depth; iteration = iteration + 1){
+			node = node.get_next();
+		}
+		
+		return node.get_value();
+	}
+}
+
+class Pancake {
+	init(){
+		this.toppings = Stack();
+	}
+	
+	is_finished(){
+		return this.toppings.is_empty();
+	}
+	
+	get_toppings(){
+		if(this.toppings.is_empty()){
+			return "plain";
+		}
+		
+		var result = "";
+		
+		for(var index = 0; index < this.toppings.get_size(); index = index + 1){
+			if(this.toppings.get_size() > 2 and index > 0){
+				result = result + ",";
+			}
+			
+			if(index > 0){
+				result = result + " ";
+			}
+			
+			if(this.toppings.get_size() > 1 and index == this.toppings.get_size() - 1){
+				result = result + "and ";
+			}
+			
+			result = result + this.toppings.peek(index);
+		}
+		
+		return result;
+	}
+	
+	add_topping(topping){
+		this.toppings.push(topping);
+	}
+	
+	take_bite(){
+		if(this.is_finished()){
+			return "plate";
+		} else {
+			return this.toppings.pop();
+		}
+	}
+}
+
+class Person {
+	init(name){
+		this.name = name;
+	}
+	
+	say(message){
+		print(this.name + ": " + message);
+	}
+	
+	eat_pancake(pancake){
+		this.say("A " + pancake.get_toppings() + " pancake? Yum!");
+		
+		while(!pancake.is_finished()){
+			var topping = pancake.take_bite();
+			this.say("Nom! That was the " + topping + "!");
+		}
+		
+		this.say("What a good pancake!");
+	}
+}
+
+var menu = Stack();
+menu.push("blueberry");
+menu.push("butter");
+menu.push("chocolate");
+menu.push("honey");
+menu.push("jam");
+menu.push("lemon juice");
+menu.push("maple syrup");
+menu.push("raspberry");
+menu.push("sugar");
+menu.push("whipped cream");
+
+var pancakes = Stack();
+
+for(var min_index = 0; min_index < menu.get_size(); min_index = min_index + 1){
+	var pancake = Pancake();
+	
+	for(var index = min_index; index < menu.get_size(); index = index + 1){
+		pancake.add_topping(menu.peek(index));
+	}
+	
+	pancakes.push(pancake);
+}
+
+var bob = Person("Bob");
+
+while(!pancakes.is_empty()){
+	var pancake = pancakes.pop();
+	bob.eat_pancake(pancake);
+}
+
+bob.say("That's enough for me!");
+
+benchmark = clock() - benchmark;
+print("");
+print("Benchmark time:");
+print(benchmark);

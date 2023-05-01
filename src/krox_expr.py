@@ -94,6 +94,29 @@ class CallExpr(Expr):
         return visitor.visit_call_expr(self)
 
 
+class GetExpr(Expr):
+    """ A get expression in a tree. """
+    
+    object: Expr
+    """ The get expression's object. """
+    
+    name: Token
+    """ The get expression's token. """
+    
+    def __init__(self: Self, object: Expr, name: Token) -> None:
+        """ Initialize the get expression's object and name. """
+        
+        super().__init__()
+        self.object = object
+        self.name = name
+    
+    
+    def accept(self: Self, visitor: Any) -> None:
+        """ Accept an expression visitor. """
+        
+        return visitor.visit_get_expr(self)
+
+
 class GroupingExpr(Expr):
     """ A grouping expression in a tree. """
     
@@ -159,6 +182,52 @@ class LogicalExpr(Expr):
         return visitor.visit_logical_expr(self)
 
 
+class SetExpr(Expr):
+    """ A set expression in a tree. """
+    
+    object: Expr
+    """ The set expression's object. """
+    
+    name: Token
+    """ The set expression's name. """
+    
+    value: Expr
+    """ The set expression's value. """
+    
+    def __init__(self: Self, object: Expr, name: Token, value: Expr) -> None:
+        """ Initialize the set expression's object, name, and value. """
+        
+        super().__init__()
+        self.object = object
+        self.name = name
+        self.value = value
+    
+    
+    def accept(self: Self, visitor: Any) -> Any:
+        """ Accept an expression visitor. """
+        
+        return visitor.visit_set_expr(self)
+
+
+class ThisExpr(Expr):
+    """ A this expression in a tree. """
+    
+    keyword: Token
+    """ The this expression's keyword. """
+    
+    def __init__(self: Self, keyword: Token) -> None:
+        """ Initialize the this expression's keyword. """
+        
+        super().__init__()
+        self.keyword = keyword
+    
+    
+    def accept(self: Self, visitor: Any) -> Any:
+        """ Accept an expression visitor. """
+        
+        return visitor.visit_this_expr(self)
+
+
 class UnaryExpr(Expr):
     """ A unary expression in a tree. """
     
@@ -210,14 +279,20 @@ class ExprVisitor:
         pass
     
     
+    def visit_binary_expr(self: Self, expr: BinaryExpr) -> Any:
+        """ Visit a binary expression. """
+        
+        pass
+    
+    
     def visit_call_expr(self: Self, expr: CallExpr) -> Any:
         """ Visit a call expression. """
         
         pass
     
     
-    def visit_binary_expr(self: Self, expr: BinaryExpr) -> Any:
-        """ Visit a binary expression. """
+    def visit_get_expr(self: Self, expr: GetExpr) -> Any:
+        """ Visit a get expression. """
         
         pass
     
@@ -236,6 +311,18 @@ class ExprVisitor:
     
     def visit_logical_expr(self: Self, expr: LogicalExpr) -> Any:
         """ Visit a logical expression. """
+        
+        pass
+    
+    
+    def visit_set_expr(self: Self, expr: SetExpr) -> Any:
+        """ Visit a set expression. """
+        
+        pass
+    
+    
+    def visit_this_expr(self: Self, expr: ThisExpr) -> Any:
+        """ Visit a this expression. """
         
         pass
     

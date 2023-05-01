@@ -1,5 +1,11 @@
 // Display the truthiness of values.
 
+class MyClass {
+	init(){}
+	
+	my_method(){}
+}
+
 fun print_truthiness(value, message){
 	if(value){
 		print(message + " is truthy.");
@@ -21,3 +27,7 @@ print_truthiness("false", "String containing `false`");
 print_truthiness("0", "String containing `0`");
 print_truthiness("Hello, Krox!", "String containing `Hello, Krox!`");
 print_truthiness(print_truthiness, "Function object");
+print_truthiness(MyClass, "Class object");
+print_truthiness(MyClass(), "Instance object");
+print_truthiness(MyClass().init, "Initializer method object");
+print_truthiness(MyClass().my_method, "Normal method object");

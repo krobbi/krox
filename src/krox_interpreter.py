@@ -1,13 +1,15 @@
 from krox_callable import KroxCallable
+from krox_class import KroxClass
 from krox_environment import Environment
 from krox_error_reporter import ErrorReporter
 from krox_expr import AssignExpr, BinaryExpr, CallExpr, Expr, ExprVisitor
-from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr
-from krox_expr import VariableExpr
+from krox_expr import GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
+from krox_expr import ThisExpr, UnaryExpr, VariableExpr
 from krox_function import ReturnException, KroxFunction
+from krox_instance import KroxInstance
 from krox_native_function import ClockNativeFunction, PrintNativeFunction
-from krox_stmt import BlockStmt, ExpressionStmt, FunctionStmt, IfStmt
-from krox_stmt import ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
+from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
+from krox_stmt import IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
 from krox_token import Token
 from krox_token_type import TokenType
 from typing import Any, Self
@@ -93,6 +95,23 @@ class Interpreter(StmtVisitor, ExprVisitor):
                 Environment(self.error_reporter, self.environment))
     
     
+    def visit_class_stmt(self: Self, stmt: ClassStmt) -> None:
+        """ Visit and execute a class statement. """
+        
+        self.environment.define(stmt.name.lexeme, None)
+        methods: dict[str, KroxFunction] = {}
+        
+        for method in stmt.methods:
+            function: KroxFunction = KroxFunction(
+                    self.error_reporter, self.execute_block,
+                    method, self.environment, method.name.lexeme == "init")
+            methods[method.name.lexeme] = function
+        
+        klass: KroxClass = KroxClass(
+                self.error_reporter, stmt.name.lexeme, methods)
+        self.environment.assign(stmt.name, klass)
+    
+    
     def visit_expression_stmt(self: Self, stmt: ExpressionStmt) -> None:
         """ Visit and execute an expression statement. """
         
@@ -104,7 +123,7 @@ class Interpreter(StmtVisitor, ExprVisitor):
         
         function: KroxFunction = KroxFunction(
                 self.error_reporter,
-                self.environment, self.execute_block, stmt)
+                self.execute_block, stmt, self.environment, False)
         self.environment.define(stmt.name.lexeme, function)
     
     
@@ -159,29 +178,6 @@ class Interpreter(StmtVisitor, ExprVisitor):
         return value
     
     
-    def visit_call_expr(self: Self, expr: CallExpr) -> Any:
-        """ Visit a call expression and return a value. """
-        
-        callee: Any = self.evaluate(expr.callee)
-        arguments: list[Any] = []
-        
-        for argument in expr.arguments:
-            arguments.append(self.evaluate(argument))
-        
-        if not isinstance(callee, KroxCallable):
-            raise self.error(
-                    expr.paren, "Can only call functions and classes.")
-        
-        arity: int = callee.arity()
-        
-        if len(arguments) != arity:
-            raise self.error(
-                    expr.paren,
-                    f"Expected {arity} arguments but got {len(arguments)}.")
-        
-        return callee.call(arguments)
-    
-    
     def visit_binary_expr(self: Self, expr: BinaryExpr) -> Any:
         """ Visit a binary expression and return a value. """
         
@@ -232,6 +228,40 @@ class Interpreter(StmtVisitor, ExprVisitor):
         raise self.error(expr.operator, "Unimplemented binary operator.")
     
     
+    def visit_call_expr(self: Self, expr: CallExpr) -> Any:
+        """ Visit a call expression and return a value. """
+        
+        callee: Any = self.evaluate(expr.callee)
+        arguments: list[Any] = []
+        
+        for argument in expr.arguments:
+            arguments.append(self.evaluate(argument))
+        
+        if not isinstance(callee, KroxCallable):
+            raise self.error(
+                    expr.paren, "Can only call functions and classes.")
+        
+        arity: int = callee.arity()
+        
+        if len(arguments) != arity:
+            raise self.error(
+                    expr.paren,
+                    f"Expected {arity} arguments but got {len(arguments)}.")
+        
+        return callee.call(arguments)
+    
+    
+    def visit_get_expr(self: Self, expr: GetExpr) -> Any:
+        """ Visit a get expression and return a value. """
+        
+        object: Any = self.evaluate(expr.object)
+        
+        if not isinstance(object, KroxInstance):
+            raise self.error(expr.name, "Only instances have properties.")
+        
+        return object.get(expr.name)
+    
+    
     def visit_grouping_expr(self: Self, expr: GroupingExpr) -> Any:
         """ Visit a grouping expression and return a value. """
         
@@ -257,6 +287,25 @@ class Interpreter(StmtVisitor, ExprVisitor):
                 return left
         
         return self.evaluate(expr.right)
+    
+    
+    def visit_set_expr(self: Self, expr: SetExpr) -> Any:
+        """ Visit a set expression and return a value. """
+        
+        object: Any = self.evaluate(expr.object)
+        
+        if not isinstance(object, KroxInstance):
+            raise self.error(expr.name, "Only instances have fields.")
+        
+        value: Any = self.evaluate(expr.value)
+        object.set(expr.name, value)
+        return value
+    
+    
+    def visit_this_expr(self: Self, expr: ThisExpr) -> Any:
+        """ Visit a this expression and return a value. """
+        
+        return self.look_up_variable(expr.keyword, expr)
     
     
     def visit_unary_expr(self: Self, expr: UnaryExpr) -> Any:

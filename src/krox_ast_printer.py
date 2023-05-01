@@ -1,8 +1,8 @@
-from krox_expr import AssignExpr, BinaryExpr, CallExpr, ExprVisitor
-from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, UnaryExpr
-from krox_expr import VariableExpr
-from krox_stmt import BlockStmt, ExpressionStmt, FunctionStmt, IfStmt
-from krox_stmt import ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
+from krox_expr import AssignExpr, BinaryExpr, CallExpr, ExprVisitor, GetExpr
+from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, SetExpr, ThisExpr
+from krox_expr import UnaryExpr, VariableExpr
+from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
+from krox_stmt import IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
 from typing import Any, Self
 
 class PrinterNode:
@@ -63,6 +63,17 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         
         for statement in stmt.statements:
             node.children.append(statement.accept(self))
+        
+        return node
+    
+    
+    def visit_class_stmt(self: Self, stmt: ClassStmt) -> PrinterNode:
+        """ Visit a class statement and return a printer node. """
+        
+        node: PrinterNode = PrinterNode(f"{{class {stmt.name.lexeme}}}")
+        
+        for method in stmt.methods:
+            node.children.append(method.accept(self))
         
         return node
     
@@ -143,6 +154,14 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         return PrinterNode(f"({expr.name.lexeme} =)", expr.value.accept(self))
     
     
+    def visit_binary_expr(self: Self, expr: BinaryExpr) -> PrinterNode:
+        """ Visit a binary expression and return a printer node. """
+        
+        return PrinterNode(
+                f"({expr.operator.lexeme})",
+                expr.left.accept(self), expr.right.accept(self))
+    
+    
     def visit_call_expr(self: Self, expr: CallExpr) -> PrinterNode:
         """ Visit a call expression and return a printer node. """
         
@@ -154,12 +173,10 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         return node
     
     
-    def visit_binary_expr(self: Self, expr: BinaryExpr) -> PrinterNode:
-        """ Visit a binary expression and return a printer node. """
+    def visit_get_expr(self: Self, expr: GetExpr) -> PrinterNode:
+        """ Visit a get expression and return a printer node. """
         
-        return PrinterNode(
-                f"({expr.operator.lexeme})",
-                expr.left.accept(self), expr.right.accept(self))
+        return PrinterNode(f"(.{expr.name.lexeme})", expr.object.accept(self))
     
     
     def visit_grouping_expr(self: Self, expr: GroupingExpr) -> PrinterNode:
@@ -192,6 +209,20 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         return PrinterNode(
                 f"({expr.operator.lexeme})",
                 expr.left.accept(self), expr.right.accept(self))
+    
+    
+    def visit_set_expr(self: Self, expr: SetExpr) -> PrinterNode:
+        """ Visit a set expression and return a printer node. """
+        
+        return PrinterNode(
+                f"(.{expr.name.lexeme} =)",
+                expr.object.accept(self), expr.value.accept(self))
+    
+    
+    def visit_this_expr(self: Self, expr: ThisExpr) -> PrinterNode:
+        """ Visit a this expression and return a printer node. """
+        
+        return PrinterNode("(this)")
     
     
     def visit_unary_expr(self: Self, expr: UnaryExpr) -> PrinterNode:

@@ -80,6 +80,29 @@ class FunctionStmt(Stmt):
         return visitor.visit_function_stmt(self)
 
 
+class ClassStmt(Stmt):
+    """ A class statement in a tree. """
+    
+    name: Token
+    """ The class statement's name. """
+    
+    methods: list[FunctionStmt]
+    """ The class statement's methods. """
+    
+    def __init__(self: Self, name: Token, methods: list[FunctionStmt]) -> None:
+        """ Initialize the class statement's name and methods. """
+        
+        super().__init__()
+        self.name = name
+        self.methods = methods
+    
+    
+    def accept(self: Self, visitor: Any) -> Any:
+        """ Accept a statement visitor. """
+        
+        return visitor.visit_class_stmt(self)
+
+
 class IfStmt(Stmt):
     """ An if statement in a tree. """
     
@@ -183,6 +206,12 @@ class StmtVisitor:
     
     def visit_block_stmt(self: Self, stmt: BlockStmt) -> Any:
         """ Visit a block statement. """
+        
+        pass
+    
+    
+    def visit_class_stmt(self: Self, stmt: ClassStmt) -> Any:
+        """ Visit a class statement. """
         
         pass
     

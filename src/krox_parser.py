@@ -1,9 +1,10 @@
 from collections.abc import Callable
 from krox_error_reporter import ErrorReporter
-from krox_expr import AssignExpr, BinaryExpr, CallExpr, Expr, GroupingExpr
-from krox_expr import LiteralExpr, LogicalExpr, UnaryExpr, VariableExpr
-from krox_stmt import BlockStmt, ExpressionStmt, FunctionStmt, IfStmt
-from krox_stmt import ReturnStmt, Stmt, VarStmt, WhileStmt
+from krox_expr import AssignExpr, BinaryExpr, CallExpr, Expr, GetExpr
+from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, SetExpr, ThisExpr
+from krox_expr import UnaryExpr, VariableExpr
+from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
+from krox_stmt import IfStmt, ReturnStmt, Stmt, VarStmt, WhileStmt
 from krox_token import Token
 from krox_token_type import TokenType
 from typing import Self
@@ -53,6 +54,9 @@ class Parser:
         """ Parse a declartion. """
         
         try:
+            if self.match(TokenType.CLASS):
+                return self.class_declaration()
+            
             if self.match(TokenType.FUN):
                 return self.function("function")
             
@@ -63,6 +67,20 @@ class Parser:
         except SyntaxError:
             self.synchronize()
             return None
+    
+    
+    def class_declaration(self: Self) -> Stmt:
+        """ Parse a class declaration. """
+        
+        name: Token = self.consume(TokenType.IDENTIFIER, "Expect class name.")
+        self.consume(TokenType.LEFT_BRACE, "Expect `{` before class body.")
+        methods: list[FunctionStmt] = []
+        
+        while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
+            methods.append(self.function("method"))
+        
+        self.consume(TokenType.RIGHT_BRACE, "Expect `}` after class body.")
+        return ClassStmt(name, methods)
     
     
     def statement(self: Self) -> Stmt:
@@ -187,7 +205,7 @@ class Parser:
         return ExpressionStmt(expr)
     
     
-    def function(self: Self, kind: str) -> Stmt:
+    def function(self: Self, kind: str) -> FunctionStmt:
         """ Parse a function statement. """
         
         name: Token = self.consume(
@@ -236,6 +254,8 @@ class Parser:
             if isinstance(expr, VariableExpr):
                 name: Token = expr.name
                 return AssignExpr(name, value)
+            elif isinstance(expr, GetExpr):
+                return SetExpr(expr.object, expr.name, value)
             
             self.error(equals, "Invalid assignment target.")
         
@@ -314,6 +334,11 @@ class Parser:
         while True:
             if self.match(TokenType.LEFT_PAREN):
                 expr = self.finish_call(expr)
+            elif self.match(TokenType.DOT):
+                name: Token = self.consume(
+                        TokenType.IDENTIFIER,
+                        "Expect property name after `.`.")
+                expr = GetExpr(expr, name)
             else:
                 break
         
@@ -354,6 +379,9 @@ class Parser:
         
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return LiteralExpr(self.previous().literal)
+        
+        if self.match(TokenType.THIS):
+            return ThisExpr(self.previous())
         
         if self.match(TokenType.IDENTIFIER):
             return VariableExpr(self.previous())
