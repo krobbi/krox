@@ -209,6 +209,29 @@ class SetExpr(Expr):
         return visitor.visit_set_expr(self)
 
 
+class SuperExpr(Expr):
+    """ A super expression in a tree. """
+    
+    keyword: Token
+    """ The super expression's keyword. """
+    
+    method: Token
+    """ The super expression's method. """
+    
+    def __init__(self: Self, keyword: Token, method: Token) -> None:
+        """ Initialize the super expression's keyword and method. """
+        
+        super().__init__()
+        self.keyword = keyword
+        self.method = method
+    
+    
+    def accept(self: Self, visitor: Any) -> Any:
+        """ Accept an expression visitor. """
+        
+        return visitor.visit_super_expr(self)
+
+
 class ThisExpr(Expr):
     """ A this expression in a tree. """
     
@@ -317,6 +340,12 @@ class ExprVisitor:
     
     def visit_set_expr(self: Self, expr: SetExpr) -> Any:
         """ Visit a set expression. """
+        
+        pass
+    
+    
+    def visit_super_expr(self: Self, expr: SuperExpr) -> Any:
+        """ Visit a super expression. """
         
         pass
     

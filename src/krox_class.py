@@ -12,17 +12,21 @@ class KroxClass(KroxCallable):
     name: str
     """ The class' name. """
     
+    superclass: Self | None
+    """ The class' superclass. """
+    
     methods: dict[str, KroxFunction]
     """ The class' methods. """
     
     def __init__(
-            self: Self, error_reporter: ErrorReporter,
-            name: str, methods: dict[str, KroxFunction]) -> None:
+            self: Self, error_reporter: ErrorReporter, name: str,
+            superclass: Self | None, methods: dict[str, KroxFunction]) -> None:
         """ Initialize the class. """
         
         super().__init__()
         self.error_reporter = error_reporter
         self.name = name
+        self.superclass = superclass
         self.methods = methods
     
     
@@ -63,5 +67,8 @@ class KroxClass(KroxCallable):
         
         if name in self.methods:
             return self.methods[name]
+        
+        if self.superclass is not None:
+            return self.superclass.find_method(name)
         
         return None

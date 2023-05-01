@@ -1,8 +1,8 @@
 from collections.abc import Callable
 from krox_error_reporter import ErrorReporter
 from krox_expr import AssignExpr, BinaryExpr, CallExpr, Expr, GetExpr
-from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, SetExpr, ThisExpr
-from krox_expr import UnaryExpr, VariableExpr
+from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
+from krox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
 from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
 from krox_stmt import IfStmt, ReturnStmt, Stmt, VarStmt, WhileStmt
 from krox_token import Token
@@ -73,6 +73,12 @@ class Parser:
         """ Parse a class declaration. """
         
         name: Token = self.consume(TokenType.IDENTIFIER, "Expect class name.")
+        superclass: VariableExpr | None = None
+        
+        if self.match(TokenType.LESS):
+            self.consume(TokenType.IDENTIFIER, "Expect superclass name.")
+            superclass = VariableExpr(self.previous())
+        
         self.consume(TokenType.LEFT_BRACE, "Expect `{` before class body.")
         methods: list[FunctionStmt] = []
         
@@ -80,7 +86,7 @@ class Parser:
             methods.append(self.function("method"))
         
         self.consume(TokenType.RIGHT_BRACE, "Expect `}` after class body.")
-        return ClassStmt(name, methods)
+        return ClassStmt(name, superclass, methods)
     
     
     def statement(self: Self) -> Stmt:
@@ -379,6 +385,13 @@ class Parser:
         
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return LiteralExpr(self.previous().literal)
+        
+        if self.match(TokenType.SUPER):
+            keyword: Token = self.previous()
+            self.consume(TokenType.DOT, "Expect `.` after `super`.")
+            method: Token = self.consume(
+                    TokenType.IDENTIFIER, "Expect superclass method name.")
+            return SuperExpr(keyword, method)
         
         if self.match(TokenType.THIS):
             return ThisExpr(self.previous())

@@ -1,4 +1,4 @@
-from krox_expr import Expr
+from krox_expr import Expr, VariableExpr
 from krox_token import Token
 from typing import Any, Self
 
@@ -86,14 +86,20 @@ class ClassStmt(Stmt):
     name: Token
     """ The class statement's name. """
     
+    superclass: VariableExpr | None
+    """ The class statement's superclass. """
+    
     methods: list[FunctionStmt]
     """ The class statement's methods. """
     
-    def __init__(self: Self, name: Token, methods: list[FunctionStmt]) -> None:
+    def __init__(
+            self: Self, name: Token, superclass: VariableExpr | None,
+            methods: list[FunctionStmt]) -> None:
         """ Initialize the class statement's name and methods. """
         
         super().__init__()
         self.name = name
+        self.superclass = superclass
         self.methods = methods
     
     

@@ -4,7 +4,7 @@ from krox_environment import Environment
 from krox_error_reporter import ErrorReporter
 from krox_expr import AssignExpr, BinaryExpr, CallExpr, Expr, ExprVisitor
 from krox_expr import GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
-from krox_expr import ThisExpr, UnaryExpr, VariableExpr
+from krox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
 from krox_function import ReturnException, KroxFunction
 from krox_instance import KroxInstance
 from krox_native_function import ClockNativeFunction, PrintNativeFunction
@@ -98,7 +98,22 @@ class Interpreter(StmtVisitor, ExprVisitor):
     def visit_class_stmt(self: Self, stmt: ClassStmt) -> None:
         """ Visit and execute a class statement. """
         
+        superclass: Any = None
+        
+        if stmt.superclass is not None:
+            superclass = self.evaluate(stmt.superclass)
+            
+            if not isinstance(superclass, KroxClass):
+                raise self.error(
+                        stmt.superclass.name, "Superclass must be a class.")
+        
         self.environment.define(stmt.name.lexeme, None)
+        
+        if stmt.superclass is not None:
+            self.environment = Environment(
+                    self.error_reporter, self.environment)
+            self.environment.define("super", superclass)
+        
         methods: dict[str, KroxFunction] = {}
         
         for method in stmt.methods:
@@ -108,7 +123,11 @@ class Interpreter(StmtVisitor, ExprVisitor):
             methods[method.name.lexeme] = function
         
         klass: KroxClass = KroxClass(
-                self.error_reporter, stmt.name.lexeme, methods)
+                self.error_reporter, stmt.name.lexeme, superclass, methods)
+        
+        if superclass is not None and self.environment.enclosing is not None:
+            self.environment = self.environment.enclosing
+        
         self.environment.assign(stmt.name, klass)
     
     
@@ -300,6 +319,22 @@ class Interpreter(StmtVisitor, ExprVisitor):
         value: Any = self.evaluate(expr.value)
         object.set(expr.name, value)
         return value
+    
+    
+    def visit_super_expr(self: Self, expr: SuperExpr) -> Any:
+        """ Visit a super expression and return a value. """
+        
+        distance: int = self.locals[expr]
+        superclass: KroxClass = self.environment.get_at(distance, "super")
+        object: KroxInstance = self.environment.get_at(distance - 1, "this")
+        method: KroxFunction | None = superclass.find_method(
+                expr.method.lexeme)
+        
+        if method is None:
+            raise self.error(
+                    expr.method, f"Undefined property `{expr.method.lexeme}`.")
+        
+        return object.bind_method(method)
     
     
     def visit_this_expr(self: Self, expr: ThisExpr) -> Any:

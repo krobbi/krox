@@ -2,7 +2,7 @@ from enum import Enum, auto
 from krox_error_reporter import ErrorReporter
 from krox_expr import AssignExpr, BinaryExpr, CallExpr, Expr, ExprVisitor
 from krox_expr import GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
-from krox_expr import ThisExpr, UnaryExpr, VariableExpr
+from krox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
 from krox_interpreter import Interpreter
 from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
 from krox_stmt import IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
@@ -33,6 +33,9 @@ class ClassType(Enum):
     
     CLASS = auto()
     """ Class. """
+    
+    SUBCLASS = auto()
+    """ Class inheriting another class. """
 
 
 class Resolver(StmtVisitor, ExprVisitor):
@@ -152,6 +155,17 @@ class Resolver(StmtVisitor, ExprVisitor):
         self.declare(stmt.name)
         self.define(stmt.name)
         
+        if stmt.superclass is not None:
+            if stmt.name.lexeme == stmt.superclass.name.lexeme:
+                self.error_reporter.error(
+                        stmt.superclass.name,
+                        "A class can't inherit from itself.")
+            
+            self.current_class = ClassType.SUBCLASS
+            self.resolve(stmt.superclass)
+            self.begin_scope()
+            self.scopes[-1]["super"] = True
+        
         self.begin_scope()
         self.scopes[-1]["this"] = True
         
@@ -164,6 +178,10 @@ class Resolver(StmtVisitor, ExprVisitor):
             self.resolve_function(method, declaration)
         
         self.end_scope()
+        
+        if stmt.superclass is not None:
+            self.end_scope()
+        
         self.current_class = enclosing_class
     
     
@@ -280,8 +298,22 @@ class Resolver(StmtVisitor, ExprVisitor):
         self.resolve(expr.object)
     
     
+    def visit_super_expr(self: Self, expr: SuperExpr) -> None:
+        """ Visit and resolve a super expression. """
+        
+        if self.current_class == ClassType.NONE:
+            self.error_reporter.error(
+                    expr.keyword, "Can't use `super` outside of a class.")
+        elif self.current_class != ClassType.SUBCLASS:
+            self.error_reporter.error(
+                    expr.keyword,
+                    "Can't use `super` in a class with no superclass.")
+        
+        self.resolve_local(expr, expr.keyword)
+    
+    
     def visit_this_expr(self: Self, expr: ThisExpr) -> None:
-        """ Visit and resole a this expression. """
+        """ Visit and resolve a this expression. """
         
         if self.current_class == ClassType.NONE:
             self.error_reporter.error(

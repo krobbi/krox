@@ -29,15 +29,16 @@ and design choices involved in designing a language. Lox also appears to be
 much more practical than Funcy, and has object oriented capabilities, which I
 have never attempted to implement.
 
-The initial implementation of Krox is written in Python as I find it much more
-convenient than Java.
+The initial implementation of Krox has been written in Python as I find it much
+more convenient than Java. I am experimenting with potential features in the
+Python implementation before creating the C implementation in part 3 of the
+book.
 
 Finally, I intend for Krox to diverge away from Lox and gain features to become
 more practical.
 
 # Differences from Lox
 * Krox is named 'Krox' instead of 'Lox'.
-* Krox is currently unfinished and is not yet a full implementation of Lox.
 * The `print` statement has been replaced with a native function. Because of
 this, parentheses are required for printing. The `print` function always
 returns `nil`.

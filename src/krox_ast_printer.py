@@ -1,6 +1,6 @@
 from krox_expr import AssignExpr, BinaryExpr, CallExpr, ExprVisitor, GetExpr
-from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, SetExpr, ThisExpr
-from krox_expr import UnaryExpr, VariableExpr
+from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
+from krox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
 from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
 from krox_stmt import IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
 from typing import Any, Self
@@ -71,6 +71,9 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         """ Visit a class statement and return a printer node. """
         
         node: PrinterNode = PrinterNode(f"{{class {stmt.name.lexeme}}}")
+        
+        if stmt.superclass is not None:
+            node.children.append(stmt.superclass.accept(self))
         
         for method in stmt.methods:
             node.children.append(method.accept(self))
@@ -217,6 +220,12 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
         return PrinterNode(
                 f"(.{expr.name.lexeme} =)",
                 expr.object.accept(self), expr.value.accept(self))
+    
+    
+    def visit_super_expr(self: Self, expr: SuperExpr) -> PrinterNode:
+        """ Visit a super expression and return a printer node. """
+        
+        return PrinterNode(f"(super.{expr.method.lexeme})")
     
     
     def visit_this_expr(self: Self, expr: ThisExpr) -> PrinterNode:
