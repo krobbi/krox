@@ -56,8 +56,6 @@ The parameter and return types for these functions are notated below with
 is dynamically typed and does not support a type notation system. Any arguments
 that do not match the parameter type will silently be cast to it.
 
----
-
 ## `clock`
 Return the number of seconds since the program started.
 
@@ -70,8 +68,6 @@ __Parameters:__
 __Return value:__  
 `[number]` - The duration since the program started in seconds. Includes a
 fractional part.
-
----
 
 ## `input`
 Read input from the user.
@@ -88,8 +84,6 @@ the text is input, a trailing line break is displayed.
 __Return value:__  
 `[string]` - The text inputted by the user. If the user pressed return without
 inputting any text then this will be an empty string.
-
----
 
 ## `print`
 Display a value to the user.
