@@ -9,7 +9,8 @@ from krox_function import ReturnException, KroxFunction
 from krox_instance import KroxInstance
 from krox_native_function import install_native_functions
 from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
-from krox_stmt import IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
+from krox_stmt import IfStmt, PrintStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt
+from krox_stmt import WhileStmt
 from krox_token import Token
 from krox_token_type import TokenType
 from typing import Any, Self
@@ -152,6 +153,30 @@ class Interpreter(StmtVisitor, ExprVisitor):
             self.execute(stmt.then_branch)
         elif stmt.else_branch is not None:
             self.execute(stmt.else_branch)
+    
+    
+    def visit_print_stmt(self: Self, stmt: PrintStmt) -> None:
+        """ Visit and execute a print statement. """
+        
+        value: Any = self.evaluate(stmt.expression)
+        
+        if value is None:
+            print("nil")
+        elif value is False:
+            print("false")
+        elif value is True:
+            print("true")
+        elif isinstance(value, float):
+            text: str = str(value)
+            
+            if text == "-0.0":
+                print("0")
+            elif text.endswith(".0"):
+                print(text[:-2])
+            else:
+                print(text)
+        else:
+            print(str(value))
     
     
     def visit_return_stmt(self: Self, stmt: ReturnStmt) -> None:

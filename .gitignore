@@ -1,6 +1,11 @@
 # Ignore:
 ignore/*
 
+# Builds:
+obj/*
+*.exe
+*.o
+
 # Python:
 __pycache__/*
 *$py.class

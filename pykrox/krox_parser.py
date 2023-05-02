@@ -4,7 +4,7 @@ from krox_expr import AssignExpr, BinaryExpr, CallExpr, Expr, GetExpr
 from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
 from krox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
 from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
-from krox_stmt import IfStmt, ReturnStmt, Stmt, VarStmt, WhileStmt
+from krox_stmt import IfStmt, PrintStmt, ReturnStmt, Stmt, VarStmt, WhileStmt
 from krox_token import Token
 from krox_token_type import TokenType
 from typing import Self
@@ -98,6 +98,9 @@ class Parser:
         if self.match(TokenType.IF):
             return self.if_statement()
         
+        if self.match(TokenType.PRINT):
+            return self.print_statement()
+        
         if self.match(TokenType.RETURN):
             return self.return_statement()
         
@@ -163,6 +166,14 @@ class Parser:
             else_branch = self.statement()
         
         return IfStmt(condition, then_branch, else_branch)
+    
+    
+    def print_statement(self: Self) -> Stmt:
+        """ Parse a print statement. """
+        
+        value: Expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect `;` after value.")
+        return PrintStmt(value)
     
     
     def return_statement(self: Self) -> Stmt:

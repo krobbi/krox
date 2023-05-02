@@ -5,7 +5,8 @@ from krox_expr import GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
 from krox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
 from krox_interpreter import Interpreter
 from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
-from krox_stmt import IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
+from krox_stmt import IfStmt, PrintStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt
+from krox_stmt import WhileStmt
 from krox_token import Token
 from typing import Self
 
@@ -207,6 +208,12 @@ class Resolver(StmtVisitor, ExprVisitor):
         
         if stmt.else_branch is not None:
             self.resolve(stmt.else_branch)
+    
+    
+    def visit_print_stmt(self: Self, stmt: PrintStmt) -> None:
+        """ Visit and resolve a print statement. """
+        
+        self.resolve(stmt.expression)
     
     
     def visit_return_stmt(self: Self, stmt: ReturnStmt) -> None:

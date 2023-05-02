@@ -2,7 +2,8 @@ from krox_expr import AssignExpr, BinaryExpr, CallExpr, ExprVisitor, GetExpr
 from krox_expr import GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
 from krox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
 from krox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
-from krox_stmt import IfStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt, WhileStmt
+from krox_stmt import IfStmt, PrintStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt
+from krox_stmt import WhileStmt
 from typing import Any, Self
 
 class PrinterNode:
@@ -120,6 +121,12 @@ class ASTPrinter(StmtVisitor, ExprVisitor):
             node.children.append(stmt.else_branch.accept(self))
         
         return node
+    
+    
+    def visit_print_stmt(self: Self, stmt: PrintStmt) -> PrinterNode:
+        """ Visit a print statement and return a printer node. """
+        
+        return PrinterNode("{print}", stmt.expression.accept(self))
     
     
     def visit_return_stmt(self: Self, stmt: ReturnStmt) -> PrinterNode:

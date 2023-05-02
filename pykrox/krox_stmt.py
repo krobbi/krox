@@ -138,6 +138,25 @@ class IfStmt(Stmt):
         return visitor.visit_if_stmt(self)
 
 
+class PrintStmt(Stmt):
+    """ A print statement in a tree. """
+    
+    expression: Expr
+    """ The print statement's expression. """
+    
+    def __init__(self: Self, expression: Expr) -> None:
+        """ Initialize the print statement's expression. """
+        
+        super().__init__()
+        self.expression = expression
+    
+    
+    def accept(self: Self, visitor: Any) -> Any:
+        """ Accept a statement visitor. """
+        
+        return visitor.visit_print_stmt(self)
+
+
 class ReturnStmt(Stmt):
     """ A return statement in a tree. """
     
@@ -236,6 +255,12 @@ class StmtVisitor:
     
     def visit_if_stmt(self: Self, stmt: IfStmt) -> Any:
         """ Visit an if statement. """
+        
+        pass
+    
+    
+    def visit_print_stmt(self: Self, stmt: PrintStmt) -> Any:
+        """ Visit a print statement. """
         
         pass
     
