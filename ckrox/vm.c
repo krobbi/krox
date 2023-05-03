@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "common.h"
+#include "compiler.h"
 #include "debug.h"
 #include "vm.h"
 
@@ -95,9 +96,8 @@ static InterpretResult run() {
 #undef BINARY_OP
 }
 
-/* Interpret a chunk in the VM and return an interpret result. */
-InterpretResult interpret(Chunk* chunk) {
-	vm.chunk = chunk;
-	vm.ip = vm.chunk->code;
-	return run();
+/* Interpret Krox source code and return an interpret result. */
+InterpretResult interpret(const char* source) {
+	compile(source);
+	return INTERPRET_OK;
 }

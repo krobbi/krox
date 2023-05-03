@@ -6,7 +6,10 @@
 
 # Compiler settings:
 CC = gcc
-CFLAGS = -std=c99 -Wall -Wextra -Werror -Wno-unused-parameter
+CFLAGS = -std=c99 -Wall -Wextra -Werror
+
+# Suppressed warnings:
+CFLAGS += -Wno-unused-function -Wno-unused-parameter
 
 # Release and debug mode compiler flags:
 ifeq ($(MODE), release)
