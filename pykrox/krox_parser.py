@@ -519,7 +519,7 @@ class Parser:
             if self.peek().type in (
                     TokenType.CLASS, TokenType.FUN, TokenType.VAR,
                     TokenType.FOR, TokenType.IF, TokenType.WHILE,
-                    TokenType.RETURN):
+                    TokenType.PRINT, TokenType.RETURN):
                 return
             
             self.advance()
