@@ -30,7 +30,8 @@ previously attempted to implement.
 
 The initial implementation of Krox was written in Python as I found it much
 more convenient than Java. I am now implementing the C version from part 3 of
-the book, which introduces optimizations and a bytecode compilation stage.
+the book, which introduces replaces the parsing stage with single-pass
+compilation.
 
 Finally, I intend for Krox to diverge away from Lox and gain features to become
 more practical.
@@ -40,6 +41,7 @@ _This repository contains:_
 * `ckrox/` - An unfinished interpreter witten in C.
 * `pykrox/` - A completed interpreter written in Python following the standard
 implementation of Lox.
+* `sample/` - Sample Krox code.
 
 # License
 Krox is released under the MIT License:  

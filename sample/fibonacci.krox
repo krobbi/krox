@@ -1,0 +1,23 @@
+// Fibonacci sequence benchmark.
+// Calculates the 35th number of the Fibonacci sequence recursively and prints
+// it with the time taken.
+
+// This method is incredibly inefficient and should not be used for anything
+// practical, but it's a nice benchmark and demonstrates self-recursion.
+
+// Benchmark times. These are approximate and may depend on many factors.
+// Pykrox:               Up to several minutes, depending on your machine.
+// CKrox (MODE=debug):   ~54x faster than PyKrox.
+// CKrox (MODE=release): ~3x faster than CKrox (MODE=debug.)
+
+fun fibonacci(n){
+	if(n < 2){
+		return n;
+	}
+	
+	return fibonacci(n - 2) + fibonacci(n - 1);
+}
+
+var start = clock();
+print fibonacci(35);
+print clock() - start;

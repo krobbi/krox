@@ -19,6 +19,22 @@ static Obj* allocateObject(size_t size, ObjType type) {
 	return object;
 }
 
+/* Allocate and return a new function object. */
+ObjFunction* newFunction() {
+	ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
+	function->arity = 0;
+	function->name = NULL;
+	initChunk(&function->chunk);
+	return function;
+}
+
+/* Allocate and return a new native function object. */
+ObjNative* newNative(NativeFn function) {
+	ObjNative* native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
+	native->function = function;
+	return native;
+}
+
 /* Allocate and return a new string object. */
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {
 	ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
@@ -69,9 +85,21 @@ ObjString* copyString(const char* chars, int length) {
 	return allocateString(heapChars, length, hash);
 }
 
+/* Print a function object. */
+static void printFunction(ObjFunction* function) {
+	if (function->name == NULL) {
+		printf("<script>");
+		return;
+	}
+	
+	printf("<fn %s>", function->name->chars);
+}
+
 /* Print an object value. */
 void printObject(Value value) {
 	switch (OBJ_TYPE(value)) {
-		case OBJ_STRING: printf("%s", AS_CSTRING(value)); break;
+		case OBJ_FUNCTION: printFunction(AS_FUNCTION(value)); break;
+		case OBJ_NATIVE:   printf("<native fn>"); break;
+		case OBJ_STRING:   printf("%s", AS_CSTRING(value)); break;
 	}
 }
