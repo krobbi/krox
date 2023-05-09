@@ -42,7 +42,13 @@ typedef struct {
 typedef struct {
 	Token name;
 	int depth;
+	bool isCaptured;
 } Local;
+
+typedef struct {
+	uint8_t index;
+	bool isLocal;
+} Upvalue;
 
 typedef enum {
 	TYPE_FUNCTION,
@@ -55,6 +61,7 @@ typedef struct {
 	FunctionType type;
 	Local locals[UINT8_COUNT];
 	int localCount;
+	Upvalue upvalues[UINT8_COUNT];
 	int scopeDepth;
 } Compiler;
 
@@ -237,6 +244,7 @@ static void initCompiler(Compiler* compiler, FunctionType type) {
 	/* Reserve local slot 0 for internal use. */
 	Local* local = &current->locals[current->localCount++];
 	local->depth = 0;
+	local->isCaptured = false;
 	local->name.start = "";
 	local->name.length = 0;
 }
@@ -272,7 +280,13 @@ static void endScope() {
 		current->localCount > 0
 		&& current->locals[current->localCount - 1].depth > current->scopeDepth
 	) {
-		emitByte(OP_POP);
+		/* Move the value to the heap if it's used in a closure. */
+		if (current->locals[current->localCount - 1].isCaptured) {
+			emitByte(OP_CLOSE_UPVALUE);
+		} else {
+			emitByte(OP_POP);
+		}
+		
 		current->localCount--;
 	}
 }
@@ -281,6 +295,7 @@ static void endScope() {
 static uint8_t argumentList();
 static uint8_t identifierConstant(Token* name);
 static int resolveLocal(Compiler* compiler, Token* name);
+static int resolveUpvalue(Compiler* compiler, Token* name);
 static void and_(bool canAssign);
 static void expression();
 static void statement();
@@ -363,6 +378,9 @@ static void namedVariable(Token name, bool canAssign) {
 	if (arg != -1) {
 		getOp = OP_GET_LOCAL;
 		setOp = OP_SET_LOCAL;
+	} else if ((arg = resolveUpvalue(current, &name)) != -1) {
+		getOp = OP_GET_UPVALUE;
+		setOp = OP_SET_UPVALUE;
 	} else {
 		arg = identifierConstant(&name);
 		getOp = OP_GET_GLOBAL;
@@ -498,6 +516,58 @@ static int resolveLocal(Compiler* compiler, Token* name) {
 	return -1;
 }
 
+/*
+* Add a new upvalue to the current function's compiler and return its offset.
+*/
+static int addUpvalue(Compiler* compiler, uint8_t index, bool isLocal) {
+	int upvalueCount = compiler->function->upvalueCount;
+	
+	for (int i = 0; i < upvalueCount; i++) {
+		Upvalue* upvalue = &compiler->upvalues[i];
+		
+		if (upvalue->index == index && upvalue->isLocal == isLocal) {
+			return i;
+		}
+	}
+	
+	if (upvalueCount == UINT8_COUNT) {
+		error("Too many closure variables in function.");
+		return 0;
+	}
+	
+	compiler->upvalues[upvalueCount].isLocal = isLocal;
+	compiler->upvalues[upvalueCount].index = index;
+	return compiler->function->upvalueCount++;
+}
+
+/*
+* Resolve and return a variables upvalue offset. Return -1 if the variable is
+* not an upvalue.
+*/
+static int resolveUpvalue(Compiler* compiler, Token* name) {
+	if (compiler->enclosing == NULL) {
+		return -1;
+	}
+	
+	int local = resolveLocal((Compiler*)(compiler->enclosing), name);
+	
+	if (local != -1) {
+		/* Workaround for weird bug, maybe an issue with the typedef? */
+		Compiler* enclosing = (Compiler*)(compiler->enclosing);
+		
+		enclosing->locals[local].isCaptured = true;
+		return addUpvalue(compiler, (uint8_t)local, true);
+	}
+	
+	int upvalue = resolveUpvalue((Compiler*)(compiler->enclosing), false);
+	
+	if (upvalue != -1) {
+		return addUpvalue(compiler, (uint8_t)upvalue, false);
+	}
+	
+	return -1;
+}
+
 /* Add a local variable from its name. */
 static void addLocal(Token name) {
 	if (current->localCount == UINT8_COUNT) {
@@ -509,6 +579,7 @@ static void addLocal(Token name) {
 	Local* local = &current->locals[current->localCount++];
 	local->name = name;
 	local->depth = -1;
+	local->isCaptured = false;
 }
 
 /* Declare a local variable. */
@@ -644,7 +715,12 @@ static void function(FunctionType type) {
 	block();
 	
 	ObjFunction* function = endCompiler();
-	emitBytes(OP_CONSTANT, makeConstant(OBJ_VAL(function)));
+	emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+	
+	for (int i = 0; i < function->upvalueCount; i++) {
+		emitByte(compiler.upvalues[i].isLocal ? 1 : 0);
+		emitByte(compiler.upvalues[i].index);
+	}
 }
 
 /* Compile a function declaration. */

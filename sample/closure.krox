@@ -1,0 +1,43 @@
+// Closure demonstration.
+// Closures are environments that 'close' around local variables that are
+// declared before a function and then used inside of the function's body. This
+// allows functions to consistently access local variables from outside of the
+// function body, which can simplify code and is more intuitive to users.
+
+// Closures can be used to encapsulate a state across multiple instances as a
+// limited form of object orientation.
+
+// Closed variables are accessed by reference, and share the same value for each
+// declaration, even across multiple functions. One area where this does not
+// match most user expectations is creating closures from loop variables. The
+// closed values will update as the loop progresses and be set to the values
+// that caused the loop to exit when it finishes. This can be worked around by
+// declaring new variables for the closure inside of the loop body, or by using
+// a constructor function to return a new closure from its parameters.
+
+fun new_counter(name){
+	var count = 0;
+	
+	fun counter(){
+		count = count + 1;
+		print name + ":";
+		print count;
+		print "";
+	}
+	
+	return counter;
+}
+
+var counter_a = new_counter("Counter A");
+var counter_b = new_counter("Counter B");
+
+counter_a();
+counter_a();
+
+counter_b();
+counter_b();
+counter_b();
+counter_b();
+
+counter_a();
+counter_a();
