@@ -1,0 +1,29 @@
+// Property Demonstration.
+// Demonstrate setting and getting dynamic properties on class instances. CKrox
+// does not yet support methods.
+
+class Vector {}
+
+fun new_vector(x, y){
+	var vector = Vector();
+	vector.x = x;
+	vector.y = y;
+	return vector;
+}
+
+fun add_vectors(a, b){
+	return new_vector(a.x + b.x, a.y + b.y);
+}
+
+fun print_vector(vector){
+	print "X:";
+	print vector.x;
+	print "Y:";
+	print vector.y;
+}
+
+var vector_a = new_vector(1, 2);
+var vector_b = new_vector(3, 4);
+var vector_c = add_vectors(vector_a, vector_b);
+
+print_vector(vector_c);
