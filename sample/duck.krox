@@ -1,0 +1,46 @@
+// Duck typing demonstration.
+// Duck typing is the principle that anything that walks like a duck and quacks
+// like a duck is a duck. A process that requires a value that has a particular
+// property, method, call signature, etc. can use any value that meets those
+// requirements. Since Krox is dynamically typed and keeps track of class member
+// names, this is built into the language, allowing polymorphism.
+
+class Duck {
+	init(name){
+		this.name = name;
+	}
+	
+	walk(){
+		print this.name + " walks!";
+	}
+	
+	quack(){
+		print this.name + " quacks!";
+	}
+}
+
+class Goose {
+	init(name){
+		this.name = name;
+	}
+	
+	walk(){
+		print this.name + " walks!";
+	}
+	
+	// Geese do not quack.
+	honk(){
+		print this.name + " honks!";
+	}
+}
+
+fun test_duckness(animal){
+	animal.walk(); // Anything that walks like a duck is allowed.
+	animal.quack(); // Anything that quacks like a duck is allowed.
+}
+
+var waddles = Duck("Waddles");
+var steve = Goose("Steve");
+
+test_duckness(waddles); // Waddles can walk and quack.
+test_duckness(steve); // Steve will walk, but will crash if he tries to quack.
