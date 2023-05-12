@@ -4,16 +4,12 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 
 # Contents
 1. [About](#about)
-2. [License](#license)
+2. [About Lox](#about-lox)
+3. [License](#license)
 
 # About
-Krox is a programming language that was created from following along with the
-book [Crafting Interpreters](https://craftinginterpreters.com) by
-[Robert Nystrom](https://github.com/munificent).
-
-The book describes a language named Lox that is implemented over the course of
-the book. First with a tree-walk interpreter written in Java, and then with a
-bytecode interpreter written in C.
+Krox is a language that is yet to be created, loosely based on some insight
+from the Lox language.
 
 I have attempted to write languages before Krox, most notably
 [Funcy](https://github.com/krobbi/funcy), which was implemented in Python.
@@ -23,20 +19,34 @@ scripting language that was used for cutscenes in my game,
 been removed from the game and I am now leveraging the game engine's
 functionality, as I should have in the first place.
 
-I followed along with the book to get a better idea of the best practices and
-design choices involved in designing a language. Lox also is much more
-practical than Funcy, and has object oriented capabilities, which I had never
-previously attempted to implement.
+Originally, Krox was planned to be an extension of Lox, but its scope would
+make it difficult to fit into a Lox interpreter.
 
-The initial implementation of Krox was written in Python as I found it much
-more convenient than Java.
+Despite this, I still intend on implementing Krox in Lox, which will be a
+serious challenge.
+
+# About Lox
+Lox is a language described in the book
+[Crafting Interpreters](https://craftinginterpreters.com) by
+[Robert Nystrom](https://github.com/munificent). The language is implemented
+twice over the course of the book. First with a tree-walk interpreter written
+in Java, and then with a bytecode interpreter written in C.
+
+I followed along with the book to get a better idea of the best practices and
+design choices involved in designing a language. Lox also has object-oriented
+capabilities, which I had never previously attempted to implement.
+
+My initial implementation of Lox was written in Python instead of Java.
 
 _This repository contains:_  
-* `Makefile` - Makefile for CKrox. Designed for Windows. Use at your own risk.
-* `ckrox/` - A completed interpreter witten in C.
-* `pykrox/` - A completed interpreter written in Python following the standard
-implementation of Lox.
-* `sample/` - Sample Krox code.
+* `Makefile` - Makefile for bootstrapping Krox. Designed for Windows. Currently
+a hello world. Use at your own risk.
+* `clox/` - A completed Lox interpreter witten in C.
+* `loxkrox/` - An unimplemented Krox interpreter written in Lox. Currently a
+hello world.
+* `pylox/` - A completed Lox interpreter written in Python. Too slow for most
+practical uses.
+* `sample/` - Sample Lox code.
 
 # License
 Krox is released under the MIT License:  

@@ -1,8 +1,4 @@
-# Build CKrox for Windows.
-# Usage:
-# `make [build]` - Build krox.exe. Include `MODE=release` for release mode.
-# `make run` - Build and run krox.exe. Include `MODE=release` for release mode.
-# `make clean` - Clean all build output.
+# Bootstrap Krox for Windows through clox. Currently a hello world.
 
 # Compiler settings:
 CC = gcc
@@ -11,46 +7,47 @@ CFLAGS = -std=c99 -Wall -Wextra -Werror
 # Suppressed warnings:
 CFLAGS += -Wno-unused-parameter
 
-# Release and debug mode compiler flags:
-ifeq ($(MODE), release)
-	CFLAGS += -O2 -flto
+# Debug and release mode compiler flags:
+ifeq ($(MODE), debug)
+	CFLAGS += -Og -DDEBUG -g
 else
-	CFLAGS += -O0 -DDEBUG -g
+	CFLAGS += -O2 -flto
 endif
 
 # Directories:
-SOURCE_DIR = ckrox
-OBJECTS_DIR = obj
+CLOX_SOURCE_DIR = clox
+CLOX_OBJECTS_DIR = obj
+
+LOXKROX_SOURCE_DIR = loxkrox
 
 # Files:
-HEADERS = $(wildcard $(SOURCE_DIR)/*.h)
-SOURCES = $(wildcard $(SOURCE_DIR)/*.c)
-OBJECTS = $(addprefix $(OBJECTS_DIR)/, $(notdir $(SOURCES:.c=.o)))
-EXECUTABLE = krox.exe
+CLOX_HEADERS = $(wildcard $(CLOX_SOURCE_DIR)/*.h)
+CLOX_SOURCES = $(wildcard $(CLOX_SOURCE_DIR)/*.c)
+CLOX_OBJECTS = $(addprefix $(CLOX_OBJECTS_DIR)/, $(notdir $(CLOX_SOURCES:.c=.o)))
+CLOX_EXECUTABLE = lox.exe
+
+LOXKROX_SOURCE = $(LOXKROX_SOURCE_DIR)/krox.lox
 
 # Subcommands:
-.PHONY: build run clean
+.PHONY: build clean
 
-# Build executable:
-build: $(EXECUTABLE)
-
-# Build and run executable:
-run: $(EXECUTABLE)
-	$(EXECUTABLE)
+# Build clox executable and run LoxKrox:
+build: $(CLOX_EXECUTABLE)
+	$(CLOX_EXECUTABLE) $(LOXKROX_SOURCE)
 
 # Clean all build output:
 clean:
-	if exist $(OBJECTS_DIR) rd /s /q $(OBJECTS_DIR)
-	if exist $(EXECUTABLE) del /f /q $(EXECUTABLE)
+	if exist $(CLOX_OBJECTS_DIR) rd /s /q $(CLOX_OBJECTS_DIR)
+	if exist $(CLOX_EXECUTABLE) del /f /q $(CLOX_EXECUTABLE)
 
-# Link executable:
-$(EXECUTABLE): $(OBJECTS) | $(OBJECTS_DIR)
+# Link clox executable:
+$(CLOX_EXECUTABLE): $(CLOX_OBJECTS) | $(CLOX_OBJECTS_DIR)
 	$(CC) $(CFLAGS) $^ -o $@
 
-# Compile objects:
-$(OBJECTS_DIR)/%.o: $(SOURCE_DIR)/%.c $(HEADERS) | $(OBJECTS_DIR)
+# Compile clox objects:
+$(CLOX_OBJECTS_DIR)/%.o: $(CLOX_SOURCE_DIR)/%.c $(CLOX_HEADERS) | $(CLOX_OBJECTS_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Make objects directory:
-$(OBJECTS_DIR):
-	mkdir $(OBJECTS_DIR)
+# Make clox objects directory:
+$(CLOX_OBJECTS_DIR):
+	mkdir $(CLOX_OBJECTS_DIR)
