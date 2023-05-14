@@ -6,6 +6,7 @@
 #include "common.h"
 #include "compiler.h"
 #include "debug.h"
+#include "extension.h"
 #include "object.h"
 #include "memory.h"
 #include "vm.h"
@@ -76,6 +77,7 @@ void initVM() {
 	vm.initString = copyString("init", 4);
 	
 	defineNative("clock", clockNative);
+	installExtensions(defineNative);
 }
 
 /* Free the VM's objects. */

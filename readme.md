@@ -5,6 +5,9 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 # Contents
 1. [About](#about)
 2. [About Lox](#about-lox)
+3. [Lox Extensions](#lox-extensions)
+   * [`argc()`](#argc)
+   * [`argv(index)`](#argvindex)
 3. [License](#license)
 
 # About
@@ -47,6 +50,20 @@ hello world.
 * `pylox/` - A completed Lox interpreter written in Python. Too slow for most
 practical uses.
 * `sample/` - Sample Lox code.
+
+# Lox Extensions
+In addition to the standard `clock()` function, my implementation of Lox
+includes some 'extension' functions to improve its I/O capabilities.
+
+## `argc()`
+Return the number of command line arguments, starting at and including the Lox
+script file's name. This function should always return `0` in REPL mode, and
+always return at least `1` when outside of REPL mode.
+
+## `argv(index)`
+Return the command line argument string at index `index`, following the same
+range as `argc()`. The first argument is at index `0`. Using an out of range
+index returns `nil`.
 
 # License
 Krox is released under the MIT License:  

@@ -31,10 +31,7 @@ class Lox:
     def main(self: Self, args: list[str]) -> None:
         """ Run Lox from arguments. """
         
-        if len(args) > 1:
-            print("Usage: lox.py [script]")
-            sys.exit(64)
-        elif len(args) == 1:
+        if args:
             self.run_file(args[0])
         else:
             self.run_prompt()

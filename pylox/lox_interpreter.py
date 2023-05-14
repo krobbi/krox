@@ -5,6 +5,7 @@ from lox_error_reporter import ErrorReporter
 from lox_expr import AssignExpr, BinaryExpr, CallExpr, Expr, ExprVisitor
 from lox_expr import GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
 from lox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
+from lox_extension import install_extensions
 from lox_function import ReturnException, LoxFunction
 from lox_instance import LoxInstance
 from lox_native_function import install_native_functions
@@ -45,6 +46,7 @@ class Interpreter(StmtVisitor, ExprVisitor):
         
         # Install the standard library.
         install_native_functions(self.globals)
+        install_extensions(self.globals)
         
         try:
             for statement in statements:

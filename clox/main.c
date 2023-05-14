@@ -5,6 +5,7 @@
 #include "common.h"
 #include "chunk.h"
 #include "debug.h"
+#include "extension.h"
 #include "vm.h"
 
 /* Run Lox from a REPL. */
@@ -72,18 +73,17 @@ static void runFile(const char* path) {
 }
 
 /* Main function. Run Lox from arguments. */
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
+	initExtensions(argc, argv);
 	initVM();
 	
-	if (argc == 1) {
-		repl();
-	} else if (argc == 2) {
+	if (argc > 1) {
 		runFile(argv[1]);
 	} else {
-		fprintf(stderr, "Usage: lox [path]\n");
-		exit(64);
+		repl();
 	}
 	
 	freeVM();
+	freeExtensions();
 	return 0;
 }

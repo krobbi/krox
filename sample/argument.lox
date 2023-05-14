@@ -1,0 +1,11 @@
+// Argument demonstration.
+// Demonstrates accessing command line arguments in Lox using non-standard
+// extension functions.
+
+print "Arguments:";
+
+for(var index = 0; index < argc(); index = index + 1){
+	print " . '" + argv(index) + "'";
+}
+
+print "End of arguments.";
