@@ -4,8 +4,8 @@
 
 print "Arguments:";
 
-for(var index = 0; index < argc(); index = index + 1){
-	print " . '" + argv(index) + "'";
+for(var index = 0; index < args(); index = index + 1){
+	print " . '" + arg(index) + "'";
 }
 
 print "End of arguments.";

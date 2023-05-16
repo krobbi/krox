@@ -1,0 +1,8 @@
+// Dump demonstration.
+// Demonstrates dumping the printable ASCII characters to standard output.
+
+for(var character = 32; character < 127; character = character + 1){
+	put(character, stdout());
+}
+
+print "";

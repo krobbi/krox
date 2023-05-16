@@ -6,8 +6,12 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 1. [About](#about)
 2. [About Lox](#about-lox)
 3. [Lox Extensions](#lox-extensions)
-   * [`argc()`](#argc)
-   * [`argv(index)`](#argvindex)
+   * [`arg(index)`](#argindex)
+   * [`args()`](#args)
+   * [`put(byte, handle)`](#putbyte-handle)
+   * [`stderr()`](#stderr)
+   * [`stdin()`](#stdin)
+   * [`stdout()`](#stdout)
 3. [License](#license)
 
 # About
@@ -55,15 +59,32 @@ practical uses.
 In addition to the standard `clock()` function, my implementation of Lox
 includes some 'extension' functions to improve its I/O capabilities.
 
-## `argc()`
+## `arg(index)`
+Return the command line argument string at index `index`, following the same
+range as `args()`. The first argument is at index `0`. Using an out of range
+index returns `nil`.
+
+## `args()`
 Return the number of command line arguments, starting at and including the Lox
 script file's name. This function should always return `0` in REPL mode, and
 always return at least `1` when outside of REPL mode.
 
-## `argv(index)`
-Return the command line argument string at index `index`, following the same
-range as `argc()`. The first argument is at index `0`. Using an out of range
-index returns `nil`.
+## `put(byte, handle)`
+Put a byte number `byte` from `0` to `255` to the stream at the file handle
+number `handle`. Returns `nil` if the byte number could not be put to a stream
+for any reason. Otherwise, returns the byte number that was written.
+
+## `stderr()`
+Return a file handle number representing the standard error stream. Always
+returns `2`.
+
+## `stdin()`
+Return a file handle number representing the standard input stream. Always
+returns `0`.
+
+## `stdout()`
+Return a file handle number representing the standard output stream. Always
+returns `1`.
 
 # License
 Krox is released under the MIT License:  
