@@ -1,0 +1,61 @@
+// Cat demonstration.
+// Demonstrates a program that echoes the contents of a file, or copies a source
+// file to a target file.
+
+fun cat(path, target){
+	var source = read(path);
+	
+	if(source == nil){
+		print "Failed to open '" + path + "' for reading.";
+		return;
+	}
+	
+	var is_writing = true;
+	var character = get(source);
+	
+	while(is_writing and character != nil){
+		if(put(character, target)){
+			character = get(source);
+		} else {
+			print "Failed to write output.";
+			is_writing = false;
+		}
+	}
+	
+	if(!close(source)){
+		print "Failed to close source file '" + path + "'.";
+	}
+}
+
+fun main(){
+	if(args() == 2){
+		cat(arg(1), stdout());
+	} else if (args() == 3){
+		var source_path = arg(1);
+		var target_path = arg(2);
+		
+		if(source_path == target_path){
+			print "Cannot copy file to itself.";
+			return;
+		}
+		
+		var target = write(target_path);
+		
+		if(target == nil){
+			print "Failed to open '" + target_path + "' for writing.";
+			return;
+		}
+		
+		cat(source_path, target);
+		
+		if(!close(target)){
+			print "Failed to close target file '" + target_path + "'.";
+		}
+	} else {
+		print "Usage:";
+		print " * cat.lox <path>";
+		print " * cat.lox <source> <target>";
+	}
+}
+
+main();

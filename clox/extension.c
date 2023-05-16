@@ -8,12 +8,37 @@
 #define STREAM_STDIN  0
 #define STREAM_STDOUT 1
 #define STREAM_STDERR 2
+#define STREAM_FILES  3
 #define STREAM_MAX    7
 
 static int loxArgCount = 0;
 static char** loxArgs = NULL;
 static int* loxArgLengths = NULL;
 static FILE* loxStreams[] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+
+/* Open and return a new file handle from arguments and a mode. */
+static Value openFileHandle(int argCount, Value* args, const char* mode) {
+	if (argCount != 1 || !IS_STRING(args[0])) {
+		return NIL_VAL; /* Invalid arguments. */
+	}
+	
+	for (int handle = STREAM_FILES; handle <= STREAM_MAX; handle++) {
+		if (loxStreams[handle] != NULL) {
+			continue; /* File handle already in use. */
+		}
+		
+		FILE* stream = fopen(AS_CSTRING(args[0]), mode);
+		
+		if (stream == NULL) {
+			return NIL_VAL; /* Failed to open file handle. */
+		}
+		
+		loxStreams[handle] = stream;
+		return NUMBER_VAL((double)handle);
+	}
+	
+	return NIL_VAL; /* No file handles available. */
+}
 
 /* The arg extension. */
 static Value argExtension(int argCount, Value* args) {
@@ -33,6 +58,61 @@ static Value argExtension(int argCount, Value* args) {
 /* The args extension. */
 static Value argsExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)loxArgCount);
+}
+
+/* The close extension. */
+static Value closeExtension(int argCount, Value* args) {
+	if (argCount != 1 || !IS_NUMBER(args[0])) {
+		return BOOL_VAL(false); /* Invalid arguments. */
+	}
+	
+	int handle = (int)AS_NUMBER(args[0]);
+	
+	if (handle < STREAM_FILES || handle > STREAM_MAX) {
+		return BOOL_VAL(false); /* Not a file handle. */
+	}
+	
+	FILE* stream = loxStreams[handle];
+	
+	if (stream == NULL) {
+		return BOOL_VAL(false); /* File already closed. */
+	}
+	
+	int result = fclose(stream);
+	
+	if (result == EOF) {
+		return BOOL_VAL(false); /* Failed to close file. */
+	}
+	
+	loxStreams[handle] = NULL;
+	return BOOL_VAL(true);
+}
+
+/* The get extension. */
+static Value getExtension(int argCount, Value* args) {
+	if (argCount != 1 || !IS_NUMBER(args[0])) {
+		return NIL_VAL; /* Invalid arguments. */
+	}
+	
+	int handle = (int)AS_NUMBER(args[0]);
+	
+	if (handle < 0 || handle > STREAM_MAX) {
+		return NIL_VAL; /* Invalid file handle. */
+	}
+	
+	FILE* stream = loxStreams[handle];
+	
+	if (stream == NULL) {
+		return NIL_VAL; /* Unopened stream. */
+	}
+	
+	int result = fgetc(stream);
+	
+	if (result == EOF) {
+		return NIL_VAL; /* End of file or error. */
+	}
+	
+	return NUMBER_VAL((double)result);
 }
 
 /* The put extension. */
@@ -68,6 +148,11 @@ static Value putExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)byte);
 }
 
+/* The read extension. */
+static Value readExtension(int argCount, Value* args) {
+	return openFileHandle(argCount, args, "rb");
+}
+
 /* The stderr extension. */
 static Value stderrExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)STREAM_STDERR);
@@ -81,6 +166,11 @@ static Value stdinExtension(int argCount, Value* args) {
 /* The stdout extension. */
 static Value stdoutExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)STREAM_STDOUT);
+}
+
+/* The write extension. */
+static Value writeExtension(int argCount, Value* args) {
+	return openFileHandle(argCount, args, "wb");
 }
 
 /* Initialize the extensions. */
@@ -116,8 +206,12 @@ void freeExtensions() {
 void installExtensions(DefineNativeFn defineNative) {
 	defineNative("arg", argExtension);
 	defineNative("args", argsExtension);
+	defineNative("close", closeExtension);
+	defineNative("get", getExtension);
 	defineNative("put", putExtension);
+	defineNative("read", readExtension);
 	defineNative("stderr", stderrExtension);
 	defineNative("stdin", stdinExtension);
 	defineNative("stdout", stdoutExtension);
+	defineNative("write", writeExtension);
 }
