@@ -1,50 +1,28 @@
-from lox_environment import Environment
-from lox_native_function import NativeFunction
+from collections.abc import Callable
 from sys import argv
-from typing import Any, Self
+from typing import Any
 
-class ArgcExtension(NativeFunction):
+def argc_extension(arguments: list[Any]) -> float:
     """ The argc extension. """
     
-    def __init__(self: Self, environment: Environment) -> None:
-        """ Initialize the argc extension. """
-        
-        super().__init__(0, "argc", environment)
-    
-    
-    def call(self: Self, arguments: list[Any]) -> float:
-        """
-        Call the argc extension and return the number of command line arguments.
-        """
-        
-        return float(max(len(argv) - 1, 0))
+    return float(max(len(argv) - 1, 0))
 
 
-class ArgvExtension(NativeFunction):
+def argv_extension(arguments: list[Any]) -> str | None:
     """ The argv extension. """
     
-    def __init__(self: Self, environment: Environment) -> None:
-        """ Initialize the argv extension. """
-        
-        super().__init__(1, "argv", environment)
+    index: int = int(arguments[0]) + 1
     
+    if index < 1 or index >= len(argv):
+        return None
     
-    def call(self: Self, arguments: list[Any]) -> str | None:
-        """
-        Call the argv extension and return the command line argument at an
-        index.
-        """
-        
-        index: int = int(arguments[0]) + 1
-        
-        if index < 1 or index >= len(argv):
-            return None
-        
-        return argv[index]
+    return argv[index]
 
 
-def install_extensions(environment: Environment) -> None:
-    """ Install the extensions to an environment. """
+def install_extensions(
+        define_native: Callable[
+                [str, int, Callable[[list[Any]], Any]], None]) -> None:
+    """ Install the extensions. """
     
-    ArgcExtension(environment)
-    ArgvExtension(environment)
+    define_native("argc", 0, argc_extension)
+    define_native("argv", 1, argv_extension)

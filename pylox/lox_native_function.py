@@ -1,6 +1,5 @@
+from collections.abc import Callable
 from lox_callable import LoxCallable
-from lox_environment import Environment
-from time import perf_counter
 from typing import Any, Self
 
 class NativeFunction(LoxCallable):
@@ -9,14 +8,17 @@ class NativeFunction(LoxCallable):
     parameter_count: int
     """ The native function's parameter count. """
     
+    driver: Callable[[list[Any]], Any]
+    """ The native function's driver function. """
+    
     def __init__(
-            self: Self,
-            parameter_count: int, name: str, environment: Environment) -> None:
+            self: Self, parameter_count: int,
+            driver: Callable[[list[Any]], Any]) -> None:
         """ Initialize the native function. """
         
         super().__init__()
         self.parameter_count = parameter_count
-        environment.define(name, self)
+        self.driver = driver
     
     
     def __repr__(self: Self) -> str:
@@ -29,31 +31,11 @@ class NativeFunction(LoxCallable):
         """ Return the native function's arity. """
         
         return self.parameter_count
-
-
-class ClockNativeFunction(NativeFunction):
-    """ The native clock function. """
-    
-    start: float
-    """ The native clock function's starting time. """
-    
-    def __init__(self: Self, environment: Environment) -> None:
-        """ Initialize the native clock function. """
-        
-        super().__init__(0, "clock", environment)
-        self.start = perf_counter()
     
     
-    def call(self: Self, arguments: list[Any]) -> float:
+    def call(self: Self, arguments: list[Any]) -> Any:
         """
-        Call the native clock function and return the time in seconds
-        since the starting time.
+        Call the native function's driver function and return a value.
         """
         
-        return perf_counter() - self.start
-
-
-def install_native_functions(environment: Environment) -> None:
-    """ Install the native functions to an environment. """
-    
-    ClockNativeFunction(environment)
+        return self.driver(arguments)

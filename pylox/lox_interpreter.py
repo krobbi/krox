@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from lox_callable import LoxCallable
 from lox_class import LoxClass
 from lox_environment import Environment
@@ -8,13 +9,25 @@ from lox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
 from lox_extension import install_extensions
 from lox_function import ReturnException, LoxFunction
 from lox_instance import LoxInstance
-from lox_native_function import install_native_functions
+from lox_native_function import NativeFunction
 from lox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
 from lox_stmt import IfStmt, PrintStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt
 from lox_stmt import WhileStmt
 from lox_token import Token
 from lox_token_type import TokenType
+from time import perf_counter
 from typing import Any, Self
+
+def create_clock(start: float) -> Callable[[list[Any]], float]:
+    """ Create a new clock closure from a start time. """
+    
+    def clock(arguments: list[Any]) -> float:
+        """ Return the time in seconds since the start time. """
+        
+        return perf_counter() - start
+    
+    return clock
+
 
 class Interpreter(StmtVisitor, ExprVisitor):
     """ Interprets a list of statements. """
@@ -41,12 +54,21 @@ class Interpreter(StmtVisitor, ExprVisitor):
         self.locals = {}
     
     
+    def define_native(
+            self: Self, name: str, parameter_count: int,
+            driver: Callable[[list[Any]], Any]) -> None:
+        """ Define a native function in the interpreter's globals. """
+        
+        native: NativeFunction = NativeFunction(parameter_count, driver)
+        self.globals.define(name, native)
+    
+    
     def interpret(self: Self, statements: list[Stmt]) -> None:
         """ Interpret a list of statements. """
         
         # Install the standard library.
-        install_native_functions(self.globals)
-        install_extensions(self.globals)
+        self.define_native("clock", 0, create_clock(perf_counter()))
+        install_extensions(self.define_native)
         
         try:
             for statement in statements:
