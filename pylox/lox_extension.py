@@ -35,6 +35,17 @@ def args_extension(arguments: list[Any]) -> float:
     return float(max(len(sys.argv) - 1, 0))
 
 
+def chr_extension(arguments: list[Any]) -> str | None:
+    """ The chr extension. """
+    
+    code: int = int(arguments[0])
+    
+    if code < 0 or code > 255:
+        return None # Not an ASCII character.
+    
+    return chr(code)
+
+
 def close_extension(arguments: list[Any]) -> bool:
     """ The close extension. """
     
@@ -75,6 +86,28 @@ def get_extension(arguments: list[Any]) -> float | None:
         return None # End of file.
     
     return float(result[0])
+
+
+def length_extension(arguments: list[Any]) -> float:
+    """ The length extension. """
+    
+    return float(len(str(arguments[0])))
+
+
+def ord_extension(arguments: list[Any]) -> float | None:
+    """ The ord extension. """
+    
+    character: str = str(arguments[0])
+    
+    if len(character) != 1:
+        return None # Not a single character.
+    
+    code: int = ord(character)
+    
+    if code < 0 or code > 255:
+        return None # Not an ASCII character.
+    
+    return float(code)
 
 
 def put_extension(arguments: list[Any]) -> float | None:
@@ -127,6 +160,19 @@ def stdout_extension(arguments: list[Any]) -> float:
     return 1.0
 
 
+def substring_extension(arguments: list[Any]) -> str | None:
+    """ The substring extension. """
+    
+    string: str = str(arguments[0])
+    start: int = int(arguments[1])
+    end: int = start + int(arguments[2])
+    
+    if start < 0 or end < start or end > len(string):
+        return None # Substring out of bounds.
+    
+    return string[start:end]
+
+
 def write_extension(arguments: list[Any]) -> float | None:
     """ The write extension. """
     
@@ -159,11 +205,15 @@ def install_extensions(
     
     define_native("arg", 1, arg_extension)
     define_native("args", 0, args_extension)
+    define_native("chr", 1, chr_extension)
     define_native("close", 1, close_extension)
     define_native("get", 1, get_extension)
+    define_native("length", 1, length_extension)
+    define_native("ord", 1, ord_extension)
     define_native("put", 2, put_extension)
     define_native("read", 1, read_extension)
     define_native("stderr", 0, stderr_extension)
     define_native("stdin", 0, stdin_extension)
     define_native("stdout", 0, stdout_extension)
+    define_native("substring", 3, substring_extension)
     define_native("write", 1, write_extension)

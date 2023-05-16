@@ -8,13 +8,17 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 3. [Lox Extensions](#lox-extensions)
    * [`arg(index)`](#argindex)
    * [`args()`](#args)
+   * [`chr(code)`](#chrcode)
    * [`close(handle)`](#closehandle)
    * [`get(handle)`](#gethandle)
+   * [`length(string)`](#lengthstring)
+   * [`ord(character)`](#ordcharacter)
    * [`put(byte, handle)`](#putbyte-handle)
    * [`read(path)`](#readpath)
    * [`stderr()`](#stderr)
    * [`stdin()`](#stdin)
    * [`stdout()`](#stdout)
+   * [`substring(string, start, length)`](#substringstring-start-length)
    * [`write(path)`](#writepath)
 3. [License](#license)
 
@@ -73,6 +77,10 @@ Return the number of command line arguments, starting at and including the Lox
 script file's name. This function should always return `0` in REPL mode, and
 always return at least `1` when outside of REPL mode.
 
+## `chr(code)`
+Return a single character string with the number code point `code`. Returns
+`nil` if `code` is not a number from `0` to `255`.
+
 ## `close(handle)`
 Flush and close the stream at the file handle number `handle`. Returns `true`
 if a file stream was closed successfully. Otherwise, returns `false`.
@@ -83,6 +91,15 @@ Attempting to close a standard stream will do nothing and always return
 Get and return the next byte from the stream at the file handle number
 `handle`. Returns `nil` if an error or the end of file was encountered.
 Otherwise, returns a number from `0` to `255`.
+
+## `length(string)`
+Return the number length of the string `string` in characters. Returns an
+undefined number value if `string` is not a string.
+
+## `ord(character)`
+Return the number code point of the single character string `character`.
+Returns `nil` if `character` is not a single character or has a code point
+outside of the range of `0` to `255`.
 
 ## `put(byte, handle)`
 Put a byte number `byte` from `0` to `255` to the stream at the file handle
@@ -105,6 +122,11 @@ returns `0`.
 ## `stdout()`
 Return a file handle number representing the standard output stream. Always
 returns `1`.
+
+## `substring(string, start, length)`
+Return a new substring of `string` starting at index `start` with length
+`length`. Returns `nil` if `length` is negative or if the substring would be
+out of bounds of `string`.
 
 ## `write(path)`
 Open the file at the path string `path` for writing and return a file hande

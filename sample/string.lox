@@ -1,0 +1,45 @@
+// String demonstration.
+// Demonstrates and tests string manipulation in Lox.
+
+print length(""); // 0.
+print length("Foo"); // 3.
+print length("Hello, world!"); // 13.
+
+print substring("Substring manipulation!", -1, 1); // nil.
+print substring("Substring manipulation!", 0, 23) + "?"; // "Substring...!?".
+print substring("Substring manipulation!", 1, 22) + "?"; // "ubstring...!?".
+print substring("Substring manipulation!", 1, 23); // nil.
+print substring("Substring manipulation!", 0, 24); // nil.
+print substring("Substring manipulation!", 5, -1); // nil.
+print substring("Substring manipulation!", 0, 0) + "?"; // "?".
+print substring("Substring manipulation!", 6, 0) + "?"; // "?".
+print substring("Substring manipulation!", 23, 0) + "?"; // "?".
+print substring("Substring manipulation!", 23, 1); // nil.
+print substring("Substring manipulation!", 3, 12) + "?"; // "string manip?".
+
+fun reverse(message){
+	var backwards = "";
+	
+	for(var i = length(message) - 1; i >= 0; i = i - 1){
+		backwards = backwards + substring(message, i, 1);
+	}
+	
+	return backwards;
+}
+
+print reverse("Backwards!") + "?"; // "!sdrawkcaB?".
+
+// Test string interning.
+print substring("FooBar", 2, 3) == "oBa"; // true.
+print "zQu" == substring("BazQux", 2, 3); // true.
+print substring("Test", 0, 2) + "ch" == "Tech"; // true.
+print "Part" == substring("Pass", 0, 2) + "rt"; // true.
+print substring("Pass", 0, 2) + substring("Test", 2, 2) == "Pas" + "t"; // true.
+
+print ord(""); // nil.
+print ord("Hi!"); // nil.
+print ord("A"); // 65.
+
+print chr(-1); // nil.
+print chr(256); // nil.
+print chr(65) + chr(66) + chr(67); // "ABC".

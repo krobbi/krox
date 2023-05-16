@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "extension.h"
+#include "memory.h"
 
 /* Stream IDs. */
 #define STREAM_STDIN  0
@@ -52,12 +53,30 @@ static Value argExtension(int argCount, Value* args) {
 		return NIL_VAL; /* Argument index out of range. */
 	}
 	
-	return OBJ_VAL(takeString(loxArgs[index], loxArgLengths[index]));
+	return OBJ_VAL(copyString(loxArgs[index], loxArgLengths[index]));
 }
 
 /* The args extension. */
 static Value argsExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)loxArgCount);
+}
+
+/* The chr extension. */
+static Value chrExtension(int argCount, Value* args) {
+	if (argCount != 1 || !IS_NUMBER(args[0])) {
+		return NIL_VAL; /* Invalid arguments. */
+	}
+	
+	int code = (int)AS_NUMBER(args[0]);
+	
+	if (code < 0 || code > 255) {
+		return NIL_VAL; /* Not an ASCII character. */
+	}
+	
+	char* chars = ALLOCATE(char, 2);
+	chars[0] = (char)code;
+	chars[1] = '\0';
+	return OBJ_VAL(takeString(chars, 1));
 }
 
 /* The close extension. */
@@ -115,6 +134,36 @@ static Value getExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)result);
 }
 
+/* The length extension. */
+static Value lengthExtension(int argCount, Value* args) {
+	if (argCount != 1 || !IS_STRING(args[0])) {
+		return NUMBER_VAL(0.0); /* Invalid arguments. */
+	}
+	
+	return NUMBER_VAL((double)(AS_STRING(args[0])->length));
+}
+
+/* The ord extension. */
+static Value ordExtension(int argCount, Value* args) {
+	if (argCount != 1 || !IS_STRING(args[0])) {
+		return NIL_VAL; /* Invalid arguments. */
+	}
+	
+	ObjString* string = AS_STRING(args[0]);
+	
+	if (string->length != 1) {
+		return NIL_VAL; /* Not a single character. */
+	}
+	
+	int value = (int)(string->chars[0]);
+	
+	if (value < 0 || value > 255) {
+		return NIL_VAL; /* Not an ASCII character. */
+	}
+	
+	return NUMBER_VAL((double)value);
+}
+
 /* The put extension. */
 static Value putExtension(int argCount, Value* args) {
 	if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
@@ -168,6 +217,27 @@ static Value stdoutExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)STREAM_STDOUT);
 }
 
+/* The substring extension. */
+static Value substringExtension(int argCount, Value* args) {
+	if (argCount != 3 || !IS_STRING(args[0]) || !IS_NUMBER(args[1]) || !IS_NUMBER(args[2]))	{
+		return NIL_VAL; /* Invalid arguments. */
+	}
+	
+	ObjString* string = AS_STRING(args[0]);
+	int start = (int)AS_NUMBER(args[1]);
+	int length = (int)AS_NUMBER(args[2]);
+	
+	if (start < 0 || length < 0 || start + length > string->length) {
+		return NIL_VAL; /* Substring out of bounds. */
+	}
+	
+	if (length == string->length) {
+		return args[0]; /* Special case for same length substring. */
+	}
+	
+	return OBJ_VAL(copyString(string->chars + start, length));
+}
+
 /* The write extension. */
 static Value writeExtension(int argCount, Value* args) {
 	return openFileHandle(argCount, args, "wb");
@@ -206,12 +276,16 @@ void freeExtensions() {
 void installExtensions(DefineNativeFn defineNative) {
 	defineNative("arg", argExtension);
 	defineNative("args", argsExtension);
+	defineNative("chr", chrExtension);
 	defineNative("close", closeExtension);
 	defineNative("get", getExtension);
+	defineNative("length", lengthExtension);
+	defineNative("ord", ordExtension);
 	defineNative("put", putExtension);
 	defineNative("read", readExtension);
 	defineNative("stderr", stderrExtension);
 	defineNative("stdin", stdinExtension);
 	defineNative("stdout", stdoutExtension);
+	defineNative("substring", substringExtension);
 	defineNative("write", writeExtension);
 }
