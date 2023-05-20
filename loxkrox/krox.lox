@@ -1,2 +1,110 @@
-// TODO: Krox interpreter.
-print "Hello, LoxKrox!";
+// LoxKrox
+// A Krox compiler written in Lox.
+// Copyright (c) 2023 Chris Roberts (Krobbizoid).
+// Released under the MIT License:
+// https://krobbi.github.io/license/2023/mit.txt
+
+// Lox does not support modules, so the entire compiler is packed into one file.
+// It is ordered to reduce forward dependencies, and separated into logical
+// sections with commented 'SECTION' tags.
+
+/// SECTION: Extension check. // ============================================ //
+
+// The compiler depends on a number of non-standard extension functions for I/O
+// purposes. We check that all of these exist before doing anything else. Any
+// implementation of Lox that does not support these functions should crash here
+// before it does anything potentially harmful.
+x_arg;
+x_args;
+x_chr;
+x_close;
+x_get;
+x_length;
+x_ord;
+x_put;
+x_read;
+x_stderr;
+x_stdin;
+x_stdout;
+x_substring;
+x_write;
+
+/// SECTION: Message logging. // ============================================ //
+
+// A record of a log containing a message and links to surrounding log records.
+class LogRecord {
+	// Initialize the log record's message and links.
+	init(message){
+		// The log record's message.
+		this.message = message;
+		
+		// The link to the previous log record of the log.
+		this.previous = nil;
+		
+		// The link to the next log record of the log.
+		this.next = nil;
+	}
+	
+	// Output the log record.
+	output(){
+		var length = x_length(this.message);
+		var stream = x_stdout(); // TODO: Replace with `x_stderr`.
+		
+		for(var i = 0; i < length; i = i + 1){
+			x_put(x_ord(x_substring(this.message, i, 1)), stream);
+		}
+		
+		x_put(10, stream); // Output a line break.
+	}
+}
+
+// A log containing a list of log records.
+class Log {
+	// Initialize the log's list.
+	init(){
+		// The first log record of the log.
+		this.head = nil;
+		
+		// The last log record of the log.
+		this.tail = nil;
+	}
+	
+	// Add a new log record to the log from its message.
+	add(message){
+		var record = LogRecord(message);
+		
+		// If the log is not empty.
+		if(this.tail){
+			this.tail.next = record;
+		} else {
+			this.head = record;
+		}
+		
+		record.previous = this.tail;
+		this.tail = record;
+	}
+	
+	// Output and clear the log.
+	flush(){
+		var record = this.head;
+		
+		// While we still have log records to output.
+		while(record){
+			record.output();
+			record = record.next;
+		}
+		
+		this.head = nil;
+		this.tail = nil;
+	}
+}
+
+/// SECTION: Main function. // ============================================== //
+
+fun main(){
+	var log = Log();
+	log.add("LoxKrox - A Krox compiler written in Lox.");
+	log.flush();
+}
+
+main();

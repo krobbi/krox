@@ -23,8 +23,9 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 3. [License](#license)
 
 # About
-Krox is a language that is yet to be created, loosely based on some insight
-from the Lox language.
+Krox is an unfinished language whose initial implementation is being written in
+Lox. Originally, Krox was planned to be an extension of Lox, but its scope
+would make it difficult to fit into a Lox interpreter.
 
 I have attempted to write languages before Krox, most notably
 [Funcy](https://github.com/krobbi/funcy), which was implemented in Python.
@@ -34,11 +35,14 @@ scripting language that was used for cutscenes in my game,
 been removed from the game and I am now leveraging the game engine's
 functionality, as I should have in the first place.
 
-Originally, Krox was planned to be an extension of Lox, but its scope would
-make it difficult to fit into a Lox interpreter.
-
-Despite this, I still intend on implementing Krox in Lox, which will be a
-serious challenge.
+_This repository contains:_  
+* `Makefile` - Makefile for bootstrapping Krox. Designed for Windows. Currently
+unfinished. Use at your own risk.
+* `clox/` - A Lox interpreter witten in C.
+* `loxkrox/` - An unfinished Krox compiler written in Lox.
+* `pylox/` - A Lox interpreter written in Python. Too slow for most practical
+purposes and not used by the rest of the repository.
+* `sample/` - Sample Lox code.
 
 # About Lox
 Lox is a language described in the book
@@ -51,17 +55,8 @@ I followed along with the book to get a better idea of the best practices and
 design choices involved in designing a language. Lox also has object-oriented
 capabilities, which I had never previously attempted to implement.
 
-My initial implementation of Lox was written in Python instead of Java.
-
-_This repository contains:_  
-* `Makefile` - Makefile for bootstrapping Krox. Designed for Windows. Currently
-a hello world. Use at your own risk.
-* `clox/` - A completed Lox interpreter witten in C.
-* `loxkrox/` - An unimplemented Krox interpreter written in Lox. Currently a
-hello world.
-* `pylox/` - A completed Lox interpreter written in Python. Too slow for most
-practical uses.
-* `sample/` - Sample Lox code.
+My initial implementation of Lox was written in Python instead of Java for
+convenience.
 
 # Lox Extensions
 In addition to the standard `clock()` function, my implementation of Lox
