@@ -1,27 +1,27 @@
 // String demonstration.
 // Demonstrates and tests string manipulation in Lox.
 
-print length(""); // 0.
-print length("Foo"); // 3.
-print length("Hello, world!"); // 13.
+print x_length(""); // 0.
+print x_length("Foo"); // 3.
+print x_length("Hello, world!"); // 13.
 
-print substring("Substring manipulation!", -1, 1); // nil.
-print substring("Substring manipulation!", 0, 23) + "?"; // "Substring...!?".
-print substring("Substring manipulation!", 1, 22) + "?"; // "ubstring...!?".
-print substring("Substring manipulation!", 1, 23); // nil.
-print substring("Substring manipulation!", 0, 24); // nil.
-print substring("Substring manipulation!", 5, -1); // nil.
-print substring("Substring manipulation!", 0, 0) + "?"; // "?".
-print substring("Substring manipulation!", 6, 0) + "?"; // "?".
-print substring("Substring manipulation!", 23, 0) + "?"; // "?".
-print substring("Substring manipulation!", 23, 1); // nil.
-print substring("Substring manipulation!", 3, 12) + "?"; // "string manip?".
+print x_substring("Substring manipulation!", -1, 1); // nil.
+print x_substring("Substring manipulation!", 0, 23) + "?"; // "Substring...!?".
+print x_substring("Substring manipulation!", 1, 22) + "?"; // "ubstring...!?".
+print x_substring("Substring manipulation!", 1, 23); // nil.
+print x_substring("Substring manipulation!", 0, 24); // nil.
+print x_substring("Substring manipulation!", 5, -1); // nil.
+print x_substring("Substring manipulation!", 0, 0) + "?"; // "?".
+print x_substring("Substring manipulation!", 6, 0) + "?"; // "?".
+print x_substring("Substring manipulation!", 23, 0) + "?"; // "?".
+print x_substring("Substring manipulation!", 23, 1); // nil.
+print x_substring("Substring manipulation!", 3, 12) + "?"; // "string manip?".
 
 fun reverse(message){
 	var backwards = "";
 	
-	for(var i = length(message) - 1; i >= 0; i = i - 1){
-		backwards = backwards + substring(message, i, 1);
+	for(var i = x_length(message) - 1; i >= 0; i = i - 1){
+		backwards = backwards + x_substring(message, i, 1);
 	}
 	
 	return backwards;
@@ -29,17 +29,17 @@ fun reverse(message){
 
 print reverse("Backwards!") + "?"; // "!sdrawkcaB?".
 
-// Test string interning.
-print substring("FooBar", 2, 3) == "oBa"; // true.
-print "zQu" == substring("BazQux", 2, 3); // true.
-print substring("Test", 0, 2) + "ch" == "Tech"; // true.
-print "Part" == substring("Pass", 0, 2) + "rt"; // true.
-print substring("Pass", 0, 2) + substring("Test", 2, 2) == "Pas" + "t"; // true.
+// Test string interning. All true.
+print x_substring("FooBar", 2, 3) == "oBa";
+print "zQu" == x_substring("BazQux", 2, 3);
+print x_substring("Test", 0, 2) + "ch" == "Tech";
+print "Part" == x_substring("Pass", 0, 2) + "rt";
+print x_substring("Pass", 0, 2) + x_substring("Test", 2, 2) == "Pas" + "t";
 
-print ord(""); // nil.
-print ord("Hi!"); // nil.
-print ord("A"); // 65.
+print x_ord(""); // nil
+print x_ord("Hi!"); // nil.
+print x_ord("A"); // 65.
 
-print chr(-1); // nil.
-print chr(256); // nil.
-print chr(65) + chr(66) + chr(67); // "ABC".
+print x_chr(-1); // nil.
+print x_chr(256); // nil.
+print x_chr(65) + x_chr(66) + x_chr(67); // "ABC".

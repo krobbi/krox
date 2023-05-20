@@ -6,20 +6,20 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 1. [About](#about)
 2. [About Lox](#about-lox)
 3. [Lox Extensions](#lox-extensions)
-   * [`arg(index)`](#argindex)
-   * [`args()`](#args)
-   * [`chr(code)`](#chrcode)
-   * [`close(handle)`](#closehandle)
-   * [`get(handle)`](#gethandle)
-   * [`length(string)`](#lengthstring)
-   * [`ord(character)`](#ordcharacter)
-   * [`put(byte, handle)`](#putbyte-handle)
-   * [`read(path)`](#readpath)
-   * [`stderr()`](#stderr)
-   * [`stdin()`](#stdin)
-   * [`stdout()`](#stdout)
-   * [`substring(string, start, length)`](#substringstring-start-length)
-   * [`write(path)`](#writepath)
+   * [`x_arg(index)`](#x_argindex)
+   * [`x_args()`](#x_args)
+   * [`x_chr(code)`](#x_chrcode)
+   * [`x_close(handle)`](#x_closehandle)
+   * [`x_get(handle)`](#x_gethandle)
+   * [`x_length(string)`](#x_lengthstring)
+   * [`x_ord(character)`](#x_ordcharacter)
+   * [`x_put(byte, handle)`](#x_putbyte-handle)
+   * [`x_read(path)`](#x_readpath)
+   * [`x_stderr()`](#x_stderr)
+   * [`x_stdin()`](#x_stdin)
+   * [`x_stdout()`](#x_stdout)
+   * [`x_substring(string, start, length)`](#x_substringstring-start-length)
+   * [`x_write(path)`](#x_writepath)
 3. [License](#license)
 
 # About
@@ -65,73 +65,75 @@ practical uses.
 
 # Lox Extensions
 In addition to the standard `clock()` function, my implementation of Lox
-includes some 'extension' functions to improve its I/O capabilities.
+includes some extension functions to improve its I/O capabilities. The
+non-standard extensions are marked with an `x_` prefix to indicate that they
+have a special implementation and to reduce namespace pollution.
 
-## `arg(index)`
+## `x_arg(index)`
 Return the command line argument string at index `index`, following the same
-range as `args()`. The first argument is at index `0`. Using an out of range
+range as `x_args()`. The first argument is at index `0`. Using an out of range
 index returns `nil`.
 
-## `args()`
+## `x_args()`
 Return the number of command line arguments, starting at and including the Lox
 script file's name. This function should always return `0` in REPL mode, and
 always return at least `1` when outside of REPL mode.
 
-## `chr(code)`
+## `x_chr(code)`
 Return a single character string with the number code point `code`. Returns
 `nil` if `code` is not a number from `0` to `255`.
 
-## `close(handle)`
+## `x_close(handle)`
 Flush and close the stream at the file handle number `handle`. Returns `true`
 if a file stream was closed successfully. Otherwise, returns `false`.
 Attempting to close a standard stream will do nothing and always return
 `false`.
 
-## `get(handle)`
+## `x_get(handle)`
 Get and return the next byte from the stream at the file handle number
 `handle`. Returns `nil` if an error or the end of file was encountered.
 Otherwise, returns a number from `0` to `255`.
 
-## `length(string)`
+## `x_length(string)`
 Return the number length of the string `string` in characters. Returns an
 undefined number value if `string` is not a string.
 
-## `ord(character)`
+## `x_ord(character)`
 Return the number code point of the single character string `character`.
 Returns `nil` if `character` is not a single character or has a code point
 outside of the range of `0` to `255`.
 
-## `put(byte, handle)`
+## `x_put(byte, handle)`
 Put a byte number `byte` from `0` to `255` to the stream at the file handle
 number `handle`. Returns `nil` if the byte number could not be put to a stream
 for any reason. Otherwise, returns the byte number that was written.
 
-## `read(path)`
+## `x_read(path)`
 Open the file at the path string `path` for reading and return a file handle
 number. Returns `nil` if the file could not be opened for any reason. Any
-returned file handle number must later be closed with `close(handle)`.
+returned file handle number must later be closed with `x_close(handle)`.
 
-## `stderr()`
+## `x_stderr()`
 Return a file handle number representing the standard error stream. Always
 returns `2`.
 
-## `stdin()`
+## `x_stdin()`
 Return a file handle number representing the standard input stream. Always
 returns `0`.
 
-## `stdout()`
+## `x_stdout()`
 Return a file handle number representing the standard output stream. Always
 returns `1`.
 
-## `substring(string, start, length)`
+## `x_substring(string, start, length)`
 Return a new substring of `string` starting at index `start` with length
 `length`. Returns `nil` if `length` is negative or if the substring would be
 out of bounds of `string`.
 
-## `write(path)`
+## `x_write(path)`
 Open the file at the path string `path` for writing and return a file hande
 number. Returns `nil` if the file could not be opened for any reason. Any
-returned file handle number must later be closed with `close(handle)`.
+returned file handle number must later be closed with `x_close(handle)`.
 
 # License
 Krox is released under the MIT License:  

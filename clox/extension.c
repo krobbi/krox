@@ -274,18 +274,18 @@ void freeExtensions() {
 
 /* Install the extensions. */
 void installExtensions(DefineNativeFn defineNative) {
-	defineNative("arg", argExtension);
-	defineNative("args", argsExtension);
-	defineNative("chr", chrExtension);
-	defineNative("close", closeExtension);
-	defineNative("get", getExtension);
-	defineNative("length", lengthExtension);
-	defineNative("ord", ordExtension);
-	defineNative("put", putExtension);
-	defineNative("read", readExtension);
-	defineNative("stderr", stderrExtension);
-	defineNative("stdin", stdinExtension);
-	defineNative("stdout", stdoutExtension);
-	defineNative("substring", substringExtension);
-	defineNative("write", writeExtension);
+	defineNative("x_arg", argExtension);
+	defineNative("x_args", argsExtension);
+	defineNative("x_chr", chrExtension);
+	defineNative("x_close", closeExtension);
+	defineNative("x_get", getExtension);
+	defineNative("x_length", lengthExtension);
+	defineNative("x_ord", ordExtension);
+	defineNative("x_put", putExtension);
+	defineNative("x_read", readExtension);
+	defineNative("x_stderr", stderrExtension);
+	defineNative("x_stdin", stdinExtension);
+	defineNative("x_stdout", stdoutExtension);
+	defineNative("x_substring", substringExtension);
+	defineNative("x_write", writeExtension);
 }

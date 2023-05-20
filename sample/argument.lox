@@ -4,6 +4,6 @@
 
 print "Arguments:";
 
-for(var index = 0; index < args(); index = index + 1){
-	print " * '" + arg(index) + "'";
+for(var index = 0; index < x_args(); index = index + 1){
+	print " * '" + x_arg(index) + "'";
 }
