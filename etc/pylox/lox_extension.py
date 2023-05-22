@@ -183,7 +183,7 @@ def write_extension(arguments: list[Any]) -> float | None:
 def trunc_extension(arguments: list[Any]) -> float:
     """ The trunc extension. """
     
-    return math.trunc(float(arguments[0]))
+    return float(math.trunc(float(arguments[0])))
 
 
 def open_file_handle(path: str, mode: str) -> float | None:
