@@ -1,3 +1,4 @@
+import math
 import sys
 
 from collections.abc import Callable
@@ -179,6 +180,12 @@ def write_extension(arguments: list[Any]) -> float | None:
     return open_file_handle(str(arguments[0]), "wb")
 
 
+def trunc_extension(arguments: list[Any]) -> float:
+    """ The trunc extension. """
+    
+    return math.trunc(float(arguments[0]))
+
+
 def open_file_handle(path: str, mode: str) -> float | None:
     """ Open and return a new file handle from a path and a mode. """
     
@@ -216,4 +223,5 @@ def install_extensions(
     define_native("x_stdin", 0, stdin_extension)
     define_native("x_stdout", 0, stdout_extension)
     define_native("x_substring", 3, substring_extension)
+    define_native("x_trunc", 1, trunc_extension)
     define_native("x_write", 1, write_extension)

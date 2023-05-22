@@ -27,6 +27,7 @@ x_stderr;
 x_stdin;
 x_stdout;
 x_substring;
+x_trunc;
 x_write;
 
 // SECTION: Compiler core. // =============================================== //

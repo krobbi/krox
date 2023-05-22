@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "object.h"
@@ -53,6 +54,42 @@ void freeValueArray(ValueArray* array) {
 	initValueArray(array);
 }
 
+/* Pretty print a double value. */
+static void printDouble(double value) {
+	char string[64] = {0};
+	sprintf(string, "%f", value);
+	
+	/* Panic if `sprintf` overflowed. */
+	if (string[63] != '\0') {
+		exit(70);
+	}
+	
+	char* point = strchr(string, '.');
+	
+	/* If we have a decimal point. */
+	if (point != NULL) {
+		char* tail = strchr(string, '\0') - 1;
+		
+		/* Strip trailing `0`s. */
+		while (tail > point && *tail == '0') {
+			*tail = '\0';
+			tail--;
+		}
+		
+		/* Strip decimal point if there is no fractional part. */
+		if (tail == point) {
+			*point = '\0';
+		}
+	}
+	
+	/* Never display `-0`. */
+	if (strcmp(string, "-0") == 0) {
+		printf("0");
+	} else {
+		printf(string);
+	}
+}
+
 /* Print a value. */
 void printValue(Value value) {
 #ifdef NAN_BOXING
@@ -61,7 +98,7 @@ void printValue(Value value) {
 	} else if (IS_NIL(value)) {
 		printf("nil");
 	} else if (IS_NUMBER(value)) {
-		printf("%g", AS_NUMBER(value));
+		printDouble(AS_NUMBER(value));
 	} else if (IS_OBJ(value)) {
 		printObject(value);
 	}
@@ -69,7 +106,7 @@ void printValue(Value value) {
 	switch (value.type) {
 		case VAL_BOOL:   printf(AS_BOOL(value) ? "true" : "false"); break;
 		case VAL_NIL:    printf("nil"); break;
-		case VAL_NUMBER: printf("%g", AS_NUMBER(value)); break;
+		case VAL_NUMBER: printDouble(AS_NUMBER(value)); break;
 		case VAL_OBJ:    printObject(value); break;
 	}
 #endif /* End NaN boxing. */

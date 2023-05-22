@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -238,6 +239,15 @@ static Value substringExtension(int argCount, Value* args) {
 	return OBJ_VAL(copyString(string->chars + start, length));
 }
 
+/* The trunc extension. */
+static Value truncExtension(int argCount, Value* args) {
+	if (argCount != 1 || !IS_NUMBER(args[0])) {
+		return NUMBER_VAL(0.0); /* Invalid arguments. */
+	}
+	
+	return NUMBER_VAL(trunc(AS_NUMBER(args[0])));
+}
+
 /* The write extension. */
 static Value writeExtension(int argCount, Value* args) {
 	return openFileHandle(argCount, args, "wb");
@@ -287,5 +297,6 @@ void installExtensions(DefineNativeFn defineNative) {
 	defineNative("x_stdin", stdinExtension);
 	defineNative("x_stdout", stdoutExtension);
 	defineNative("x_substring", substringExtension);
+	defineNative("x_trunc", truncExtension);
 	defineNative("x_write", writeExtension);
 }

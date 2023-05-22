@@ -20,6 +20,7 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
    * [`x_stdin()`](#x_stdin)
    * [`x_stdout()`](#x_stdout)
    * [`x_substring(string, start, length)`](#x_substringstring-start-length)
+   * [`x_trunc(number)`](#x_truncnumber)
    * [`x_write(path)`](#x_writepath)
 5. [License](#license)
 
@@ -184,6 +185,10 @@ returns `1`.
 Return a new substring of `string` starting at index `start` with length
 `length`. Returns `nil` if `length` is negative or if the substring would be
 out of bounds of `string`.
+
+## `x_trunc(number)`
+Return the number `number` with any fractional part truncated, rounding towards
+`0`. Returns an undefined number if `number` is not a number.
 
 ## `x_write(path)`
 Open the file at the path string `path` for writing and return a file hande
