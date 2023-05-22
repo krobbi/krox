@@ -1,4 +1,4 @@
-# Bootstrap Krox for Windows through clox. Currently a hello world.
+# Bootstrap Krox for Windows through clox. Currently unfinished.
 
 # Compiler settings:
 CC = gcc
@@ -16,7 +16,7 @@ endif
 
 # Directories:
 CLOX_SOURCE_DIR = clox
-CLOX_OBJECTS_DIR = obj
+CLOX_OBJECTS_DIR = etc/obj
 
 LOXKROX_SOURCE_DIR = loxkrox
 
@@ -37,8 +37,8 @@ build: $(CLOX_EXECUTABLE)
 
 # Clean all build output:
 clean:
-	if exist $(CLOX_OBJECTS_DIR) rd /s /q $(CLOX_OBJECTS_DIR)
-	if exist $(CLOX_EXECUTABLE) del /f /q $(CLOX_EXECUTABLE)
+	if exist "$(CLOX_OBJECTS_DIR)" rd /s /q "$(CLOX_OBJECTS_DIR)"
+	if exist "$(CLOX_EXECUTABLE)" del /f /q "$(CLOX_EXECUTABLE)"
 
 # Link clox executable:
 $(CLOX_EXECUTABLE): $(CLOX_OBJECTS) | $(CLOX_OBJECTS_DIR)
@@ -50,4 +50,4 @@ $(CLOX_OBJECTS_DIR)/%.o: $(CLOX_SOURCE_DIR)/%.c $(CLOX_HEADERS) | $(CLOX_OBJECTS
 
 # Make clox objects directory:
 $(CLOX_OBJECTS_DIR):
-	mkdir $(CLOX_OBJECTS_DIR)
+	mkdir "$(CLOX_OBJECTS_DIR)"

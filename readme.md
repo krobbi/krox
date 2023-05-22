@@ -4,8 +4,9 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 
 # Contents
 1. [About](#about)
-2. [About Lox](#about-lox)
-3. [Lox Extensions](#lox-extensions)
+2. [Design](#design)
+3. [About Lox](#about-lox)
+4. [Lox Extensions](#lox-extensions)
    * [`x_arg(index)`](#x_argindex)
    * [`x_args()`](#x_args)
    * [`x_chr(code)`](#x_chrcode)
@@ -20,12 +21,13 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
    * [`x_stdout()`](#x_stdout)
    * [`x_substring(string, start, length)`](#x_substringstring-start-length)
    * [`x_write(path)`](#x_writepath)
-3. [License](#license)
+5. [License](#license)
 
 # About
 Krox is an unfinished language whose initial implementation is being written in
 Lox. Originally, Krox was planned to be an extension of Lox, but its scope
-would make it difficult to fit into a Lox interpreter.
+would make it difficult to fit into a Lox interpreter. See
+[About Lox](#about-lox) for more information about the Lox language.
 
 I have attempted to write languages before Krox, most notably
 [Funcy](https://github.com/krobbi/funcy), which was implemented in Python.
@@ -39,10 +41,68 @@ _This repository contains:_
 * `Makefile` - Makefile for bootstrapping Krox. Designed for Windows. Currently
 unfinished. Use at your own risk.
 * `clox/` - A Lox interpreter witten in C.
+* `etc/lox/` - Sample Lox code.
+* `etc/pylox/` - A Lox interpreter written in Python. Too slow for most
+practical purposes and not used by the rest of the repository.
 * `loxkrox/` - An unfinished Krox compiler written in Lox.
-* `pylox/` - A Lox interpreter written in Python. Too slow for most practical
-purposes and not used by the rest of the repository.
 * `sample/` - Sample Lox code.
+
+# Design
+Krox is intended to be a concise, expression-oriented language. A major planned
+feature is an import system capable of importing and renaming individual
+identifiers from modules, and allowing top level identifiers to be used
+regardless of the order they are declared in. To make this easier to implement,
+top level code must only consist of imports and declarations.
+
+An example of potential Krox code is shown below:
+```
+// From `module.krox`, import `foo` and `bar` renamed to `baz`.
+> "module.krox" {
+   foo,
+   bar > baz,
+}
+
+// Renaming imports helps prevent collisions.
+fn bar {}
+
+// Declarations can be exported using `<`.
+< fn square(x){
+   x * x;
+}
+
+// A `main` function is reserved to allow the program to execute.
+fn main {}
+```
+
+To handle this, each module must keep track of its own set of available
+identifiers, and each declaration must have a unique ID to allow declarations
+of the same identifier.
+
+A simplified example of the data needed for the above module is shown below:
+```json
+{
+   "globals": {
+      "foo": "module.krox:foo",
+      "baz": "module.krox:bar",
+      "bar": "main.krox:bar",
+      "square": "main.krox:square",
+      "main": "main.krox:main"
+   },
+   "exports": [
+      "square"
+   ]
+}
+```
+
+An incomplete grammar for Krox is shown below:
+```ebnf
+module = { top }, EOF ;
+top = imports | export | declaration ;
+imports = ">", STRING, "{", [ import ], "}" ;
+import = IDENTIFIER, [ ">", IDENTIFIER ], [ ",", [ import ] ] ;
+export = "<", declaration ;
+declaration = function ;
+```
 
 # About Lox
 Lox is a language described in the book

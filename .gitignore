@@ -2,7 +2,7 @@
 ignore/*
 
 # Builds:
-obj/*
+etc/obj/*
 *.exe
 *.o
 
