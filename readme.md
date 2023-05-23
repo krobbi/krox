@@ -46,7 +46,6 @@ unfinished. Use at your own risk.
 * `etc/pylox/` - A Lox interpreter written in Python. Too slow for most
 practical purposes and not used by the rest of the repository.
 * `loxkrox/` - An unfinished Krox compiler written in Lox.
-* `sample/` - Sample Lox code.
 
 # Design
 Krox is intended to be a concise, expression-oriented language. A major planned
@@ -188,7 +187,7 @@ out of bounds of `string`.
 
 ## `x_trunc(number)`
 Return the number `number` with any fractional part truncated, rounding towards
-`0`. Returns an undefined number if `number` is not a number.
+`0`. Returns an undefined number value if `number` is not a number.
 
 ## `x_write(path)`
 Open the file at the path string `path` for writing and return a file hande
