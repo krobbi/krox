@@ -639,7 +639,7 @@ static int resolveUpvalue(Compiler* compiler, Token* name) {
 		return addUpvalue(compiler, (uint8_t)local, true);
 	}
 	
-	int upvalue = resolveUpvalue((Compiler*)(compiler->enclosing), false);
+	int upvalue = resolveUpvalue((Compiler*)(compiler->enclosing), name);
 	
 	if (upvalue != -1) {
 		return addUpvalue(compiler, (uint8_t)upvalue, false);

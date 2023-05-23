@@ -9,7 +9,7 @@ CFLAGS += -Wno-unused-parameter
 
 # Debug and release mode compiler flags:
 ifeq ($(MODE), debug)
-	CFLAGS += -Og -DDEBUG -g
+	CFLAGS += -Og -DDEBUG -g3
 else
 	CFLAGS += -O2 -flto
 endif
@@ -28,12 +28,20 @@ CLOX_EXECUTABLE = lox.exe
 
 LOXKROX_SOURCE = $(LOXKROX_SOURCE_DIR)/krox.lox
 
+# Debugger:
+DEBUGGER = gdb
+DEBUGGER_FLAGS = --annotate=3 --args $(CLOX_EXECUTABLE) $(LOXKROX_SOURCE)
+
 # Subcommands:
-.PHONY: build clean
+.PHONY: build debug clean
 
 # Build clox executable and run LoxKrox:
 build: $(CLOX_EXECUTABLE)
 	$(CLOX_EXECUTABLE) $(LOXKROX_SOURCE)
+
+# Debug clox executable with LoxKrox:
+debug: $(CLOX_EXECUTABLE)
+	$(DEBUGGER) $(DEBUGGER_FLAGS)
 
 # Clean all build output:
 clean:
