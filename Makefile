@@ -18,26 +18,25 @@ endif
 CLOX_SOURCE_DIR = clox
 CLOX_OBJECTS_DIR = etc/obj
 
-LOXKROX_SOURCE_DIR = loxkrox
-
 # Files:
 CLOX_HEADERS = $(wildcard $(CLOX_SOURCE_DIR)/*.h)
 CLOX_SOURCES = $(wildcard $(CLOX_SOURCE_DIR)/*.c)
 CLOX_OBJECTS = $(addprefix $(CLOX_OBJECTS_DIR)/, $(notdir $(CLOX_SOURCES:.c=.o)))
 CLOX_EXECUTABLE = lox.exe
 
-LOXKROX_SOURCE = $(LOXKROX_SOURCE_DIR)/krox.lox
+# Bootstrap stages:
+CLOX_FLAGS = loxkrox/krox.lox kroxkrox/main.krox
 
 # Debugger:
 DEBUGGER = gdb
-DEBUGGER_FLAGS = --annotate=3 --args $(CLOX_EXECUTABLE) $(LOXKROX_SOURCE)
+DEBUGGER_FLAGS = --annotate=3 --args $(CLOX_EXECUTABLE) $(CLOX_FLAGS)
 
 # Subcommands:
 .PHONY: build debug clean
 
 # Build clox executable and run LoxKrox:
 build: $(CLOX_EXECUTABLE)
-	$(CLOX_EXECUTABLE) $(LOXKROX_SOURCE)
+	$(CLOX_EXECUTABLE) $(CLOX_FLAGS)
 
 # Debug clox executable with LoxKrox:
 debug: $(CLOX_EXECUTABLE)

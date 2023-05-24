@@ -4,16 +4,16 @@
 // Released under the MIT License:
 // https://krobbi.github.io/license/2023/mit.txt
 
-// Lox does not support modules, so the entire compiler is packed into one file.
-// It is ordered to reduce forward dependencies, and separated into logical
-// sections with commented 'SECTION' tags.
+// Due to Lox's limitations, the compiler is packed into one file and separated
+// into logical sections with commented 'SECTION' tags. The compiler also
+// implements features that would more typically be part of a standard library.
 
-/// SECTION: Extension check. // ============================================ //
+/// SECTION: Extensions. // ================================================= //
 
 // The compiler depends on a number of non-standard extension functions for I/O
-// purposes. We check that all of these exist before doing anything else. Any
-// implementation of Lox that does not support these functions should crash here
-// before it does anything potentially harmful.
+// purposes. These are checked so that any implementation of Lox that does not
+// support these functions will throw an error before it does anything
+// potentially harmful.
 x_arg;
 x_args;
 x_chr;
@@ -30,12 +30,246 @@ x_substring;
 x_trunc;
 x_write;
 
-// SECTION: Compiler core. // =============================================== //
+/// SECTION: String. // ===================================================== //
+
+// A boxed string for formatting and output.
+class String {
+	// Initialize the boxed string's string.
+	init(string){
+		this.string = string;
+	}
+	
+	// Return a new copy of the boxed string concatenated with a string.
+	plus(value){
+		return String(this.string + value);
+	}
+	
+	// Return a new copy of the boxed string concatenated with an integer.
+	plus_int(value){
+		var formatted = "";
+		
+		if(value < 0){
+			value = -value;
+			formatted = "-";
+		}
+		
+		var place = 10;
+		
+		while(place <= value){
+			place = place * 10;
+		}
+		
+		while(place >= 10){
+			place = place / 10;
+			var digit = x_trunc(value / place);
+			value = value - digit * place;
+			formatted = formatted + x_chr(digit + 48); // Add '0'.
+		}
+		
+		return String(this.string + formatted);
+	}
+	
+	// Put the boxed string to an open output stream with a trailing line feed.
+	put_ln(stream){
+		var length = x_length(this.string);
+		
+		for(var i = 0; i < length; i = i + 1){
+			x_put(x_ord(x_substring(this.string, i, 1)), stream);
+		}
+		
+		x_put(10, stream); // Put '\n'.
+	}
+	
+	// Return the boxed string represented as a string.
+	to_string(){
+		return this.string;
+	}
+}
+
+/// SECTION: List. // ======================================================= //
+
+// A list of elements.
+class List {
+	// Initialize the list's nodes.
+	init(){
+		// The list's first node.
+		this.head = nil;
+		
+		// The list's last node.
+		this.tail = nil;
+	}
+	
+	// Clear the list.
+	clear(){
+		this.head = nil;
+		this.tail = nil;
+	}
+	
+	// Append an element to the list.
+	append(element){
+		// A list node.
+		class Node {
+			// Initialize the list node's element and next list node.
+			init(element){
+				// The list node's element.
+				this.element = element;
+				
+				// The list node's next list node.
+				this.next = nil;
+			}
+		}
+		
+		var node = Node(element);
+		
+		if(this.tail){
+			this.tail.next = node;
+		} else {
+			this.head = node;
+		}
+		
+		this.tail = node;
+	}
+	
+	// Run a function for each element in the list.
+	for_each(function){
+		var node = this.head;
+		
+		while(node){
+			function(node.element);
+			node = node.next;
+		}
+	}
+}
+
+/// SECTION: Span. // ======================================================= //
+
+// A span between two positions in a module, or a lack of position.
+class Span {
+	// Initialize the span's module name and positions.
+	init(){
+		// The span's module name.
+		this.module = "";
+		
+		// The line number of the span's start position.
+		this.start_line = 0;
+		
+		// The column number of the span's start position.
+		this.start_column = 0;
+		
+		// The line number of the span's end position.
+		this.end_line = 0;
+		
+		// The column number of the span's end position.
+		this.end_column = 0;
+	}
+	
+	// Return a new copy of the span.
+	clone(){
+		var target = Span();
+		target.clone_from(this);
+		return target;
+	}
+	
+	// Copy the span's value from a source span.
+	clone_from(source){
+		this.module = source.module;
+		this.start_line = source.start_line;
+		this.start_column = source.start_column;
+		this.end_line = source.end_line;
+		this.end_column = source.end_column;
+	}
+	
+	// Return the span represented as a string.
+	to_string(){
+		if(this.start_line < 1){
+			return "[Global]";
+		}
+		
+		var string = String(
+			"[" + this.module + ":"
+		).plus_int(this.start_line).plus(":").plus_int(this.start_column);
+		
+		if(this.end_line > this.start_line){
+			string = string.plus(" > ").plus_int(this.end_line).plus(":").plus_int(this.end_column);
+		} else if(this.end_column > this.start_column){
+			string = string.plus("-").plus_int(this.end_column);
+		}
+		
+		return string.to_string() + "]";
+	}
+}
+
+/// SECTION: Logger. // ===================================================== //
+
+// Logs error messages at spans.
+class Logger {
+	// Initialize the logger's log record list.
+	init(){
+		// The logger's log record list.
+		this.records = List();
+	}
+	
+	// Output and clear the logger's error messages.
+	flush(){
+		// Output a log record.
+		fun output_record(record){
+			String(record.span.to_string() + " " + record.message).put_ln(x_stderr());
+		}
+		
+		this.records.for_each(output_record);
+		this.records.clear();
+	}
+	
+	// Log an error message.
+	log(message){
+		this.log_at(message, Span());
+	}
+	
+	// Log an error message at a span.
+	log_at(message, span){
+		// A log record containing a message and a span.
+		class Record {
+			// Initialize the log record's message and span.
+			init(message, span){
+				// The log record's message.
+				this.message = message;
+				
+				// The log record's span.
+				this.span = span;
+			}
+		}
+		
+		this.records.append(Record(message, span.clone()));
+	}
+}
+
+/// SECTION: Main. // ======================================================= //
 
 // Run the compiler.
 fun main(){
-	// TODO: Krox compiler.
-	print "LoxKrox - A Krox compiler written in Lox.";
+	// Scan a module from its path and a logger.
+	fun scan_module(path, logger){
+		var stream = x_read(path);
+		
+		if(!stream){
+			logger.log("Failed to read `" + path + "`, file may not exist.");
+			return;
+		}
+		
+		print "Read `" + path + "` successfully."; // TODO: Implement scanner.
+		
+		x_close(stream);
+	}
+	
+	var logger = Logger();
+	
+	if(x_args() == 2){
+		scan_module(x_arg(1), logger);
+	} else {
+		logger.log("Expected arguments `krox.lox <krox source path>`.");
+	}
+	
+	logger.flush();
 }
 
 main();

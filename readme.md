@@ -45,6 +45,7 @@ unfinished. Use at your own risk.
 * `etc/lox/` - Sample Lox code.
 * `etc/pylox/` - A Lox interpreter written in Python. Too slow for most
 practical purposes and not used by the rest of the repository.
+* `kroxkrox/` - A Krox compiler written in Krox. Currently a placeholder.
 * `loxkrox/` - An unfinished Krox compiler written in Lox.
 
 # Design
