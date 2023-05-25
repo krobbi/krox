@@ -5,3 +5,16 @@
 // https://krobbi.github.io/license/2023/mit.txt
 
 // Currently a placeholder for testing purposes.
+
+> "module.krox" {
+	foo,
+	bar > baz,
+}
+
+fn bar {}
+
+< fn square(x){
+	x * x;
+}
+
+fn main {}

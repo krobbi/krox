@@ -30,6 +30,28 @@ x_substring;
 x_trunc;
 x_write;
 
+/// SECTION: Char. // ======================================================= //
+
+var CHAR_ILLEGAL = -2; // Unsupported character.
+var CHAR_EOF = -1; // End of file.
+var CHAR_NUL = 0; // Null.
+var CHAR_HT = 9; // Horizontal tab.
+var CHAR_LF = 10; // Line feed.
+var CHAR_SP = x_ord(" "); // Space.
+var CHAR_QUOTE = 34; // Quotation mark.
+var CHAR_SLASH = x_ord("/"); // Slash.
+var CHAR_0 = x_ord("0"); // Digit 0.
+var CHAR_9 = x_ord("9"); // Digit 9.
+var CHAR_UPPER_A = x_ord("A"); // Uppercase letter A.
+var CHAR_UPPER_Z = x_ord("Z"); // Uppercase letter Z.
+var CHAR_UNDERSCORE = x_ord("_"); // Underscore.
+var CHAR_LOWER_A = x_ord("a"); // Lowercase letter A.
+var CHAR_LOWER_Z = x_ord("z"); // Lowercase letter Z.
+var CHAR_DEL = 127; // Delete.
+var CHAR_CONTINUE_1 = 128 + 64; // UTF-8, 1 continuation byte.
+var CHAR_CONTINUE_2 = 128 + 64 + 32; // UTF-8, 2 continuation bytes.
+var CHAR_CONTINUE_3 = 128 + 64 + 32 + 16; // UTF-8, 3 continuation bytes.
+
 /// SECTION: String. // ===================================================== //
 
 // A boxed string for formatting and output.
@@ -37,6 +59,12 @@ class String {
 	// Initialize the boxed string's string.
 	init(string){
 		this.string = string;
+	}
+	
+	// Return a new copy of the boxed string escaped in quotes.
+	quote(){
+		var quote_string = x_chr(CHAR_QUOTE);
+		return String(quote_string + this.string + quote_string);
 	}
 	
 	// Return a new copy of the boxed string concatenated with a string.
@@ -63,7 +91,7 @@ class String {
 			place = place / 10;
 			var digit = x_trunc(value / place);
 			value = value - digit * place;
-			formatted = formatted + x_chr(digit + 48); // Add '0'.
+			formatted = formatted + x_chr(CHAR_0 + digit);
 		}
 		
 		return String(this.string + formatted);
@@ -77,7 +105,7 @@ class String {
 			x_put(x_ord(x_substring(this.string, i, 1)), stream);
 		}
 		
-		x_put(10, stream); // Put '\n'.
+		x_put(CHAR_LF, stream);
 	}
 	
 	// Return the boxed string represented as a string.
@@ -141,6 +169,68 @@ class List {
 	}
 }
 
+/// SECTION: Map. // ======================================================== //
+
+// A map of keys to values.
+class Map {
+	init(){
+		// The map's most recently inserted node.
+		this.head = nil;
+	}
+	
+	// Insert a key value pair into the map.
+	insert(key, value){
+		var node = this.probe_node(key);
+		
+		if(node){
+			node.value = value;
+		} else {
+			// A map node.
+			class Node {
+				// Initialize the map node's key, value, and next map node.
+				init(key, value, next){
+					// The map node's key.
+					this.key = key;
+					
+					// The map node's value.
+					this.value = value;
+					
+					// The map node's next map node.
+					this.next = next;
+				}
+			}
+			
+			this.head = Node(key, value, this.head);
+		}
+	}
+	
+	// Get a value from the map from its key.
+	get(key){
+		var node = this.probe_node(key);
+		
+		if(node){
+			return node.value;
+		} else {
+			return nil;
+		}
+	}
+	
+	// Return a node from the map from its key if it exists.
+	probe_node(key){
+		var node = this.head;
+		
+		while(node){
+			if(node.key == key){
+				return node;
+			}
+			
+			node = node.next;
+		}
+		
+		return nil;
+	}
+}
+
 /// SECTION: Span. // ======================================================= //
 
 // A span between two positions in a module, or a lack of position.
@@ -161,6 +251,33 @@ class Span {
 		
 		// The column number of the span's end position.
 		this.end_column = 0;
+	}
+	
+	// Reset the span to the start of a module from its name.
+	reset(module){
+		this.module = module;
+		this.start_line = 1;
+		this.start_column = 1;
+		this.end_line = 1;
+		this.end_column = 1;
+	}
+	
+	// Extend the span from a character.
+	extend_from_char(char){
+		if(char == CHAR_HT){
+			this.end_column = this.end_column + 4;
+		} else if(char == CHAR_LF){
+			this.end_line = this.end_line + 1;
+			this.end_column = 1;
+		} else if(char != CHAR_EOF){
+			this.end_column = this.end_column + 1;
+		}
+	}
+	
+	// Shrink the span to its end position.
+	shrink_to_end(){
+		this.start_line = this.end_line;
+		this.start_column = this.end_column;
 	}
 	
 	// Return a new copy of the span.
@@ -243,6 +360,272 @@ class Logger {
 	}
 }
 
+/// SECTION: Token. // ====================================================== //
+
+var TOKEN_NONE = 0; // Syntax error, whitespace, or comment.
+var TOKEN_EOF = 1; // End of file.
+var TOKEN_STRING = 2; // String literal.
+var TOKEN_IDENTIFIER = 3; // Identifier.
+var TOKEN_FN = 4; // `fn`.
+var TOKEN_OPEN_PARENTHESIS = 5; // `(`.
+var TOKEN_CLOSE_PARENTHESIS = 6; // `)`.
+var TOKEN_STAR = 7; // `*`.
+var TOKEN_COMMA = 8; // `,`.
+var TOKEN_SEMICOLON = 9; // `;`.
+var TOKEN_LESS = 10; // `<`.
+var TOKEN_GREATER = 11; // `>`.
+var TOKEN_OPEN_BRACE = 12; // `{`.
+var TOKEN_CLOSE_BRACE = 13; // `}`.
+
+// Stores a lexeme's type, value, and span.
+class Token {
+	// Initialize the token's type, value, and span.
+	init(type, value, span){
+		// The token's type.
+		this.type = type;
+		
+		// The token's value.
+		this.value = value;
+		
+		// The token's span.
+		this.span = span;
+	}
+	
+	// Return the token represented as a string.
+	to_string(){
+		var name;
+		
+		if(this.type == TOKEN_NONE){
+			name = "TOKEN_NONE";
+		} else if(this.type == TOKEN_EOF){
+			name = "TOKEN_EOF";
+		} else if(this.type == TOKEN_STRING){
+			name = "TOKEN_STRING, " + String(this.value).quote().to_string();
+		} else if(this.type == TOKEN_IDENTIFIER){
+			name = "TOKEN_IDENTIFIER, " + this.value;
+		} else if(this.type == TOKEN_FN){
+			name = "TOKEN_FN";
+		} else if(this.type == TOKEN_OPEN_PARENTHESIS){
+			name = "TOKEN_OPEN_PARENTHESIS";
+		} else if(this.type == TOKEN_CLOSE_PARENTHESIS){
+			name = "TOKEN_CLOSE_PARENTHESIS";
+		} else if(this.type == TOKEN_STAR){
+			name = "TOKEN_STAR";
+		} else if(this.type == TOKEN_COMMA){
+			name = "TOKEN_COMMA";
+		} else if(this.type == TOKEN_SEMICOLON){
+			name = "TOKEN_SEMICOLON";
+		} else if(this.type == TOKEN_LESS){
+			name = "TOKEN_LESS";
+		} else if(this.type == TOKEN_GREATER){
+			name = "TOKEN_GREATER";
+		} else if(this.type == TOKEN_OPEN_BRACE){
+			name = "TOKEN_OPEN_BRACE";
+		} else if(this.type == TOKEN_CLOSE_BRACE){
+			name = "TOKEN_CLOSE_BRACE";
+		} else {
+			name = String("Bug: Unnamed token type `").plus_int(this.type).to_string() + "`.";
+		}
+		
+		return "[" + name + ", " + this.span.to_string() + "]";
+	}
+}
+
+/// SECTION: Scanner. // ==================================================== //
+
+// Scans a stream of tokens from an input stream.
+class Scanner {
+	// Initialize the scanner's logger, span, and input stream.
+	init(logger){
+		// The scanner's map of lexemes to keyword token types.
+		this.KEYWORDS = Map();
+		this.KEYWORDS.insert("fn", TOKEN_FN);
+		
+		// The scanner's map of lexemes to punctuator token types.
+		this.PUNCTUATORS = Map();
+		this.PUNCTUATORS.insert("(", TOKEN_OPEN_PARENTHESIS);
+		this.PUNCTUATORS.insert(")", TOKEN_CLOSE_PARENTHESIS);
+		this.PUNCTUATORS.insert("*", TOKEN_STAR);
+		this.PUNCTUATORS.insert(",", TOKEN_COMMA);
+		this.PUNCTUATORS.insert(";", TOKEN_SEMICOLON);
+		this.PUNCTUATORS.insert("<", TOKEN_LESS);
+		this.PUNCTUATORS.insert(">", TOKEN_GREATER);
+		this.PUNCTUATORS.insert("{", TOKEN_OPEN_BRACE);
+		this.PUNCTUATORS.insert("}", TOKEN_CLOSE_BRACE);
+		
+		// The scanner's logger.
+		this.logger = logger;
+		
+		// The scanner's span.
+		this.span = Span();
+		
+		// The scanner's input stream.
+		this.stream = -1;
+		
+		// The scanner's next character.
+		this.next = CHAR_EOF;
+	}
+	
+	// Reset the scanner from a module name and an input stream.
+	reset(module, stream){
+		this.span.reset(module);
+		this.stream = stream;
+		this.next = CHAR_EOF;
+		this.advance();
+	}
+	
+	// Scan the next token from the scanner.
+	scan_token(){
+		var token = this.scan_raw_token();
+		
+		while(token.type == TOKEN_NONE){
+			token = this.scan_raw_token();
+		}
+		
+		return token;
+	}
+	
+	// Scan the next token or none token from the scanner.
+	scan_raw_token(){
+		// Return whether a character is a whitespace character.
+		fun is_whitespace(char){
+			return char >= CHAR_NUL and char <= CHAR_SP or char == CHAR_DEL;
+		}
+		
+		// Return whether a character is an identifier character.
+		fun is_identifier(char){
+			return (
+				char >= CHAR_LOWER_A and char <= CHAR_LOWER_Z
+				or char == CHAR_UNDERSCORE
+				or char >= CHAR_UPPER_A and char <= CHAR_LOWER_Z
+				or char >= CHAR_0 and char <= CHAR_9
+			);
+		}
+		
+		// Return a new token from its type and value.
+		fun make_literal_token(type, value){
+			return Token(type, value, this.span.clone());
+		}
+		
+		// Return a new token from its type.
+		fun make_token(type){
+			return make_literal_token(type, nil);
+		}
+		
+		this.span.shrink_to_end();
+		var char = this.advance();
+		
+		if(char == CHAR_ILLEGAL){
+			return make_token(TOKEN_NONE);
+		} else if(char == CHAR_EOF){
+			return make_token(TOKEN_EOF);
+		} else if(is_whitespace(char)){
+			while(is_whitespace(this.next)){
+				this.advance();
+			}
+			
+			return make_token(TOKEN_NONE);
+		} else if(char == CHAR_SLASH){
+			if(this.next == CHAR_SLASH){
+				while(this.next != CHAR_LF and this.next != CHAR_EOF){
+					this.advance();
+				}
+				
+				return make_token(TOKEN_NONE);
+			}
+		} else if(char == CHAR_QUOTE){
+			var value = "";
+			
+			while(this.next != CHAR_QUOTE and this.next != CHAR_EOF){
+				value = value + x_chr(this.next);
+				this.advance();
+			}
+			
+			if(this.next == CHAR_QUOTE){
+				this.advance();
+			} else {
+				this.logger.log_at("Unterminated string.", this.span);
+			}
+			
+			return make_literal_token(TOKEN_STRING, value);
+		} else if(is_identifier(char)){
+			var value = x_chr(char);
+			
+			while(is_identifier(this.next)){
+				value = value + x_chr(this.next);
+				this.advance();
+			}
+			
+			var keyword = this.KEYWORDS.get(value);
+			
+			if(keyword){
+				return make_token(keyword);
+			} else {
+				return make_literal_token(TOKEN_IDENTIFIER, value);
+			}
+		}
+		
+		var lexeme = x_chr(char);
+		var punctuator = this.PUNCTUATORS.get(lexeme);
+		
+		if(punctuator){
+			return make_token(punctuator);
+		}
+		
+		this.logger.log_at("Illegal character `" + lexeme + "`.", this.span);
+		return make_token(TOKEN_NONE);
+	}
+	
+	// Advance to the next character and return the new current character.
+	advance(){
+		// Log an error message and return an illegal character.
+		fun illegal(message){
+			var error_span = this.span.clone();
+			error_span.shrink_to_end();
+			error_span.extend_from_char(CHAR_ILLEGAL);
+			this.logger.log_at(message, error_span);
+			return CHAR_ILLEGAL;
+		}
+		
+		var current = this.next;
+		this.span.extend_from_char(current);
+		var next = x_get(this.stream);
+		
+		if(!next){
+			x_close(this.stream); // Encountered error or end of file.
+			next = CHAR_EOF;
+		} else if(next == CHAR_NUL){
+			next = illegal("LoxKrox does not support null characters.");
+		} else if(next > CHAR_DEL){
+			var skip_count = 0;
+			
+			if(next >= CHAR_CONTINUE_3){
+				skip_count = 3;
+			} else if(next >= CHAR_CONTINUE_2){
+				skip_count = 2;
+			} else if(next >= CHAR_CONTINUE_1){
+				skip_count = 1;
+			}
+			
+			// Assume UTF-8, skip continuation bytes.
+			while(skip_count > 0){
+				next = x_get(this.stream);
+				skip_count = skip_count - 1;
+				
+				if(!next){
+					x_close(this.stream); // Encountered error or end of file.
+					skip_count = 0;
+				}
+			}
+			
+			next = illegal("LoxKrox does not support non-ASCII characters.");
+		}
+		
+		this.next = next;
+		return current;
+	}
+}
+
 /// SECTION: Main. // ======================================================= //
 
 // Run the compiler.
@@ -256,9 +639,15 @@ fun main(){
 			return;
 		}
 		
-		print "Read `" + path + "` successfully."; // TODO: Implement scanner.
+		var scanner = Scanner(logger);
+		scanner.reset(path, stream);
+		var token = scanner.scan_token();
+		print token.to_string();
 		
-		x_close(stream);
+		while(token.type != TOKEN_EOF){
+			token = scanner.scan_token();
+			print token.to_string();
+		}
 	}
 	
 	var logger = Logger();
