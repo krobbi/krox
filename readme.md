@@ -45,15 +45,14 @@ unfinished. Use at your own risk.
 * `etc/lox/` - Sample Lox code.
 * `etc/pylox/` - A Lox interpreter written in Python. Too slow for most
 practical purposes and not used by the rest of the repository.
-* `kroxkrox/` - A Krox compiler written in Krox. Currently a placeholder.
 * `loxkrox/` - An unfinished Krox compiler written in Lox.
 
 # Design
-Krox is intended to be a concise, expression-oriented language. A major planned
-feature is an import system capable of importing and renaming individual
-identifiers from modules, and allowing top level identifiers to be used
-regardless of the order they are declared in. To make this easier to implement,
-top level code must only consist of imports and declarations.
+A major planned feature of Krox is an import system capable of importing and
+renaming individual identifiers from modules, and allowing top level
+identifiers to be used regardless of the order they are declared in. To make
+this easier to implement, top level code must only consist of imports and
+declarations.
 
 An example of potential Krox code is shown below:
 ```
@@ -64,15 +63,15 @@ An example of potential Krox code is shown below:
 }
 
 // Renaming imports helps prevent collisions.
-fn bar {}
+fn bar(){}
 
 // Declarations can be exported using `<`.
 < fn square(x){
-   x * x;
+   return x * x;
 }
 
 // A `main` function is reserved to allow the program to execute.
-fn main {}
+fn main(){}
 ```
 
 To handle this, each module must keep track of its own set of available

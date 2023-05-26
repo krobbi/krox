@@ -1,0 +1,7 @@
+// Run the compiler.
+fun main(){
+	// TODO: Krox compiler.
+	print "Hello, LoxKrox!";
+}
+
+main();

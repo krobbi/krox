@@ -2,7 +2,7 @@
 ignore/*
 
 # Builds:
-etc/obj/*
+clox/obj/*
 *.exe
 *.o
 
