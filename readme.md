@@ -59,7 +59,7 @@ An example of potential Krox code is shown below:
 // From `module.krox`, import `foo` and `bar` renamed to `baz`.
 > "module.krox" {
    foo,
-   bar > baz,
+   bar > baz
 }
 
 // Renaming imports helps prevent collisions.
@@ -98,8 +98,8 @@ An incomplete grammar for Krox is shown below:
 ```ebnf
 module = { top }, EOF ;
 top = imports | export | declaration ;
-imports = ">", STRING, "{", [ import ], "}" ;
-import = IDENTIFIER, [ ">", IDENTIFIER ], [ ",", [ import ] ] ;
+imports = ">", STRING, "{", [ import, { ",", import } ], "}" ;
+import = IDENTIFIER, [ ">", IDENTIFIER ] ;
 export = "<", declaration ;
 declaration = function ;
 ```

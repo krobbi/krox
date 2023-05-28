@@ -1,0 +1,80 @@
+// A span between two positions in a module or the lack of a span.
+class Span {
+	// Initialize the span's module name and positions.
+	init(){
+		// The span's module name.
+		this.module = "";
+		
+		// The line number of the span's start position.
+		this.start_line = 0;
+		
+		// The column number of the span's start position.
+		this.start_column = 0;
+		
+		// The line number of the span's end position.
+		this.end_line = 0;
+		
+		// The column number of the span's end position.
+		this.end_column = 0;
+	}
+	
+	// Reset the span to the start of a module from its module name.
+	reset(module){
+		this.module = module;
+		this.start_line = 1;
+		this.start_column = 1;
+		this.end_line = 1;
+		this.end_column = 1;
+	}
+	
+	// Extend the span's end position from a character.
+	extend_from_char(char){
+		if(char == CHAR_TAB){
+			this.end_column = this.end_column + 4;
+		} else if(char == CHAR_LINE){
+			this.end_line = this.end_line + 1;
+			this.end_column = 1;
+		} else if(char != CHAR_EOF and char != CHAR_CR){
+			this.end_column = this.end_column + 1;
+		}
+	}
+	
+	// Shrink the span to its end position.
+	shrink_to_end(){
+		this.start_line = this.end_line;
+		this.start_column = this.end_column;
+	}
+	
+	// Return a new copy of the span.
+	clone(){
+		var target = Span();
+		target.clone_from(this);
+		return target;
+	}
+	
+	// Copy the span's value from a source span.
+	clone_from(source){
+		this.module = source.module;
+		this.start_line = source.start_line;
+		this.start_column = source.start_column;
+		this.end_line = source.end_line;
+		this.end_column = source.end_column;
+	}
+	
+	// Return the span represented as a string.
+	to_string(){
+		if(this.start_line < 1){
+			return "[Global]";
+		}
+		
+		var string = String().append_int(this.start_line).append(":").append_int(this.start_column);
+		
+		if(this.end_line > this.start_line){
+			string.append(" > ").append_int(this.end_line).append(":").append_int(this.end_column);
+		} else if(this.end_column > this.start_column){
+			string.append("-").append_int(this.end_column);
+		}
+		
+		return "[" + this.module + ":" + string.to_string() + "]";
+	}
+}

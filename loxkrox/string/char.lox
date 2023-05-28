@@ -1,0 +1,21 @@
+// Character constants.
+var CHAR_ILLEGAL = -2; // Unsupported character.
+var CHAR_EOF = -1; // End of file.
+var CHAR_TAB = 9; // Horizontal tab.
+var CHAR_LINE = 10; // Line feed.
+var CHAR_CR = 13; // Carriage return.
+var CHAR_SPACE = x_ord(" "); // Space.
+var CHAR_QUOTE = 34; // Quotation mark.
+var CHAR_ASTERISK = x_ord("*"); // Asterisk.
+var CHAR_SLASH = x_ord("/"); // Slash.
+var CHAR_0 = x_ord("0"); // Digit 0.
+var CHAR_9 = x_ord("9"); // Digit 9.
+var CHAR_UPPER_A = x_ord("A"); // Uppercase letter A.
+var CHAR_UPPER_Z = x_ord("Z"); // Uppercase letter Z.
+var CHAR_UNDERSCORE = x_ord("_"); // Underscore.
+var CHAR_LOWER_A = x_ord("a"); // Lowercase letter A.
+var CHAR_LOWER_Z = x_ord("z"); // Lowercase letter Z.
+var CHAR_DELETE = 127; // Delete.
+var CHAR_CONTINUE_1 = 128 + 64; // UTF-8, 1 continuation byte.
+var CHAR_CONTINUE_2 = 128 + 64 + 32; // UTF-8, 2 continuation bytes.
+var CHAR_CONTINUE_3 = 128 + 64 + 32 + 16; // UTF-8, 3 continuation bytes.

@@ -1,0 +1,14 @@
+// A temporary Krox script for testing purposes.
+
+> "module.krox" {
+	foo,
+	bar > baz
+}
+
+fn bar(){}
+
+< fn square(x){
+	return x * x;
+}
+
+fn main(){}

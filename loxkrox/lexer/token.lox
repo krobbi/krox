@@ -1,0 +1,38 @@
+// Contains a lexeme's data.
+class Token {
+	// Initialize the token's type, value, and span.
+	init(type, value, span){
+		// The token's type.
+		this.type = type;
+		
+		// The token's value.
+		this.value = value;
+		
+		// The token's span.
+		this.span = span;
+	}
+	
+	// Return the token represented as a string.
+	to_string(){
+		var literal = nil;
+		
+		if(this.type == TokenType.STRING){
+			literal = String().append(this.value).quote().to_string();
+		} else if(this.type == TokenType.IDENTIFIER){
+			literal = this.value;
+		}
+		
+		var name = TokenType.get_name(this.type);
+		
+		if(literal){
+			return name + " `" + literal + "`";
+		} else {
+			return name;
+		}
+	}
+	
+	// Return the token represented as a string for debugging.
+	to_debug_string(){
+		return "(" + this.span.to_string() + ", " + this.to_string() + ")";
+	}
+}

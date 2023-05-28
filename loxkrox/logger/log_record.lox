@@ -1,0 +1,16 @@
+// A log record containing a message and a span.
+class LogRecord {
+	// Initialize the log record's message and span.
+	init(message, span){
+		// The log record's message.
+		this.message = message;
+		
+		// The log record's span.
+		this.span = span;
+	}
+	
+	// Return the log record represented as a string.
+	to_string(){
+		return this.span.to_string() + " " + this.message;
+	}
+}

@@ -1,0 +1,211 @@
+// Scans a stream of tokens from an input stream.
+class Lexer {
+	// Initialize the lexer's logger, span, input stream, and next character.
+	init(logger){
+		// The lexer's logger.
+		this.logger = logger;
+		
+		// The lexer's span.
+		this.span = Span();
+		
+		// The lexer's input stream.
+		this.stream = -1;
+		
+		// The lexer's next character.
+		this.next = CHAR_EOF;
+	}
+	
+	// Reset the lexer from a module name and an input stream.
+	reset(module, stream){
+		this.span.reset(module);
+		this.stream = stream;
+		this.next = CHAR_EOF;
+		this.advance();
+	}
+	
+	// Return the next token from the lexer.
+	scan_token(){
+		var token = this.scan_raw_token();
+		
+		while(token.type == TokenType.NONE){
+			token = this.scan_raw_token();
+		}
+		
+		return token;
+	}
+	
+	// Return the next token or none token from the lexer.
+	scan_raw_token(){
+		// Return whether a character is an alphabetical character.
+		fun is_alpha(char){
+			return (
+				char >= CHAR_LOWER_A and char <= CHAR_LOWER_Z
+				or char == CHAR_UNDERSCORE
+				or char >= CHAR_UPPER_A and char <= CHAR_UPPER_Z
+			);
+		}
+		
+		// Return whether the next character matches a predicate.
+		fun match(predicate){
+			return predicate(this.next);
+		}
+		
+		// Advance if the next character matches a character.
+		fun accept(char){
+			if(this.next == char){
+				this.advance();
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		// Return a new token at the current span from its type and value.
+		fun make_literal_token(type, value){
+			return Token(type, value, this.span.clone());
+		}
+		
+		// Return a new token at the current span from its type.
+		fun make_token(type){
+			return make_literal_token(type, nil);
+		}
+		
+		// Log an error message at the current span.
+		fun error(message){
+			this.logger.log_at(message, this.span);
+		}
+		
+		this.span.shrink_to_end();
+		
+		if(this.next == CHAR_EOF){
+			return make_token(TokenType.EOF);
+		} else if(accept(CHAR_ILLEGAL)){
+			return make_token(TokenType.NONE);
+		} else if(match(this.is_whitespace)){
+			this.advance();
+			
+			while(match(this.is_whitespace)){
+				this.advance();
+			}
+			
+			return make_token(TokenType.NONE);
+		} else if(accept(CHAR_SLASH)){
+			if(accept(CHAR_SLASH)){
+				// Return whether a character is a line comment terminator.
+				fun is_line_comment_terminator(char){
+					return char == CHAR_LINE or char == CHAR_EOF or char == CHAR_CR;
+				}
+				
+				while(!match(is_line_comment_terminator)){
+					this.advance();
+				}
+				
+				return make_token(TokenType.NONE);
+			} else {
+				return make_token(TokenType.SLASH);
+			}
+		} else if(accept(CHAR_QUOTE)){
+			// Return whether a character is a string terminator.
+			fun is_string_terminator(char){
+				return (
+					char == CHAR_QUOTE or char == CHAR_LINE or char == CHAR_EOF or char == CHAR_CR
+				);
+			}
+			
+			var value = "";
+			
+			while(!match(is_string_terminator)){
+				value = value + x_chr(this.advance());
+			}
+			
+			if(!accept(CHAR_QUOTE)){
+				error("Unterminated string.");
+			}
+			
+			return make_literal_token(TokenType.STRING, value);
+		} else if(match(is_alpha)){
+			// Return whether a character is an alphanumeric characteer.
+			fun is_alphanumeric(char){
+				return is_alpha(char) or char >= CHAR_0 and char <= CHAR_9;
+			}
+			
+			var value = x_chr(this.advance());
+			
+			while(match(is_alphanumeric)){
+				value = value + x_chr(this.advance());
+			}
+			
+			var type = TokenType.from_lexeme(value);
+			
+			if(type){
+				return make_token(type);
+			} else {
+				return make_literal_token(TokenType.IDENTIFIER, value);
+			}
+		} else {
+			var lexeme = x_chr(this.advance());
+			var type = TokenType.from_lexeme(lexeme);
+			
+			if(type){
+				return make_token(type);
+			}
+			
+			error("Illegal character `" + lexeme + "`.");
+			return make_token(TokenType.NONE);
+		}
+	}
+	
+	// Return whether a character is a whitespace character.
+	is_whitespace(char){
+		return char == CHAR_SPACE or char == CHAR_TAB or char == CHAR_LINE or char == CHAR_CR;
+	}
+	
+	// Advance to the next character and return the new current character.
+	advance(){
+		// Log an error message and return an illegal character.
+		fun illegal(message){
+			var error_span = this.span.clone();
+			error_span.shrink_to_end();
+			error_span.extend_from_char(CHAR_ILLEGAL);
+			this.logger.log_at(message, error_span);
+			return CHAR_ILLEGAL;
+		}
+		
+		var current = this.next;
+		this.span.extend_from_char(current);
+		var next = x_get(this.stream);
+		
+		if(!next){
+			x_close(this.stream);
+			next = CHAR_EOF;
+		} else if(next == CHAR_DELETE or next < CHAR_SPACE and !this.is_whitespace(next)){
+			next = illegal("Krox source cannot contain control characters.");
+		} else if(next > CHAR_DELETE){
+			var skip_count = 0;
+			
+			if(next >= CHAR_CONTINUE_3){
+				skip_count = 3;
+			} else if(next >= CHAR_CONTINUE_2){
+				skip_count = 2;
+			} else if(next >= CHAR_CONTINUE_1){
+				skip_count = 1;
+			}
+			
+			// Assume UTF-8, skip continuation bytes.
+			while(skip_count > 0){
+				next = x_get(this.stream);
+				skip_count = skip_count - 1;
+				
+				if(!next){
+					x_close(this.stream);
+					skip_count = 0;
+				}
+			}
+			
+			next = illegal("Krox source cannot contain non-ASCII characters.");
+		}
+		
+		this.next = next;
+		return current;
+	}
+}

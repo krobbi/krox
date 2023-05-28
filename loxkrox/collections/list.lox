@@ -1,0 +1,40 @@
+// A list of elements.
+class List {
+	// Initialize the list's list nodes.
+	init(){
+		// The list's front node.
+		this.head = nil;
+		
+		// The list's back node.
+		this.tail = nil;
+	}
+	
+	// Clear the list.
+	clear(){
+		this.head = nil;
+		this.tail = nil;
+	}
+	
+	// Append an element to the back of the list.
+	push_back(element){
+		var node = ListNode(element);
+		
+		if(this.tail){
+			this.tail.next = node;
+		} else {
+			this.head = node;
+		}
+		
+		this.tail = node;
+	}
+	
+	// Call a function for each element in the list.
+	for_each(function){
+		var node = this.head;
+		
+		while(node){
+			function(node.element);
+			node = node.next;
+		}
+	}
+}

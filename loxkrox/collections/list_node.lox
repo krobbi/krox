@@ -1,0 +1,11 @@
+// A node of a list.
+class ListNode {
+	// Initialize the list node's element and next list node.
+	init(element){
+		// The list node's element.
+		this.element = element;
+		
+		// The list node's next list node.
+		this.next = nil;
+	}
+}

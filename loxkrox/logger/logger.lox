@@ -1,0 +1,29 @@
+// Logs messages at spans.
+class Logger {
+	// Initialize the logger's log record list.
+	init(){
+		// The logger's log record list.
+		this.records = List();
+	}
+	
+	// Print and clear the logger's messages.
+	flush(){
+		// Print a log record.
+		fun print_record(record){
+			print record.to_string();
+		}
+		
+		this.records.for_each(print_record);
+		this.records.clear();
+	}
+	
+	// Log a message.
+	log(message){
+		this.log_at(message, Span());
+	}
+	
+	// Log a message at a span.
+	log_at(message, span){
+		this.records.push_back(LogRecord(message, span.clone()));
+	}
+}

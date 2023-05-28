@@ -1,0 +1,95 @@
+// Contains data about token types.
+class TokenType {
+	// Initialize the token type data.
+	init(){
+		// A map of token types to token type names.
+		this.type_names = Map();
+		
+		// A map of lexemes to token types.
+		this.lexeme_types = Map();
+		
+		var type_count = 0;
+		
+		// Define and return a new token type from its name or lexeme.
+		fun create_type(name){
+			var type = type_count;
+			
+			if(x_substring(name, 0, 1) == "'"){
+				this.type_names.insert(type, x_substring(name, 1, x_length(name) - 2));
+			} else {
+				this.type_names.insert(type, "`" + name + "`");
+				this.lexeme_types.insert(name, type);
+			}
+			
+			type_count = type_count + 1;
+			return type;
+		}
+		
+		// A token type representing a syntax error, whitespace, or a comment.
+		this.NONE = create_type("'non-token'");
+		
+		// A token type representing the end of a module.
+		this.EOF = create_type("'end of file'");
+		
+		// A token type representing a string literal.
+		this.STRING = create_type("'string'");
+		
+		// A token type representing an identifier.
+		this.IDENTIFIER = create_type("'identifier'");
+		
+		// A token type representing the `fn` keyword.
+		this.FN = create_type("fn");
+		
+		// A token type representing the `return` keyword.
+		this.RETURN = create_type("return");
+		
+		// A token type representing the `(` lexeme.
+		this.OPEN_PARENTHESIS = create_type("(");
+		
+		// A token type representing the `)` lexeme.
+		this.CLOSE_PARENTHESIS = create_type(")");
+		
+		// A token type representing the `*` lexeme.
+		this.STAR = create_type("*");
+		
+		// A token type representing the `,` lexeme.
+		this.COMMA = create_type(",");
+		
+		// A token type representing the `/` lexeme.
+		this.SLASH = create_type("/");
+		
+		// A token type representing the `;` lexeme.
+		this.SEMICOLON = create_type(";");
+		
+		// A token type representing the `<` lexeme.
+		this.LESS = create_type("<");
+		
+		// A token type representing the `>` lexeme.
+		this.GREATER = create_type(">");
+		
+		// A token type representing the `{` lexeme.
+		this.OPEN_BRACE = create_type("{");
+		
+		// A token type representing the `}` lexeme.
+		this.CLOSE_BRACE = create_type("}");
+	}
+	
+	// Return a token type's name.
+	get_name(type){
+		var name = this.type_names.get(type);
+		
+		if(name){
+			return name;
+		} else {
+			return "token type " + String().append_int(type).to_string();
+		}
+	}
+	
+	// Return a token type from a lexeme.
+	from_lexeme(lexeme){
+		return this.lexeme_types.get(lexeme);
+	}
+}
+
+// The token type data singleton.
+var TokenType = TokenType();

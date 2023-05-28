@@ -1,7 +1,38 @@
+// Test the lexer from a path and a logger.
+fun test_lexer(path, logger){
+	var stream = x_read(path);
+	
+	if(!stream){
+		logger.log("Failed to open `" + path + "` for reading. File may not exist.");
+		return;
+	}
+	
+	var lexer = Lexer(logger);
+	lexer.reset(path, stream);
+	var token = lexer.scan_token();
+	print token.to_debug_string();
+	
+	while(token.type != TokenType.EOF){
+		token = lexer.scan_token();
+		print token.to_debug_string();
+	}
+	
+	if(x_close(stream)){
+		logger.log("Lexer failed to close `" + path + "` after reading.");
+	}
+}
+
 // Run the compiler.
 fun main(){
-	// TODO: Krox compiler.
-	print "Hello, LoxKrox!";
+	var logger = Logger();
+	
+	if(x_args() == 2){
+		test_lexer(x_arg(1), logger);
+	} else {
+		logger.log("Expected arguments `krox.lox <krox source path>`.");
+	}
+	
+	logger.flush();
 }
 
 main();

@@ -1,0 +1,52 @@
+// A boxed string that can be manipulated.
+class String {
+	// Initialize the boxed string's string.
+	init(){
+		// The boxed string's string.
+		this.string = "";
+	}
+	
+	// Wrap the boxed string in quotes and return the boxed string.
+	quote(){
+		var quote_string = x_chr(CHAR_QUOTE);
+		this.string = quote_string + this.string + quote_string;
+		return this;
+	}
+	
+	// Append a string to the boxed string and return the boxed string.
+	append(value){
+		this.string = this.string + value;
+		return this;
+	}
+	
+	// Append an integer to the boxed string and return the boxed string.
+	append_int(value){
+		var formatted = "";
+		
+		if(value < 0){
+			value = -value;
+			formatted = "-";
+		}
+		
+		var place = 10;
+		
+		while(place <= value){
+			place = place * 10;
+		}
+		
+		while(place >= 10){
+			place = place / 10;
+			var digit = x_trunc(value / place);
+			value = value - digit * place;
+			formatted = formatted + x_chr(CHAR_0 + digit);
+		}
+		
+		this.string = this.string + formatted;
+		return this;
+	}
+	
+	// Return the boxed string represented as a string.
+	to_string(){
+		return this.string;
+	}
+}
