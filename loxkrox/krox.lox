@@ -422,13 +422,7 @@ class TokenType {
 	
 	// Return a token type's name.
 	get_name(type){
-		var name = this.type_names.get(type);
-		
-		if(name){
-			return name;
-		} else {
-			return "token type " + String().append_int(type).to_string();
-		}
+		return this.type_names.get(type);
 	}
 	
 	// Return a token type from a lexeme.
