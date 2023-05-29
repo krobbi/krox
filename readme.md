@@ -96,12 +96,9 @@ A simplified example of the data needed for the above module is shown below:
 
 An incomplete grammar for Krox is shown below:
 ```ebnf
-module = { top }, EOF ;
-top = imports | export | declaration ;
-imports = ">", STRING, "{", [ import, { ",", import } ], "}" ;
-import = IDENTIFIER, [ ">", IDENTIFIER ] ;
-export = "<", declaration ;
-declaration = function ;
+module = { import }, EOF ;
+import = ">", STRING, "{", [ import_item, { ",", import_item } ], "}" ;
+import_item = IDENTIFIER, [ ">", IDENTIFIER ] ;
 ```
 
 # About Lox

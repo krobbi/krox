@@ -5,6 +5,7 @@
 	bar > baz
 }
 
+/* /* Comments can be nested. */
 fn bar(){}
 
 < fn square(x){
@@ -12,3 +13,4 @@ fn bar(){}
 }
 
 fn main(){}
+*/
