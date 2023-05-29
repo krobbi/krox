@@ -5,6 +5,8 @@
 	bar > baz
 }
 
+> "Backslash\\Line\r\nTab\tQuote\"Apostrophe\'" { escape_test }
+
 /* /* Comments can be nested. */
 fn bar(){}
 

@@ -9,7 +9,31 @@ class String {
 	// Wrap the boxed string in quotes and return the boxed string.
 	quote(){
 		var quote_string = x_chr(CHAR_QUOTE);
-		this.string = quote_string + this.string + quote_string;
+		var length = x_length(this.string);
+		var escaped = "";
+		
+		for(var i = 0; i < length; i = i + 1){
+			var char_string = x_substring(this.string, i, 1);
+			var char = x_ord(char_string);
+			
+			if(char == CHAR_TAB){
+				escaped = escaped + "\t";
+			} else if(char == CHAR_LINE){
+				escaped = escaped + "\n";
+			} else if(char == CHAR_CR){
+				escaped = escaped + "\r";
+			} else if(char == CHAR_QUOTE){
+				escaped = escaped + "\" + quote_string;
+			} else if(char == CHAR_APOSTROPHE){
+				escaped = escaped + "\'";
+			} else if(char == CHAR_BACKSLASH){
+				escaped = escaped + "\\";
+			} else {
+				escaped = escaped + char_string;
+			}
+		}
+		
+		this.string = quote_string + escaped + quote_string;
 		return this;
 	}
 	

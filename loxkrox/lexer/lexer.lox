@@ -137,7 +137,33 @@ class Lexer {
 			var value = "";
 			
 			while(!match(is_string_terminator)){
-				value = value + x_chr(this.advance());
+				if(accept(CHAR_BACKSLASH)){
+					if(accept(CHAR_QUOTE)){
+						value = value + x_chr(CHAR_QUOTE);
+					} else if(accept(CHAR_APOSTROPHE)){
+						value = value + "'";
+					} else if(accept(CHAR_BACKSLASH)){
+						value = value + "\";
+					} else if(accept(CHAR_LOWER_N)){
+						value = value + x_chr(CHAR_LINE);
+					} else if(accept(CHAR_LOWER_R)){
+						value = value + x_chr(CHAR_CR);
+					} else if(accept(CHAR_LOWER_T)){
+						value = value + x_chr(CHAR_TAB);
+					} else {
+						var error_span = this.span.clone();
+						error_span.shrink_to_end();
+						
+						if(this.next == CHAR_EOF){
+							this.logger.log_at("Expected escape character after `\`.", error_span);
+						} else {
+							error_span.extend_from_char(this.advance());
+							this.logger.log_at("Illegal escape character.", error_span);
+						}
+					}
+				} else {
+					value = value + x_chr(this.advance());
+				}
 			}
 			
 			if(!accept(CHAR_QUOTE)){
