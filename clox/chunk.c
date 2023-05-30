@@ -38,6 +38,15 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
 /* Add a constant to a chunk and return its index. */
 int addConstant(Chunk* chunk, Value value) {
 	push(value); /* GC safety. */
+	
+	/* Merge equal constants. */
+	for (int i = 0; i < chunk->constants.count; i++) {
+		if (valuesEqual(chunk->constants.values[i], value)) {
+			pop();
+			return i;
+		}
+	}
+	
 	writeValueArray(&chunk->constants, value);
 	pop();
 	return chunk->constants.count - 1;
