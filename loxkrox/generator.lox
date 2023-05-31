@@ -27,6 +27,14 @@ fun generate_loxkrox(add_line, add_module){
 	add_module("lexer/token_type.lox");
 	add_module("lexer/token.lox");
 	add_module("lexer/lexer.lox");
+	add_module("ast/ast_node.lox");
+	add_module("ast/nodes/import_ast_node.lox");
+	add_module("ast/nodes/import_item_ast_node.lox");
+	add_module("ast/nodes/module_ast_node.lox");
+	add_module("ast/ast_visitor.lox");
+	add_module("ast/printer/ast_printer_node.lox");
+	add_module("ast/printer/ast_printer.lox");
+	add_module("parser/parser.lox");
 	add_module("core/main.lox");
 }
 

@@ -30,9 +30,4 @@ class Token {
 			return name;
 		}
 	}
-	
-	// Return the token represented as a string for debugging.
-	to_debug_string(){
-		return "(" + this.span.to_string() + ", " + this.to_string() + ")";
-	}
 }

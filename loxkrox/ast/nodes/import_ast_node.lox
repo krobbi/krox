@@ -1,0 +1,18 @@
+// An import node of an abstract syntax tree.
+class ImportASTNode < ASTNode {
+	// Initialize the import AST node's path token and import item list.
+	init(path){
+		super.init();
+		
+		// The import AST node's path token.
+		this.path = path;
+		
+		// The import AST node's import item list.
+		this.items = List();
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_import(this);
+	}
+}

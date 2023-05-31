@@ -1,0 +1,15 @@
+// A module node of an abstract syntax tree.
+class ModuleASTNode < ASTNode {
+	// Initialize the module AST node's import list.
+	init(){
+		super.init();
+		
+		// The module AST node's import list.
+		this.imports = List();
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_module(this);
+	}
+}

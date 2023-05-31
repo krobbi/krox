@@ -1,0 +1,18 @@
+// An import item node of an AST.
+class ImportItemASTNode < ASTNode {
+	// Initialize the import item AST node's identifier tokens.
+	init(external, internal){
+		super.init();
+		
+		// The import item AST node's external identifier token.
+		this.external = external;
+		
+		// The import item AST node's optional internal identifier token.
+		this.internal = internal;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_import_item(this);
+	}
+}

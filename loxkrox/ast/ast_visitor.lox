@@ -1,0 +1,25 @@
+// Visits AST nodes and returns values for each type of AST node.
+class ASTVisitor {
+	// Initialize the AST visitor.
+	init(){}
+	
+	// Visit an AST node and return a value.
+	visit(node){
+		return node.accept_visitor(this);
+	}
+	
+	// Visit an import AST node and return a value.
+	visit_import(node){
+		return nil;
+	}
+	
+	// Visit an import item AST node and return a value.
+	visit_import_item(node){
+		return nil;
+	}
+	
+	// Visit a module AST node and return a value.
+	visit_module(node){
+		return nil;
+	}
+}

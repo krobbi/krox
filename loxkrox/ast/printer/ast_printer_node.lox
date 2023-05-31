@@ -1,0 +1,56 @@
+// A generic tree node for printing an AST.
+class ASTPrinterNode {
+	// Initialize the AST printer node's message and child array.
+	init(message){
+		// The AST printer node's message.
+		this.message = message;
+		
+		// The AST printer node's child array.
+		this.children = List();
+	}
+	
+	// Append an AST printer node to the AST printer node's children.
+	append(node){
+		this.children.push_back(node);
+	}
+	
+	// Print the AST printer node.
+	print_node(flags){
+		var flag_number = flags.get_length();
+		var line = String();
+		
+		// Append a flag to the line.
+		fun append_flag(flag){
+			flag_number = flag_number - 1;
+			
+			if(flag_number == 0){
+				if(flag){
+					line.append("|__");
+				} else {
+					line.append("|--");
+				}
+			} else {
+				if(flag){
+					line.append("   ");
+				} else {
+					line.append("|  ");
+				}
+			}
+		}
+		
+		flags.for_each(append_flag);
+		line.append(this.message).put_line(x_stdout());
+		
+		var child_number = this.children.get_length();
+		
+		// Print a child AST printer node.
+		fun print_child(child){
+			child_number = child_number - 1;
+			flags.push_back(child_number == 0);
+			child.print_node(flags);
+			flags.pop_back();
+		}
+		
+		this.children.for_each(print_child);
+	}
+}

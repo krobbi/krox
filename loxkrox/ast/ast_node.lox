@@ -1,0 +1,13 @@
+// A node of an abstract syntax tree.
+class ASTNode {
+	// Initialize the AST node's span.
+	init(){
+		// The AST node's span.
+		this.span = Span();
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return nil;
+	}
+}

@@ -1,0 +1,76 @@
+// An AST visitor that prints an AST.
+class ASTPrinter < ASTVisitor {
+	// Initialize the AST printer's current AST printer node.
+	init(){
+		super.init();
+		
+		// The AST printer's current AST printer node.
+		this.current = nil;
+	}
+	
+	// Print an AST from its root node.
+	print_ast(node){
+		this.visit(node).print_node(List());
+	}
+	
+	// Begin a new current AST printer node from a name and an AST node.
+	begin(name, node){
+		this.current = ASTPrinterNode("(" + name + ") " + node.span.to_string());
+	}
+	
+	// Append an AST node to the current AST printer node.
+	append_node(node){
+		var current = this.current;
+		current.append(this.visit(node));
+		this.current = current;
+	}
+	
+	// Append a token to the current AST printer node from a name.
+	append_token(name, token){
+		var message = "{" + name + ": ";
+		
+		if(token.type == TokenType.STRING){
+			message = message + String().append(token.value).quote().to_string();
+		} else if(token.type == TokenType.IDENTIFIER){
+			message = message + token.value;
+		} else {
+			message = message + token.to_string();
+		}
+		
+		this.current.append(ASTPrinterNode(message + "} " + token.span.to_string()));
+	}
+	
+	// End and return the current AST printer node.
+	end(){
+		var current = this.current;
+		this.current = nil;
+		return current;
+	}
+	
+	// Visit an import AST node and return an AST printer node.
+	visit_import(node){
+		this.begin("Import", node);
+		this.append_token("path", node.path);
+		node.items.for_each(this.append_node);
+		return this.end();
+	}
+	
+	// Visit an import item AST node and return an AST printer node.
+	visit_import_item(node){
+		this.begin("ImportItem", node);
+		this.append_token("external", node.external);
+		
+		if(node.internal){
+			this.append_token("internal", node.internal);
+		}
+		
+		return this.end();
+	}
+	
+	// Visit a module AST node and return an AST printer node.
+	visit_module(node){
+		this.begin("Module", node);
+		node.imports.for_each(this.append_node);
+		return this.end();
+	}
+}

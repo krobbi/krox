@@ -1,0 +1,145 @@
+// Parses an abstract syntax tree from a stream of tokens.
+class Parser {
+	// Initialize the parser's logger, lexer, and data.
+	init(logger){
+		// The parser's logger.
+		this.logger = logger;
+		
+		// The parser's lexer.
+		this.lexer = Lexer(logger);
+		
+		// The parser's next token.
+		this.next = Token(TokenType.EOF, nil, Span());
+		
+		// The parser's current span.
+		this.current_span = Span();
+		
+		// The parser's span stack.
+		this.span_stack = List();
+	}
+	
+	// Reset the parser from a module name and an input stream.
+	reset(module, stream){
+		this.lexer.reset(module, stream);
+		this.advance();
+	}
+	
+	// Parse and return a module AST node.
+	parse_module(){
+		this.begin();
+		var module = ModuleASTNode();
+		
+		while(!this.match(TokenType.EOF)){
+			var bump_token = this.next;
+			var import = this.parse_import();
+			
+			if(import){
+				module.imports.push_back(import);
+			}
+			
+			if(this.next == bump_token){
+				this.advance(); // Prevent infinite loop.
+			}
+		}
+		
+		return this.end(module);
+	}
+	
+	// Parse and return an import AST node if possible.
+	parse_import(){
+		this.begin();
+		this.expect(TokenType.GREATER);
+		var import = ImportASTNode(this.expect(TokenType.STRING));
+		
+		if(!import.path){
+			return this.end(nil);
+		}
+		
+		this.expect(TokenType.OPEN_BRACE);
+		var accepts_item = true;
+		
+		while(accepts_item and !this.match(TokenType.CLOSE_BRACE) and !this.match(TokenType.EOF)){
+			var import_item = this.parse_import_item();
+			
+			if(import_item){
+				import.items.push_back(import_item);
+			}
+			
+			if(!this.accept(TokenType.COMMA)){
+				accepts_item = false;
+			}
+		}
+		
+		this.expect(TokenType.CLOSE_BRACE);
+		return this.end(import);
+	}
+	
+	// Parse and return an import item AST node if possible.
+	parse_import_item(){
+		this.begin();
+		var external = this.expect(TokenType.IDENTIFIER);
+		
+		if(!external){
+			return this.end(nil);
+		}
+		
+		var internal = nil;
+		
+		if(this.accept(TokenType.GREATER)){
+			internal = this.expect(TokenType.IDENTIFIER);
+		}
+		
+		return this.end(ImportItemASTNode(external, internal));
+	}
+	
+	// Begin an AST node.
+	begin(){
+		this.span_stack.push_back(this.next.span);
+	}
+	
+	// End and return an AST node.
+	end(node){
+		if(node){
+			node.span.clone_from(this.span_stack.pop_back());
+			node.span.extend_from_span(this.current_span);
+		}
+		
+		return node;
+	}
+	
+	// Return whether the next token matches a token type.
+	match(type){
+		return this.next.type == type;
+	}
+	
+	// Consume and return the next token if it matches a type.
+	accept(type){
+		if(this.match(type)){
+			return this.advance();
+		} else {
+			return nil;
+		}
+	}
+	
+	// Consume and return the next token if it matches a type or log an error.
+	expect(type){
+		var consumed = this.accept(type);
+		
+		if(!consumed){
+			this.logger.log_at(
+				"Expected " + TokenType.get_name(type) + ", got " + this.next.to_string() + ".",
+				this.next.span
+			);
+		}
+		
+		return consumed;
+	}
+	
+	// Advance to the next token and return the new current token.
+	advance(){
+		var current = this.next;
+		this.current_span = current.span;
+		this.next = this.lexer.scan_token();
+		return current;
+	}
+}

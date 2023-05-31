@@ -2,7 +2,7 @@
 
 > "module.krox" {
 	foo,
-	bar > baz
+	bar > baz,
 }
 
 > "Backslash\\Line\r\nTab\tQuote\"Apostrophe\'" { escape_test }

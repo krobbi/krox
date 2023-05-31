@@ -39,6 +39,12 @@ class Span {
 		}
 	}
 	
+	// Extend the span's end position from a span.
+	extend_from_span(span){
+		this.end_line = span.end_line;
+		this.end_column = span.end_column;
+	}
+	
 	// Shrink the span to its end position.
 	shrink_to_end(){
 		this.start_line = this.end_line;

@@ -69,6 +69,17 @@ class String {
 		return this;
 	}
 	
+	// Put the boxed string to an output stream with a trailing line feed.
+	put_line(stream){
+		var length = x_length(this.string);
+		
+		for(var i = 0; i < length; i = i + 1){
+			x_put(x_ord(x_substring(this.string, i, 1)), stream);
+		}
+		
+		x_put(CHAR_LINE, stream);
+	}
+	
 	// Return the boxed string represented as a string.
 	to_string(){
 		return this.string;

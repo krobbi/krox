@@ -6,14 +6,14 @@ class Logger {
 		this.records = List();
 	}
 	
-	// Print and clear the logger's messages.
+	// Output and clear the logger's messages.
 	flush(){
-		// Print a log record.
-		fun print_record(record){
-			print record.to_string();
+		// Output a log record.
+		fun output_record(record){
+			String().append(record.to_string()).put_line(x_stderr());
 		}
 		
-		this.records.for_each(print_record);
+		this.records.for_each(output_record);
 		this.records.clear();
 	}
 	

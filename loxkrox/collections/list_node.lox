@@ -1,9 +1,12 @@
 // A node of a list.
 class ListNode {
-	// Initialize the list node's element and next list node.
-	init(element){
+	// Initialize the list node's element and list nodes.
+	init(element, previous){
 		// The list node's element.
 		this.element = element;
+		
+		// The list node's previous list node.
+		this.previous = previous;
 		
 		// The list node's next list node.
 		this.next = nil;
