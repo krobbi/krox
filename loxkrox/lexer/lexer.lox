@@ -124,7 +124,8 @@ class Lexer {
 				
 				return make_token(TokenType.NONE);
 			} else {
-				return make_token(TokenType.SLASH);
+				error("Illegal character `/`.");
+				return make_token(TokenType.NONE);
 			}
 		} else if(accept(CHAR_QUOTE)){
 			// Return whether a character is a string terminator.

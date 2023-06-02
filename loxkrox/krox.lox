@@ -461,32 +461,8 @@ class TokenType {
 		// A token type representing an identifier.
 		this.IDENTIFIER = create_type("'identifier'");
 		
-		// A token type representing the `fn` keyword.
-		this.FN = create_type("fn");
-		
-		// A token type representing the `return` keyword.
-		this.RETURN = create_type("return");
-		
-		// A token type representing the `(` lexeme.
-		this.OPEN_PARENTHESIS = create_type("(");
-		
-		// A token type representing the `)` lexeme.
-		this.CLOSE_PARENTHESIS = create_type(")");
-		
-		// A token type representing the `*` lexeme.
-		this.STAR = create_type("*");
-		
 		// A token type representing the `,` lexeme.
 		this.COMMA = create_type(",");
-		
-		// A token type representing the `/` lexeme.
-		this.SLASH = create_type("/");
-		
-		// A token type representing the `;` lexeme.
-		this.SEMICOLON = create_type(";");
-		
-		// A token type representing the `<` lexeme.
-		this.LESS = create_type("<");
 		
 		// A token type representing the `>` lexeme.
 		this.GREATER = create_type(">");
@@ -676,7 +652,8 @@ class Lexer {
 				
 				return make_token(TokenType.NONE);
 			} else {
-				return make_token(TokenType.SLASH);
+				error("Illegal character `/`.");
+				return make_token(TokenType.NONE);
 			}
 		} else if(accept(CHAR_QUOTE)){
 			// Return whether a character is a string terminator.
