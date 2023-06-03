@@ -1,29 +1,11 @@
-// Test the parser from a path and a logger.
-fun test_parser(path, logger){
-	var stream = x_read(path);
-	
-	if(!stream){
-		logger.log("Failed to open `" + path + "` for reading. File may not exist.");
-		return;
-	}
-	
-	var parser = Parser(logger);
-	parser.reset(path, stream);
-	ASTPrinter().print_ast(parser.parse_module());
-	
-	if(x_close(stream)){
-		logger.log("Parser failed to close `" + path + "` after reading.");
-	}
-}
-
-// Run the compiler.
+// Run LoxKrox from arguments.
 fun main(){
 	var logger = Logger();
 	
-	if(x_args() == 2){
-		test_parser(x_arg(1), logger);
+	if(x_args() == 1){
+		run_tests(x_arg(0), logger);
 	} else {
-		logger.log("Expected arguments `krox.lox <krox source path>`.");
+		logger.log("Expected arguments `krox.lox`.");
 	}
 	
 	logger.flush();

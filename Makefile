@@ -16,12 +16,11 @@ CLOX_EXECUTABLE := lox.exe
 LOXKROX_DIR := loxkrox
 LOXKROX_GENERATOR := $(LOXKROX_DIR)\generator.lox
 LOXKROX_SOURCE := $(LOXKROX_DIR)\krox.lox
-LOXKROX_FLAGS := $(LOXKROX_DIR)\tests\main.krox
 
 # Bootstrap Krox:
 .PHONY: all
 all: $(LOXKROX_SOURCE)
-	$(CLOX_EXECUTABLE) $(LOXKROX_SOURCE) $(LOXKROX_FLAGS)
+	$(CLOX_EXECUTABLE) $(LOXKROX_SOURCE)
 
 # Clean all build output:
 .PHONY: clean

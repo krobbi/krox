@@ -1,0 +1,15 @@
+// Run tests from LoxKrox's path and a logger.
+fun run_tests(path, logger){
+	var importer = Importer(logger);
+	var tests_path = importer.split_path(path);
+	tests_path.pop_back();
+	tests_path = tests_path.join("/") + "/tests/";
+	
+	// Run a test from a main Krox module's relative path.
+	fun run_test(path){
+		print "Testing `" + path + "`.";
+		print "TODO: Implement test for `" + tests_path + path + "`.";
+	}
+	
+	run_test("imports/test_imports_main.krox");
+}

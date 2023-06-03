@@ -1,27 +1,18 @@
 // A list of elements.
 class List {
-	// Initialize the list's list nodes and length.
+	// Initialize the list's list nodes.
 	init(){
 		// The list's front node.
 		this.head = nil;
 		
 		// The list's back node.
 		this.tail = nil;
-		
-		// The list's length.
-		this.length = 0;
 	}
 	
 	// Clear the list.
 	clear(){
 		this.head = nil;
 		this.tail = nil;
-		this.length = 0;
-	}
-	
-	// Return the list's length.
-	get_length(){
-		return this.length;
 	}
 	
 	// Append an element to the back of the list.
@@ -35,7 +26,6 @@ class List {
 		}
 		
 		this.tail = node;
-		this.length = this.length + 1;
 	}
 	
 	// Remove and return an element from the back of the list.
@@ -49,12 +39,28 @@ class List {
 		if(node.previous){
 			node.previous.next = nil;
 			this.tail = node.previous;
-			this.length = this.length - 1;
 		} else {
 			this.clear();
 		}
 		
 		return node.element;
+	}
+	
+	// Return the list joined as a string with a separator.
+	join(separator){
+		var node = this.head;
+		var string = "";
+		
+		while(node){
+			string = string + node.element;
+			node = node.next;
+			
+			if(node){
+				string = string + separator;
+			}
+		}
+		
+		return string;
 	}
 	
 	// Return a new list iterator for the list.

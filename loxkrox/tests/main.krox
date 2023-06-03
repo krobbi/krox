@@ -1,4 +1,0 @@
-// Krox Imports Test
-// Tests importing modules in Krox.
-
-> "module.krox" {}

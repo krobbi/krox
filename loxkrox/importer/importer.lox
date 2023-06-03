@@ -1,0 +1,35 @@
+// Imports a program from a collection of modules.
+class Importer {
+	// Initialize the importer's logger and parser.
+	init(logger){
+		// The importer's logger.
+		this.logger = logger;
+		
+		// The importer's parser.
+		this.parser = Parser(logger);
+	}
+	
+	// Split a path string to an array of path parts.
+	split_path(path){
+		var length = x_length(path);
+		var part = "";
+		var parts = List();
+		
+		for(var i = 0; i < length; i = i + 1){
+			var char_string = x_substring(path, i, 1);
+			
+			if(char_string == "/" or char_string == "\"){
+				parts.push_back(part);
+				part = "";
+			} else {
+				part = part + char_string;
+			}
+		}
+		
+		if(part != ""){
+			parts.push_back(part);
+		}
+		
+		return parts;
+	}
+}

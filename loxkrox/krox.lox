@@ -175,28 +175,19 @@ class ListIterator {
 
 // A list of elements.
 class List {
-	// Initialize the list's list nodes and length.
+	// Initialize the list's list nodes.
 	init(){
 		// The list's front node.
 		this.head = nil;
 		
 		// The list's back node.
 		this.tail = nil;
-		
-		// The list's length.
-		this.length = 0;
 	}
 	
 	// Clear the list.
 	clear(){
 		this.head = nil;
 		this.tail = nil;
-		this.length = 0;
-	}
-	
-	// Return the list's length.
-	get_length(){
-		return this.length;
 	}
 	
 	// Append an element to the back of the list.
@@ -210,7 +201,6 @@ class List {
 		}
 		
 		this.tail = node;
-		this.length = this.length + 1;
 	}
 	
 	// Remove and return an element from the back of the list.
@@ -224,12 +214,28 @@ class List {
 		if(node.previous){
 			node.previous.next = nil;
 			this.tail = node.previous;
-			this.length = this.length - 1;
 		} else {
 			this.clear();
 		}
 		
 		return node.element;
+	}
+	
+	// Return the list joined as a string with a separator.
+	join(separator){
+		var node = this.head;
+		var string = "";
+		
+		while(node){
+			string = string + node.element;
+			node = node.next;
+			
+			if(node){
+				string = string + separator;
+			}
+		}
+		
+		return string;
 	}
 	
 	// Return a new list iterator for the list.
@@ -1205,34 +1211,72 @@ class Parser {
 	}
 }
 
-// MODULE // `core/main.lox` // ============================================= //
+// MODULE // `importer/importer.lox` // ===================================== //
 
-// Test the parser from a path and a logger.
-fun test_parser(path, logger){
-	var stream = x_read(path);
-	
-	if(!stream){
-		logger.log("Failed to open `" + path + "` for reading. File may not exist.");
-		return;
+// Imports a program from a collection of modules.
+class Importer {
+	// Initialize the importer's logger and parser.
+	init(logger){
+		// The importer's logger.
+		this.logger = logger;
+		
+		// The importer's parser.
+		this.parser = Parser(logger);
 	}
 	
-	var parser = Parser(logger);
-	parser.reset(path, stream);
-	ASTPrinter().print_ast(parser.parse_module());
-	
-	if(x_close(stream)){
-		logger.log("Parser failed to close `" + path + "` after reading.");
+	// Split a path string to an array of path parts.
+	split_path(path){
+		var length = x_length(path);
+		var part = "";
+		var parts = List();
+		
+		for(var i = 0; i < length; i = i + 1){
+			var char_string = x_substring(path, i, 1);
+			
+			if(char_string == "/" or char_string == "\"){
+				parts.push_back(part);
+				part = "";
+			} else {
+				part = part + char_string;
+			}
+		}
+		
+		if(part != ""){
+			parts.push_back(part);
+		}
+		
+		return parts;
 	}
 }
 
-// Run the compiler.
+// MODULE // `tests/test.lox` // ============================================ //
+
+// Run tests from LoxKrox's path and a logger.
+fun run_tests(path, logger){
+	var importer = Importer(logger);
+	var tests_path = importer.split_path(path);
+	tests_path.pop_back();
+	tests_path = tests_path.join("/") + "/tests/";
+	
+	// Run a test from a main Krox module's relative path.
+	fun run_test(path){
+		print "Testing `" + path + "`.";
+		print "TODO: Implement test for `" + tests_path + path + "`.";
+	}
+	
+	run_test("imports/test_imports_main.krox");
+}
+
+// MODULE // `core/main.lox` // ============================================= //
+
+// Run LoxKrox from arguments.
 fun main(){
 	var logger = Logger();
 	
-	if(x_args() == 2){
-		test_parser(x_arg(1), logger);
+	if(x_args() == 1){
+		run_tests(x_arg(0), logger);
 	} else {
-		logger.log("Expected arguments `krox.lox <krox source path>`.");
+		logger.log("Expected arguments `krox.lox`.");
 	}
 	
 	logger.flush();

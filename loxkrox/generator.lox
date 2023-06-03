@@ -36,6 +36,8 @@ fun generate_loxkrox(add_line, add_module){
 	add_module("ast/printer/ast_printer_node.lox");
 	add_module("ast/printer/ast_printer.lox");
 	add_module("parser/parser.lox");
+	add_module("importer/importer.lox");
+	add_module("tests/test.lox");
 	add_module("core/main.lox");
 }
 
