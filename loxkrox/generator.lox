@@ -18,6 +18,7 @@ fun generate_loxkrox(add_line, add_module){
 	add_module("string/char.lox");
 	add_module("string/string.lox");
 	add_module("collections/list_node.lox");
+	add_module("collections/list_iterator.lox");
 	add_module("collections/list.lox");
 	add_module("collections/map_node.lox");
 	add_module("collections/map.lox");

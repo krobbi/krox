@@ -8,12 +8,13 @@ class Logger {
 	
 	// Output and clear the logger's messages.
 	flush(){
-		// Output a log record.
-		fun output_record(record){
-			String().append(record.to_string()).put_line(x_stderr());
+		var iter = this.records.iter();
+		var stream = x_stderr();
+		
+		while(iter.has_next()){
+			String().append(iter.get_next().to_string()).put_line(stream);
 		}
 		
-		this.records.for_each(output_record);
 		this.records.clear();
 	}
 	
