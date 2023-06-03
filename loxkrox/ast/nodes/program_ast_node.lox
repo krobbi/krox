@@ -1,0 +1,18 @@
+// A program node of an abstract syntax tree.
+class ProgramASTNode < ASTNode {
+	// Initialize the program AST node's path and module array.
+	init(path){
+		super.init();
+		
+		// The program AST node's path.
+		this.path = path;
+		
+		// The program AST node's module array.
+		this.modules = List();
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_program(this);
+	}
+}

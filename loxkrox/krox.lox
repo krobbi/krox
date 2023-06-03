@@ -190,6 +190,11 @@ class List {
 		this.tail = nil;
 	}
 	
+	// Return whether the list has no elements.
+	is_empty(){
+		return this.head == nil;
+	}
+	
 	// Append an element to the back of the list.
 	push_back(element){
 		var node = ListNode(element, this.tail);
@@ -893,6 +898,9 @@ class ModuleASTNode < ASTNode {
 	init(){
 		super.init();
 		
+		// The module AST node's optional name.
+		this.name = nil;
+		
 		// The module AST node's import list.
 		this.imports = List();
 	}
@@ -900,6 +908,27 @@ class ModuleASTNode < ASTNode {
 	// Accept an AST visitor and return a value.
 	accept_visitor(visitor){
 		return visitor.visit_module(this);
+	}
+}
+
+// MODULE // `ast/nodes/program_ast_node.lox` // ============================ //
+
+// A program node of an abstract syntax tree.
+class ProgramASTNode < ASTNode {
+	// Initialize the program AST node's path and module array.
+	init(path){
+		super.init();
+		
+		// The program AST node's path.
+		this.path = path;
+		
+		// The program AST node's module array.
+		this.modules = List();
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_program(this);
 	}
 }
 
@@ -927,6 +956,11 @@ class ASTVisitor {
 	
 	// Visit a module AST node and return a value.
 	visit_module(node){
+		return nil;
+	}
+	
+	// Visit a program AST node and return a value.
+	visit_program(node){
 		return nil;
 	}
 }
@@ -1028,6 +1062,13 @@ class ASTPrinter < ASTVisitor {
 		this.current.append(ASTPrinterNode(message + "} " + token.span.to_string()));
 	}
 	
+	// Append a string to the current AST printer node from a name.
+	append_string(name, value){
+		this.current.append(
+			ASTPrinterNode("{" + name + ": " + String().append(value).quote().to_string() + "}")
+		);
+	}
+	
 	// End and return the current AST printer node.
 	end(){
 		var current = this.current;
@@ -1058,7 +1099,20 @@ class ASTPrinter < ASTVisitor {
 	// Visit a module AST node and return an AST printer node.
 	visit_module(node){
 		this.begin("Module", node);
+		
+		if(node.name){
+			this.append_string("name", node.name);
+		}
+		
 		node.imports.for_each(this.append_node);
+		return this.end();
+	}
+	
+	// Visit a program AST node ad return an AST printer node.
+	visit_program(node){
+		this.begin("Program", node);
+		this.append_string("path", node.path);
+		node.modules.for_each(this.append_node);
 		return this.end();
 	}
 }
@@ -1224,6 +1278,125 @@ class Importer {
 		this.parser = Parser(logger);
 	}
 	
+	// Import and return a program from its main module's path.
+	import_program(path){
+		path = this.split_path(path);
+		var name = path.pop_back();
+		var program = ProgramASTNode(path.join("/"));
+		
+		if(!name){
+			this.logger.log("Main module path cannot be empty.");
+			return program;
+		}
+		
+		if(!this.is_part_valid(name)){
+			this.logger.log("Invalid main module path.");
+			return program;
+		}
+		
+		var queue = List();
+		queue.push_back(name);
+		
+		while(!queue.is_empty()){
+			this.import_queue(program, queue);
+		}
+		
+		return program;
+	}
+	
+	// Import a module to a program from a growable queue of module names.
+	import_queue(program, queue){
+		var name = queue.pop_back();
+		
+		if(!name or this.has_module(program, name)){
+			return; // Empty queue or module already imported.
+		}
+		
+		var stream = x_read(program.path + "/" + name);
+		
+		if(!stream){
+			this.logger.log("Failed to open `" + name + "` for reading. File may not exist.");
+			return;
+		}
+		
+		this.parser.reset(name, stream);
+		var module = this.parser.parse_module();
+		
+		if(x_close(stream)){
+			this.logger.log("Parser failed to close `" + name + "` after reading.");
+		}
+		
+		module.name = name;
+		program.modules.push_back(module);
+		
+		// TODO: Resolve module imports.
+	}
+	
+	// Return whether a program has a module from its name.
+	has_module(program, name){
+		var iter = program.modules.iter();
+		
+		while(iter.has_next()){
+			if(iter.get_next().name == name){
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	// Return whether a path part is valid.
+	is_part_valid(part){
+		var length = x_length(part);
+		
+		if(length < 1){
+			return false; // Empty path parts are invalid.
+		}
+		
+		if(x_substring(part, 0, 1) == " "){
+			return false; // Leading spaces are invalid.
+		}
+		
+		var trailer = x_substring(part, length - 1, 1);
+		
+		if(trailer == " " or trailer == "."){
+			return false; // Trailing spaces or dots are invalid.
+		}
+		
+		var previous = nil;
+		
+		for(var i = 0; i < length; i = i + 1){
+			var current = x_substring(part, i, 1);
+			
+			if(current == previous and (current == " " or current == ".")){
+				return false; // Adjacent spaces or dots are invalid.
+			}
+			
+			if(
+				current == "*"
+				or current == "/"
+				or current == ":"
+				or current == "<"
+				or current == ">"
+				or current == "?"
+				or current == "\"
+				or current == "|"
+			){
+				return false; // Typical special characters are invalid.
+			}
+			
+			var char = x_ord(current);
+			
+			if(char == CHAR_QUOTE or char < CHAR_SPACE or char >= CHAR_DELETE){
+				return false; // Non printable characters are invalid.
+			}
+			
+			previous = current;
+		}
+		
+		return true;
+	}
+	
 	// Split a path string to an array of path parts.
 	split_path(path){
 		var length = x_length(path);
@@ -1258,13 +1431,17 @@ fun run_tests(path, logger){
 	tests_path.pop_back();
 	tests_path = tests_path.join("/") + "/tests/";
 	
-	// Run a test from a main Krox module's relative path.
+	// Run a test from a path.
 	fun run_test(path){
 		print "Testing `" + path + "`.";
-		print "TODO: Implement test for `" + tests_path + path + "`.";
+		ASTPrinter().print_ast(importer.import_program(tests_path + path));
+		logger.flush();
+		print "";
 	}
 	
 	run_test("imports/test_imports_main.krox");
+	
+	print "End of tests.";
 }
 
 // MODULE // `core/main.lox` // ============================================= //

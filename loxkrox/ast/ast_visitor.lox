@@ -22,4 +22,9 @@ class ASTVisitor {
 	visit_module(node){
 		return nil;
 	}
+	
+	// Visit a program AST node and return a value.
+	visit_program(node){
+		return nil;
+	}
 }

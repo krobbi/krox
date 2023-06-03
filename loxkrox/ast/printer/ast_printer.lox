@@ -40,6 +40,13 @@ class ASTPrinter < ASTVisitor {
 		this.current.append(ASTPrinterNode(message + "} " + token.span.to_string()));
 	}
 	
+	// Append a string to the current AST printer node from a name.
+	append_string(name, value){
+		this.current.append(
+			ASTPrinterNode("{" + name + ": " + String().append(value).quote().to_string() + "}")
+		);
+	}
+	
 	// End and return the current AST printer node.
 	end(){
 		var current = this.current;
@@ -70,7 +77,20 @@ class ASTPrinter < ASTVisitor {
 	// Visit a module AST node and return an AST printer node.
 	visit_module(node){
 		this.begin("Module", node);
+		
+		if(node.name){
+			this.append_string("name", node.name);
+		}
+		
 		node.imports.for_each(this.append_node);
+		return this.end();
+	}
+	
+	// Visit a program AST node ad return an AST printer node.
+	visit_program(node){
+		this.begin("Program", node);
+		this.append_string("path", node.path);
+		node.modules.for_each(this.append_node);
 		return this.end();
 	}
 }

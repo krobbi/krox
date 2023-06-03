@@ -5,11 +5,15 @@ fun run_tests(path, logger){
 	tests_path.pop_back();
 	tests_path = tests_path.join("/") + "/tests/";
 	
-	// Run a test from a main Krox module's relative path.
+	// Run a test from a path.
 	fun run_test(path){
 		print "Testing `" + path + "`.";
-		print "TODO: Implement test for `" + tests_path + path + "`.";
+		ASTPrinter().print_ast(importer.import_program(tests_path + path));
+		logger.flush();
+		print "";
 	}
 	
 	run_test("imports/test_imports_main.krox");
+	
+	print "End of tests.";
 }

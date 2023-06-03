@@ -15,6 +15,11 @@ class List {
 		this.tail = nil;
 	}
 	
+	// Return whether the list has no elements.
+	is_empty(){
+		return this.head == nil;
+	}
+	
 	// Append an element to the back of the list.
 	push_back(element){
 		var node = ListNode(element, this.tail);

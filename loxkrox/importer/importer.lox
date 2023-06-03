@@ -9,6 +9,125 @@ class Importer {
 		this.parser = Parser(logger);
 	}
 	
+	// Import and return a program from its main module's path.
+	import_program(path){
+		path = this.split_path(path);
+		var name = path.pop_back();
+		var program = ProgramASTNode(path.join("/"));
+		
+		if(!name){
+			this.logger.log("Main module path cannot be empty.");
+			return program;
+		}
+		
+		if(!this.is_part_valid(name)){
+			this.logger.log("Invalid main module path.");
+			return program;
+		}
+		
+		var queue = List();
+		queue.push_back(name);
+		
+		while(!queue.is_empty()){
+			this.import_queue(program, queue);
+		}
+		
+		return program;
+	}
+	
+	// Import a module to a program from a growable queue of module names.
+	import_queue(program, queue){
+		var name = queue.pop_back();
+		
+		if(!name or this.has_module(program, name)){
+			return; // Empty queue or module already imported.
+		}
+		
+		var stream = x_read(program.path + "/" + name);
+		
+		if(!stream){
+			this.logger.log("Failed to open `" + name + "` for reading. File may not exist.");
+			return;
+		}
+		
+		this.parser.reset(name, stream);
+		var module = this.parser.parse_module();
+		
+		if(x_close(stream)){
+			this.logger.log("Parser failed to close `" + name + "` after reading.");
+		}
+		
+		module.name = name;
+		program.modules.push_back(module);
+		
+		// TODO: Resolve module imports.
+	}
+	
+	// Return whether a program has a module from its name.
+	has_module(program, name){
+		var iter = program.modules.iter();
+		
+		while(iter.has_next()){
+			if(iter.get_next().name == name){
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	// Return whether a path part is valid.
+	is_part_valid(part){
+		var length = x_length(part);
+		
+		if(length < 1){
+			return false; // Empty path parts are invalid.
+		}
+		
+		if(x_substring(part, 0, 1) == " "){
+			return false; // Leading spaces are invalid.
+		}
+		
+		var trailer = x_substring(part, length - 1, 1);
+		
+		if(trailer == " " or trailer == "."){
+			return false; // Trailing spaces or dots are invalid.
+		}
+		
+		var previous = nil;
+		
+		for(var i = 0; i < length; i = i + 1){
+			var current = x_substring(part, i, 1);
+			
+			if(current == previous and (current == " " or current == ".")){
+				return false; // Adjacent spaces or dots are invalid.
+			}
+			
+			if(
+				current == "*"
+				or current == "/"
+				or current == ":"
+				or current == "<"
+				or current == ">"
+				or current == "?"
+				or current == "\"
+				or current == "|"
+			){
+				return false; // Typical special characters are invalid.
+			}
+			
+			var char = x_ord(current);
+			
+			if(char == CHAR_QUOTE or char < CHAR_SPACE or char >= CHAR_DELETE){
+				return false; // Non printable characters are invalid.
+			}
+			
+			previous = current;
+		}
+		
+		return true;
+	}
+	
 	// Split a path string to an array of path parts.
 	split_path(path){
 		var length = x_length(path);

@@ -4,6 +4,9 @@ class ModuleASTNode < ASTNode {
 	init(){
 		super.init();
 		
+		// The module AST node's optional name.
+		this.name = nil;
+		
 		// The module AST node's import list.
 		this.imports = List();
 	}
