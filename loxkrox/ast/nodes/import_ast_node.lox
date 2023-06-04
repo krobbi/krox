@@ -7,6 +7,9 @@ class ImportASTNode < ASTNode {
 		// The import AST node's path token.
 		this.path = path;
 		
+		// The optional name of the module imported by the import AST node.
+		this.name = nil;
+		
 		// The import AST node's import item list.
 		this.items = List();
 	}

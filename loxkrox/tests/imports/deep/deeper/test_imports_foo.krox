@@ -1,0 +1,6 @@
+// Import another module.
+// The `deepest` directory does not exist, but it can still be entered and
+// ascended out of with `..`. The only checks are that the path itself is valid,
+// and that the imported module exists once the path has been normalized.
+// The module name should normalize to `deep/test_imports_bar.krox`.
+> "deepest/../../test_imports_bar.krox" {}

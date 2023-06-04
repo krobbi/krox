@@ -58,6 +58,11 @@ class ASTPrinter < ASTVisitor {
 	visit_import(node){
 		this.begin("Import", node);
 		this.append_token("path", node.path);
+		
+		if(node.name){
+			this.append_string("name", node.name);
+		}
+		
 		node.items.for_each(this.append_node);
 		return this.end();
 	}

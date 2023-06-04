@@ -859,6 +859,9 @@ class ImportASTNode < ASTNode {
 		// The import AST node's path token.
 		this.path = path;
 		
+		// The optional name of the module imported by the import AST node.
+		this.name = nil;
+		
 		// The import AST node's import item list.
 		this.items = List();
 	}
@@ -1080,6 +1083,11 @@ class ASTPrinter < ASTVisitor {
 	visit_import(node){
 		this.begin("Import", node);
 		this.append_token("path", node.path);
+		
+		if(node.name){
+			this.append_string("name", node.name);
+		}
+		
 		node.items.for_each(this.append_node);
 		return this.end();
 	}
@@ -1328,8 +1336,76 @@ class Importer {
 		
 		module.name = name;
 		program.modules.push_back(module);
+		var iter = module.imports.iter();
 		
-		// TODO: Resolve module imports.
+		while(iter.has_next()){
+			this.resolve_import(name, iter.get_next(), queue);
+		}
+	}
+	
+	// Resolve a module's import and append the imported name to a queue.
+	resolve_import(name, import, queue){
+		var import_path = import.path.value;
+		var import_span = import.path.span;
+		
+		if(import_path == ""){
+			this.logger.log_at("Import paths cannot be empty.", import_span);
+			return;
+		}
+		
+		var import_path_leader = x_substring(import_path, 0, 1);
+		var imported_name;
+		
+		if(import_path_leader == "/" or import_path_leader == "\"){
+			import_path = x_substring(import_path, 1, x_length(import_path) - 1);
+			imported_name = List(); // Absolute import path.
+		} else {
+			imported_name = this.split_path(name);
+			imported_name.pop_back();
+		}
+		
+		import_path = this.split_path(import_path);
+		var iter = import_path.iter();
+		
+		while(iter.has_next()){
+			var import_path_part = iter.get_next();
+			
+			if(import_path_part == "."){
+				// Allow single dot to mean same directory.
+			} else if(import_path_part == ".."){
+				// Allow double dot to mean parent directory.
+				if(imported_name.is_empty()){
+					this.logger.log_at(
+						"Import paths cannot ascend above the main directory.", import_span
+					);
+					return;
+				}
+				
+				imported_name.pop_back();
+			} else {
+				if(!this.is_part_valid(import_path_part)){
+					this.logger.log_at("Invalid import path.", import_span);
+					return;
+				}
+				
+				imported_name.push_back(import_path_part);
+			}
+		}
+		
+		imported_name = imported_name.join("/");
+		
+		if(imported_name == ""){
+			this.logger.log_at("Import paths must contain a file name.", import_span);
+			return;
+		}
+		
+		if(imported_name == name){
+			this.logger.log_at("Modules cannot import themselves.", import_span);
+			return;
+		}
+		
+		import.name = imported_name;
+		queue.push_back(imported_name);
 	}
 	
 	// Return whether a program has a module from its name.

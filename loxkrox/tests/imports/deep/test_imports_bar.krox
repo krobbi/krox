@@ -1,0 +1,5 @@
+// Import yet another module.
+// If a path begins with a slash then it will be treated as an absolute path
+// relative to the program's main directory.
+// The module name should normalize to `test_imports_baz.krox`.
+> "/test_imports_baz.krox" {}

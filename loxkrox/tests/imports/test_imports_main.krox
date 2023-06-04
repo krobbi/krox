@@ -1,2 +1,3 @@
-// Import a module.
-> "test_imports_module.krox" {}
+// Import a module. The `./` is optional. Either type of slash is allowed.
+// The module name should normalize to `deep/deeper/test_imports_foo.krox`.
+> "./deep\\deeper/test_imports_foo.krox" {}
