@@ -5,8 +5,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* Optional NaN boxing. */
+/* Optional memory optimizations. */
 #define NAN_BOXING
+#define CONSTANT_MERGING
 
 /* Debug flags. */
 #define DEBUG_PRINT_CODE

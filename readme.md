@@ -6,7 +6,8 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 1. [About](#about)
 2. [Design](#design)
 3. [About Lox](#about-lox)
-4. [Lox Extensions](#lox-extensions)
+4. [Lox Implementation Details](#lox-implementation-details)
+5. [Lox Extensions](#lox-extensions)
    * [`x_arg(index)`](#x_argindex)
    * [`x_args()`](#x_args)
    * [`x_chr(code)`](#x_chrcode)
@@ -22,7 +23,7 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
    * [`x_substring(string, start, length)`](#x_substringstring-start-length)
    * [`x_trunc(number)`](#x_truncnumber)
    * [`x_write(path)`](#x_writepath)
-5. [License](#license)
+6. [License](#license)
 
 # About
 Krox is an unfinished language whose initial implementation is being written in
@@ -105,22 +106,36 @@ import_item = IDENTIFIER, [ ">", IDENTIFIER ] ;
 # About Lox
 Lox is a language described in the book
 [Crafting Interpreters](https://craftinginterpreters.com) by
-[Robert Nystrom](https://github.com/munificent). The language is implemented
-twice over the course of the book. First with a tree-walk interpreter written
-in Java, and then with a bytecode interpreter written in C.
+[Bob Nystrom](https://github.com/munificent). The language is implemented twice
+over the course of the book. First with a tree-walk interpreter written in
+Java, and then with a bytecode interpreter written in C.
 
-I followed along with the book to get a better idea of the best practices and
-design choices involved in designing a language. Lox also has object-oriented
-capabilities, which I had never previously attempted to implement.
+Lox supports global and local dynamic variables, functions with closures, and
+classes and instances with single inheritance. Functions and classes are first
+class, and can be passed around as variables.
 
+The Krox project began with following along with the book to get a better idea
+of the best practices and design choices involved in designing a language, and
+to better understand how object oriented languages may be implemented.
+
+# Lox Implementation Details
 My initial implementation of Lox was written in Python instead of Java for
 convenience.
 
+My C implementation of Lox merges constants with equal values to the same
+constant ID. This increases compilation time, but allows programs to grow
+larger without running out of constant IDs.
+
+The size of constant IDs in the C implementation has been increased from 8 bits
+to 16 bits. This adds a lot of redundant data to the internal bytecode in most
+cases, but was simpler to implement than separate long constant opcodes.
+Additional constant IDs have become necessary to implement the Krox compiler.
+
 # Lox Extensions
 In addition to the standard `clock()` function, my implementation of Lox
-includes some extension functions to improve its I/O capabilities. The
+includes some extension functions to improve its I/O capabilities. These
 non-standard extensions are marked with an `x_` prefix to indicate that they
-have a special implementation and to reduce namespace pollution.
+have a special implementation and reduce namespace pollution.
 
 ## `x_arg(index)`
 Return the command line argument string at index `index`, following the same
