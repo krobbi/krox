@@ -176,7 +176,29 @@ class Parser {
 	// Parse and return a primary expression AST node if possible.
 	parse_primary_expr(){
 		this.begin();
-		return this.end(this.parse_literal_expr());
+		
+		if(this.match(TokenType.OPEN_PARENTHESIS)){
+			return this.end(this.parse_parenthetical_expr());
+		} else if(this.match(TokenType.STRING)){
+			return this.end(this.parse_literal_expr());
+		} else {
+			this.logger.log_at("Expected a primary expression.", this.next.span);
+			return this.end(nil);
+		}
+	}
+	
+	// Parse and return a parenthetical expression AST node if possible.
+	parse_parenthetical_expr(){
+		this.begin();
+		this.expect(TokenType.OPEN_PARENTHESIS);
+		var expression = this.parse_expr();
+		
+		if(!expression){
+			return this.end(nil);
+		}
+		
+		this.expect(TokenType.CLOSE_PARENTHESIS);
+		return this.end(ParentheticalExprASTNode(expression));
 	}
 	
 	// Parse and return a literal expression AST node if possible.

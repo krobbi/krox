@@ -16,4 +16,6 @@ fn main(){
 	}
 	
 	"Literal expressions and expression statements.";
+	("Parenthetical expressions");
+	(("Nested parens"));
 }

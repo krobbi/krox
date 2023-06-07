@@ -1018,6 +1018,24 @@ class ModuleASTNode < ASTNode {
 	}
 }
 
+// MODULE // `ast/nodes/parenthetical_expr_ast_node.lox` // ================= //
+
+// A parenthetical expression node of an abstract syntax tree.
+class ParentheticalExprASTNode < ASTNode {
+	// Initialize the parenthetical expression AST node's expression.
+	init(expression){
+		super.init();
+		
+		// The parenthetical expression AST node's expression.
+		this.expression = expression;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_parenthetical_expr(this);
+	}
+}
+
 // MODULE // `ast/nodes/program_ast_node.lox` // ============================ //
 
 // A program node of an abstract syntax tree.
@@ -1088,6 +1106,11 @@ class ASTVisitor {
 	
 	// Visit a module AST node and return a value.
 	visit_module(node){
+		return nil;
+	}
+	
+	// Visit a parenthetical expression AST node and return a value.
+	visit_parenthetical_expr(node){
 		return nil;
 	}
 	
@@ -1239,6 +1262,13 @@ class ASTPrinter < ASTVisitor {
 		this.append_node_list("imports", node.imports);
 		this.append_node_list("exports", node.exports);
 		this.append_node_list("functions", node.functions);
+		return this.end();
+	}
+	
+	// Visit a parenthetical expression AST node and return an AST printer node.
+	visit_parenthetical_expr(node){
+		this.begin("ParentheticalExpr", node);
+		this.append_node("expression", node.expression);
 		return this.end();
 	}
 	
@@ -1490,7 +1520,29 @@ class Parser {
 	// Parse and return a primary expression AST node if possible.
 	parse_primary_expr(){
 		this.begin();
-		return this.end(this.parse_literal_expr());
+		
+		if(this.match(TokenType.OPEN_PARENTHESIS)){
+			return this.end(this.parse_parenthetical_expr());
+		} else if(this.match(TokenType.STRING)){
+			return this.end(this.parse_literal_expr());
+		} else {
+			this.logger.log_at("Expected a primary expression.", this.next.span);
+			return this.end(nil);
+		}
+	}
+	
+	// Parse and return a parenthetical expression AST node if possible.
+	parse_parenthetical_expr(){
+		this.begin();
+		this.expect(TokenType.OPEN_PARENTHESIS);
+		var expression = this.parse_expr();
+		
+		if(!expression){
+			return this.end(nil);
+		}
+		
+		this.expect(TokenType.CLOSE_PARENTHESIS);
+		return this.end(ParentheticalExprASTNode(expression));
 	}
 	
 	// Parse and return a literal expression AST node if possible.

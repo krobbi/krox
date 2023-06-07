@@ -48,6 +48,11 @@ class ASTVisitor {
 		return nil;
 	}
 	
+	// Visit a parenthetical expression AST node and return a value.
+	visit_parenthetical_expr(node){
+		return nil;
+	}
+	
 	// Visit a program AST node and return a value.
 	visit_program(node){
 		return nil;

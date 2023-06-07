@@ -16,5 +16,6 @@ block_stmt = "{", { stmt }, "}" ;
 expr_stmt = expr, ";" ;
 
 expr = primary_expr ;
-primary_expr = literal_expr ;
+primary_expr = parenthetical_expr | literal_expr ;
+parenthetical_expr = "(", expr, ")" ;
 literal_expr = STRING ;
