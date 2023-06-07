@@ -508,6 +508,9 @@ class TokenType {
 		// A token type representing the `,` lexeme.
 		this.COMMA = create_type(",");
 		
+		// A token type representing the `<` lexeme.
+		this.LESS = create_type("<");
+		
 		// A token type representing the `>` lexeme.
 		this.GREATER = create_type(">");
 		
@@ -865,6 +868,24 @@ class BlockStmtASTNode < ASTNode {
 	}
 }
 
+// MODULE // `ast/nodes/export_ast_node.lox` // ============================= //
+
+// An export node of an abstract syntax tree.
+class ExportASTNode < ASTNode {
+	// Initialize the export AST node's function.
+	init(function){
+		super.init();
+		
+		// The export AST node's function.
+		this.function = function;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_export(this);
+	}
+}
+
 // MODULE // `ast/nodes/fn_stmt_ast_node.lox` // ============================ //
 
 // A function statement node of an abstract syntax tree.
@@ -945,6 +966,9 @@ class ModuleASTNode < ASTNode {
 		// The module AST node's import list.
 		this.imports = List();
 		
+		// The module AST node's export list.
+		this.exports = List();
+		
 		// The module AST node's function list.
 		this.functions = List();
 	}
@@ -990,6 +1014,11 @@ class ASTVisitor {
 	
 	// Visit a block statement AST node and return a value.
 	visit_block_stmt(node){
+		return nil;
+	}
+	
+	// Visit an export AST node and return a value.
+	visit_export(node){
 		return nil;
 	}
 	
@@ -1096,6 +1125,13 @@ class ASTPrinter < ASTVisitor {
 		return this.end();
 	}
 	
+	// Visit an export AST node and return an AST printer node.
+	visit_export(node){
+		this.begin("Export", node);
+		this.append_node("function", node.function);
+		return this.end();
+	}
+	
 	// Visit a function statement AST node and return an AST printer node.
 	visit_fn_stmt(node){
 		this.begin("FnStmt", node);
@@ -1138,6 +1174,7 @@ class ASTPrinter < ASTVisitor {
 		}
 		
 		this.append_node_list("imports", node.imports);
+		this.append_node_list("exports", node.exports);
 		this.append_node_list("functions", node.functions);
 		return this.end();
 	}
@@ -1152,7 +1189,7 @@ class ASTPrinter < ASTVisitor {
 	
 	// Begin a new current AST printer node from a name and an AST node.
 	begin(name, node){
-		this.current = ASTPrinterNode("(" + name + ") " + node.span.to_string());
+		this.current = ASTPrinterNode("(" + name + " " + node.span.to_string() + ")");
 	}
 	
 	// Append a list of AST nodes to the current AST printer node from a name.
@@ -1180,17 +1217,19 @@ class ASTPrinter < ASTVisitor {
 	
 	// Append a token to the current AST printer node from a name.
 	append_token(name, token){
-		var message = "{" + name + ": ";
+		var wrapper_node = ASTPrinterNode("{" + name + "}");
+		var message;
 		
 		if(token.type == TokenType.STRING){
-			message = message + String().append(token.value).quote().to_string();
+			message = String().append(token.value).quote().to_string();
 		} else if(token.type == TokenType.IDENTIFIER){
-			message = message + token.value;
+			message = token.value;
 		} else {
-			message = message + token.to_string();
+			message = token.to_string();
 		}
 		
-		this.current.append(ASTPrinterNode(message + " " + token.span.to_string() + "}"));
+		wrapper_node.append(ASTPrinterNode("<" + message + " " + token.span.to_string() + ">"));
+		this.current.append(wrapper_node);
 	}
 	
 	// Append a string to the current AST printer node from a name.
@@ -1246,10 +1285,12 @@ class Parser {
 			
 			if(this.match(TokenType.GREATER)){
 				this.try(this.parse_import, module.imports);
+			} else if(this.match(TokenType.LESS)){
+				this.try(this.parse_export, module.exports);
 			} else if(this.match(TokenType.FN)){
 				this.try(this.parse_fn_stmt, module.functions);
 			} else {
-				this.logger.log_at("Expected an import or function.", this.next.span);
+				this.logger.log_at("Expected an import, export, or function.", this.next.span);
 			}
 			
 			if(this.next == bump_token){
@@ -1264,14 +1305,15 @@ class Parser {
 	parse_import(){
 		this.begin();
 		this.expect(TokenType.GREATER);
-		var import = ImportASTNode(this.expect(TokenType.STRING));
+		var path = this.expect(TokenType.STRING);
 		
-		if(!import.path){
+		if(!path){
 			return this.end(nil);
 		}
 		
 		this.expect(TokenType.OPEN_BRACE);
 		var accepts_item = true;
+		var import = ImportASTNode(path);
 		
 		while(accepts_item and !this.match(TokenType.CLOSE_BRACE) and !this.match(TokenType.EOF)){
 			this.try(this.parse_import_item, import.items);
@@ -1301,6 +1343,19 @@ class Parser {
 		}
 		
 		return this.end(ImportItemASTNode(external, internal));
+	}
+	
+	// Parse and return an export AST node if possible.
+	parse_export(){
+		this.begin();
+		this.expect(TokenType.LESS);
+		var function = this.parse_fn_stmt();
+		
+		if(!function){
+			return this.end(nil);
+		}
+		
+		return this.end(ExportASTNode(function));
 	}
 	
 	// Parse and return a statement AST node if possible.
@@ -1654,7 +1709,7 @@ fun run_tests(path, logger){
 		print "";
 	}
 	
-	run_test("imports/test_imports_main.krox");
+	run_test("test_imports/test_imports_main.krox");
 	run_test("test_items.krox");
 	
 	print "End of tests.";

@@ -10,6 +10,9 @@ class ModuleASTNode < ASTNode {
 		// The module AST node's import list.
 		this.imports = List();
 		
+		// The module AST node's export list.
+		this.exports = List();
+		
 		// The module AST node's function list.
 		this.functions = List();
 	}

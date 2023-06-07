@@ -34,10 +34,12 @@ class Parser {
 			
 			if(this.match(TokenType.GREATER)){
 				this.try(this.parse_import, module.imports);
+			} else if(this.match(TokenType.LESS)){
+				this.try(this.parse_export, module.exports);
 			} else if(this.match(TokenType.FN)){
 				this.try(this.parse_fn_stmt, module.functions);
 			} else {
-				this.logger.log_at("Expected an import or function.", this.next.span);
+				this.logger.log_at("Expected an import, export, or function.", this.next.span);
 			}
 			
 			if(this.next == bump_token){
@@ -52,14 +54,15 @@ class Parser {
 	parse_import(){
 		this.begin();
 		this.expect(TokenType.GREATER);
-		var import = ImportASTNode(this.expect(TokenType.STRING));
+		var path = this.expect(TokenType.STRING);
 		
-		if(!import.path){
+		if(!path){
 			return this.end(nil);
 		}
 		
 		this.expect(TokenType.OPEN_BRACE);
 		var accepts_item = true;
+		var import = ImportASTNode(path);
 		
 		while(accepts_item and !this.match(TokenType.CLOSE_BRACE) and !this.match(TokenType.EOF)){
 			this.try(this.parse_import_item, import.items);
@@ -89,6 +92,19 @@ class Parser {
 		}
 		
 		return this.end(ImportItemASTNode(external, internal));
+	}
+	
+	// Parse and return an export AST node if possible.
+	parse_export(){
+		this.begin();
+		this.expect(TokenType.LESS);
+		var function = this.parse_fn_stmt();
+		
+		if(!function){
+			return this.end(nil);
+		}
+		
+		return this.end(ExportASTNode(function));
 	}
 	
 	// Parse and return a statement AST node if possible.

@@ -1,10 +1,12 @@
 (* Krox Reference Grammar *)
 
-module = { import | item }, EOF ;
+module = { import | export | item }, EOF ;
 
 import = ">", STRING, "{", [ import_items ], "}" ;
 import_items = import_item, [ ",", [ import_items ] ] ;
 import_item = IDENTIFIER, [ ">", IDENTIFIER ] ;
+
+export = "<", item ;
 
 item = fn_stmt ;
 

@@ -49,6 +49,9 @@ class TokenType {
 		// A token type representing the `,` lexeme.
 		this.COMMA = create_type(",");
 		
+		// A token type representing the `<` lexeme.
+		this.LESS = create_type("<");
+		
 		// A token type representing the `>` lexeme.
 		this.GREATER = create_type(">");
 		

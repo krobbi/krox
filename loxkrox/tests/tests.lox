@@ -13,7 +13,7 @@ fun run_tests(path, logger){
 		print "";
 	}
 	
-	run_test("imports/test_imports_main.krox");
+	run_test("test_imports/test_imports_main.krox");
 	run_test("test_items.krox");
 	
 	print "End of tests.";

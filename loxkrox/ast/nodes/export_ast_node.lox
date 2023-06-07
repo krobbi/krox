@@ -1,0 +1,15 @@
+// An export node of an abstract syntax tree.
+class ExportASTNode < ASTNode {
+	// Initialize the export AST node's function.
+	init(function){
+		super.init();
+		
+		// The export AST node's function.
+		this.function = function;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_export(this);
+	}
+}

@@ -13,6 +13,11 @@ class ASTVisitor {
 		return nil;
 	}
 	
+	// Visit an export AST node and return a value.
+	visit_export(node){
+		return nil;
+	}
+	
 	// Visit a function statement AST node and return a value.
 	visit_fn_stmt(node){
 		return nil;

@@ -30,6 +30,7 @@ fun generate_loxkrox(add_line, add_module){
 	add_module("lexer/lexer.lox");
 	add_module("ast/ast_node.lox");
 	add_module("ast/nodes/block_stmt_ast_node.lox");
+	add_module("ast/nodes/export_ast_node.lox");
 	add_module("ast/nodes/fn_stmt_ast_node.lox");
 	add_module("ast/nodes/import_ast_node.lox");
 	add_module("ast/nodes/import_item_ast_node.lox");

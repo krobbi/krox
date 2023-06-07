@@ -2,6 +2,8 @@
 
 fn top_function(){}
 
+< fn exported_function(){}
+
 fn main(){
 	// Block statements can be nested.
 	{

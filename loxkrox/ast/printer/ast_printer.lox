@@ -20,6 +20,13 @@ class ASTPrinter < ASTVisitor {
 		return this.end();
 	}
 	
+	// Visit an export AST node and return an AST printer node.
+	visit_export(node){
+		this.begin("Export", node);
+		this.append_node("function", node.function);
+		return this.end();
+	}
+	
 	// Visit a function statement AST node and return an AST printer node.
 	visit_fn_stmt(node){
 		this.begin("FnStmt", node);
@@ -62,6 +69,7 @@ class ASTPrinter < ASTVisitor {
 		}
 		
 		this.append_node_list("imports", node.imports);
+		this.append_node_list("exports", node.exports);
 		this.append_node_list("functions", node.functions);
 		return this.end();
 	}
@@ -76,7 +84,7 @@ class ASTPrinter < ASTVisitor {
 	
 	// Begin a new current AST printer node from a name and an AST node.
 	begin(name, node){
-		this.current = ASTPrinterNode("(" + name + ") " + node.span.to_string());
+		this.current = ASTPrinterNode("(" + name + " " + node.span.to_string() + ")");
 	}
 	
 	// Append a list of AST nodes to the current AST printer node from a name.
@@ -104,17 +112,19 @@ class ASTPrinter < ASTVisitor {
 	
 	// Append a token to the current AST printer node from a name.
 	append_token(name, token){
-		var message = "{" + name + ": ";
+		var wrapper_node = ASTPrinterNode("{" + name + "}");
+		var message;
 		
 		if(token.type == TokenType.STRING){
-			message = message + String().append(token.value).quote().to_string();
+			message = String().append(token.value).quote().to_string();
 		} else if(token.type == TokenType.IDENTIFIER){
-			message = message + token.value;
+			message = token.value;
 		} else {
-			message = message + token.to_string();
+			message = token.to_string();
 		}
 		
-		this.current.append(ASTPrinterNode(message + " " + token.span.to_string() + "}"));
+		wrapper_node.append(ASTPrinterNode("<" + message + " " + token.span.to_string() + ">"));
+		this.current.append(wrapper_node);
 	}
 	
 	// Append a string to the current AST printer node from a name.
