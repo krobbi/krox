@@ -1,5 +1,5 @@
 # Krox
-_Following Crafting Interpreters._  
+_Ongoing language project._  
 __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 
 # Contents
@@ -75,33 +75,7 @@ fn bar(){}
 fn main(){}
 ```
 
-To handle this, each module must keep track of its own set of available
-identifiers, and each declaration must have a unique ID to allow declarations
-of the same identifier.
-
-A simplified example of the data needed for the above module is shown below:
-```json
-{
-   "globals": {
-      "foo": "module.krox:foo",
-      "baz": "module.krox:bar",
-      "bar": "main.krox:bar",
-      "square": "main.krox:square",
-      "main": "main.krox:main"
-   },
-   "exports": [
-      "square"
-   ]
-}
-```
-
-An incomplete grammar for Krox is shown below:
-```ebnf
-module = { import }, EOF ;
-import = ">", STRING, "{", [ import_items ], "}" ;
-import_items = import_item, [ ",", [ import_items ] ] ;
-import_item = IDENTIFIER, [ ">", IDENTIFIER ] ;
-```
+See [grammar.ebnf](./grammar.ebnf) for an incomplete Krox grammar.
 
 # About Lox
 Lox is a language described in the book

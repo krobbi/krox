@@ -1,0 +1,7 @@
+(* Krox Reference Grammar *)
+
+module = { import }, EOF ;
+
+import = ">", STRING, "{", [ import_items ], "}" ;
+import_items = import_item, [ ",", [ import_items ] ] ;
+import_item = IDENTIFIER, [ ">", IDENTIFIER ] ;
