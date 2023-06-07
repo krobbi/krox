@@ -247,16 +247,6 @@ class List {
 	iter(){
 		return ListIterator(this.head);
 	}
-	
-	// Call a function for each element in the list.
-	for_each(function){
-		var node = this.head;
-		
-		while(node){
-			function(node.element);
-			node = node.next;
-		}
-	}
 }
 
 // MODULE // `collections/map_node.lox` // ================================== //
@@ -505,6 +495,15 @@ class TokenType {
 		
 		// A token type representing an identifier.
 		this.IDENTIFIER = create_type("'identifier'");
+		
+		// A token type representing the `fn` keyword.
+		this.FN = create_type("fn");
+		
+		// A token type representing the `(` lexeme.
+		this.OPEN_PARENTHESIS = create_type("(");
+		
+		// A token type representing the `)` lexeme.
+		this.CLOSE_PARENTHESIS = create_type(")");
 		
 		// A token type representing the `,` lexeme.
 		this.COMMA = create_type(",");
@@ -848,6 +847,45 @@ class ASTNode {
 	}
 }
 
+// MODULE // `ast/nodes/block_stmt_ast_node.lox` // ========================= //
+
+// A block statement node of an abstract syntax tree.
+class BlockStmtASTNode < ASTNode {
+	// Initialize the block statement AST node's statement list.
+	init(){
+		super.init();
+		
+		// The block statement AST node's statement list.
+		this.statements = List();
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_block_stmt(this);
+	}
+}
+
+// MODULE // `ast/nodes/fn_stmt_ast_node.lox` // ============================ //
+
+// A function statement node of an abstract syntax tree.
+class FnStmtASTNode < ASTNode {
+	// Initialize the function statement AST node's identifier token and body.
+	init(identifier, body){
+		super.init();
+		
+		// The function statement AST node's identifier token.
+		this.identifier = identifier;
+		
+		// The function statement AST node's body.
+		this.body = body;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_fn_stmt(this);
+	}
+}
+
 // MODULE // `ast/nodes/import_ast_node.lox` // ============================= //
 
 // An import node of an abstract syntax tree.
@@ -897,7 +935,7 @@ class ImportItemASTNode < ASTNode {
 
 // A module node of an abstract syntax tree.
 class ModuleASTNode < ASTNode {
-	// Initialize the module AST node's import list.
+	// Initialize the module AST node's import and function lists.
 	init(){
 		super.init();
 		
@@ -906,6 +944,9 @@ class ModuleASTNode < ASTNode {
 		
 		// The module AST node's import list.
 		this.imports = List();
+		
+		// The module AST node's function list.
+		this.functions = List();
 	}
 	
 	// Accept an AST visitor and return a value.
@@ -918,14 +959,14 @@ class ModuleASTNode < ASTNode {
 
 // A program node of an abstract syntax tree.
 class ProgramASTNode < ASTNode {
-	// Initialize the program AST node's path and module array.
+	// Initialize the program AST node's path and module list.
 	init(path){
 		super.init();
 		
 		// The program AST node's path.
 		this.path = path;
 		
-		// The program AST node's module array.
+		// The program AST node's module list.
 		this.modules = List();
 	}
 	
@@ -945,6 +986,16 @@ class ASTVisitor {
 	// Visit an AST node and return a value.
 	visit(node){
 		return node.accept_visitor(this);
+	}
+	
+	// Visit a block statement AST node and return a value.
+	visit_block_stmt(node){
+		return nil;
+	}
+	
+	// Visit a function statement AST node and return a value.
+	visit_fn_stmt(node){
+		return nil;
 	}
 	
 	// Visit an import AST node and return a value.
@@ -972,12 +1023,12 @@ class ASTVisitor {
 
 // A generic tree node for printing an AST.
 class ASTPrinterNode {
-	// Initialize the AST printer node's message and child array.
+	// Initialize the AST printer node's message and child list.
 	init(message){
 		// The AST printer node's message.
 		this.message = message;
 		
-		// The AST printer node's child array.
+		// The AST printer node's child list.
 		this.children = List();
 	}
 	
@@ -1038,45 +1089,19 @@ class ASTPrinter < ASTVisitor {
 		this.visit(node).print_node(List());
 	}
 	
-	// Begin a new current AST printer node from a name and an AST node.
-	begin(name, node){
-		this.current = ASTPrinterNode("(" + name + ") " + node.span.to_string());
+	// Visit a block statement AST node and return an AST printer node.
+	visit_block_stmt(node){
+		this.begin("BlockStmt", node);
+		this.append_node_list("statements", node.statements);
+		return this.end();
 	}
 	
-	// Append an AST node to the current AST printer node.
-	append_node(node){
-		var current = this.current;
-		current.append(this.visit(node));
-		this.current = current;
-	}
-	
-	// Append a token to the current AST printer node from a name.
-	append_token(name, token){
-		var message = "{" + name + ": ";
-		
-		if(token.type == TokenType.STRING){
-			message = message + String().append(token.value).quote().to_string();
-		} else if(token.type == TokenType.IDENTIFIER){
-			message = message + token.value;
-		} else {
-			message = message + token.to_string();
-		}
-		
-		this.current.append(ASTPrinterNode(message + "} " + token.span.to_string()));
-	}
-	
-	// Append a string to the current AST printer node from a name.
-	append_string(name, value){
-		this.current.append(
-			ASTPrinterNode("{" + name + ": " + String().append(value).quote().to_string() + "}")
-		);
-	}
-	
-	// End and return the current AST printer node.
-	end(){
-		var current = this.current;
-		this.current = nil;
-		return current;
+	// Visit a function statement AST node and return an AST printer node.
+	visit_fn_stmt(node){
+		this.begin("FnStmt", node);
+		this.append_token("identifier", node.identifier);
+		this.append_node("body", node.body);
+		return this.end();
 	}
 	
 	// Visit an import AST node and return an AST printer node.
@@ -1088,7 +1113,7 @@ class ASTPrinter < ASTVisitor {
 			this.append_string("name", node.name);
 		}
 		
-		node.items.for_each(this.append_node);
+		this.append_node_list("items", node.items);
 		return this.end();
 	}
 	
@@ -1112,7 +1137,8 @@ class ASTPrinter < ASTVisitor {
 			this.append_string("name", node.name);
 		}
 		
-		node.imports.for_each(this.append_node);
+		this.append_node_list("imports", node.imports);
+		this.append_node_list("functions", node.functions);
 		return this.end();
 	}
 	
@@ -1120,8 +1146,65 @@ class ASTPrinter < ASTVisitor {
 	visit_program(node){
 		this.begin("Program", node);
 		this.append_string("path", node.path);
-		node.modules.for_each(this.append_node);
+		this.append_node_list("modules", node.modules);
 		return this.end();
+	}
+	
+	// Begin a new current AST printer node from a name and an AST node.
+	begin(name, node){
+		this.current = ASTPrinterNode("(" + name + ") " + node.span.to_string());
+	}
+	
+	// Append a list of AST nodes to the current AST printer node from a name.
+	append_node_list(name, list){
+		var current = this.current;
+		var list_node = ASTPrinterNode("[" + name + "]");
+		var iter = list.iter();
+		
+		while(iter.has_next()){
+			list_node.append(this.visit(iter.get_next()));
+		}
+		
+		current.append(list_node);
+		this.current = current;
+	}
+	
+	// Append an AST node to the current AST printer node from a name.
+	append_node(name, node){
+		var current = this.current;
+		var wrapper_node = ASTPrinterNode("{" + name + "}");
+		wrapper_node.append(this.visit(node));
+		current.append(wrapper_node);
+		this.current = current;
+	}
+	
+	// Append a token to the current AST printer node from a name.
+	append_token(name, token){
+		var message = "{" + name + ": ";
+		
+		if(token.type == TokenType.STRING){
+			message = message + String().append(token.value).quote().to_string();
+		} else if(token.type == TokenType.IDENTIFIER){
+			message = message + token.value;
+		} else {
+			message = message + token.to_string();
+		}
+		
+		this.current.append(ASTPrinterNode(message + " " + token.span.to_string() + "}"));
+	}
+	
+	// Append a string to the current AST printer node from a name.
+	append_string(name, value){
+		this.current.append(
+			ASTPrinterNode("{" + name + ": " + String().append(value).quote().to_string() + "}")
+		);
+	}
+	
+	// End and return the current AST printer node.
+	end(){
+		var current = this.current;
+		this.current = nil;
+		return current;
 	}
 }
 
@@ -1160,10 +1243,13 @@ class Parser {
 		
 		while(!this.match(TokenType.EOF)){
 			var bump_token = this.next;
-			var import = this.parse_import();
 			
-			if(import){
-				module.imports.push_back(import);
+			if(this.match(TokenType.GREATER)){
+				this.try(this.parse_import, module.imports);
+			} else if(this.match(TokenType.FN)){
+				this.try(this.parse_fn_stmt, module.functions);
+			} else {
+				this.logger.log_at("Expected an import or function.", this.next.span);
 			}
 			
 			if(this.next == bump_token){
@@ -1188,11 +1274,7 @@ class Parser {
 		var accepts_item = true;
 		
 		while(accepts_item and !this.match(TokenType.CLOSE_BRACE) and !this.match(TokenType.EOF)){
-			var import_item = this.parse_import_item();
-			
-			if(import_item){
-				import.items.push_back(import_item);
-			}
+			this.try(this.parse_import_item, import.items);
 			
 			if(!this.accept(TokenType.COMMA)){
 				accepts_item = false;
@@ -1221,6 +1303,54 @@ class Parser {
 		return this.end(ImportItemASTNode(external, internal));
 	}
 	
+	// Parse and return a statement AST node if possible.
+	parse_stmt(){
+		this.begin();
+		
+		if(this.match(TokenType.FN)){
+			return this.end(this.parse_fn_stmt());
+		} else if(this.match(TokenType.OPEN_BRACE)){
+			return this.end(this.parse_block_stmt());
+		} else {
+			this.logger.log_at("Expected a statement.", this.next.span);
+			return this.end(nil);
+		}
+	}
+	
+	// Parse and return a function statement AST node if possible.
+	parse_fn_stmt(){
+		this.begin();
+		this.expect(TokenType.FN);
+		var identifier = this.expect(TokenType.IDENTIFIER);
+		
+		if(!identifier){
+			return this.end(nil);
+		}
+		
+		this.expect(TokenType.OPEN_PARENTHESIS);
+		this.expect(TokenType.CLOSE_PARENTHESIS);
+		return this.end(FnStmtASTNode(identifier, this.parse_block_stmt()));
+	}
+	
+	// Parse and return a block statement AST node.
+	parse_block_stmt(){
+		this.begin();
+		this.expect(TokenType.OPEN_BRACE);
+		var block_stmt = BlockStmtASTNode();
+		
+		while(!this.match(TokenType.CLOSE_BRACE) and !this.match(TokenType.EOF)){
+			var bump_token = this.next;
+			this.try(this.parse_stmt, block_stmt.statements);
+			
+			if(this.next == bump_token){
+				this.advance(); // Prevent infinite loop.
+			}
+		}
+		
+		this.expect(TokenType.CLOSE_BRACE);
+		return this.end(block_stmt);
+	}
+	
 	// Begin an AST node.
 	begin(){
 		this.span_stack.push_back(this.next.span);
@@ -1234,6 +1364,15 @@ class Parser {
 		}
 		
 		return node;
+	}
+	
+	// Append the result of a parse rule to an AST node list if possible.
+	try(rule, list){
+		var node = rule();
+		
+		if(node){
+			list.push_back(node);
+		}
 	}
 	
 	// Return whether the next token matches a token type.
@@ -1473,7 +1612,7 @@ class Importer {
 		return true;
 	}
 	
-	// Split a path string to an array of path parts.
+	// Split a path string to a list of path parts.
 	split_path(path){
 		var length = x_length(path);
 		var part = "";
@@ -1498,7 +1637,7 @@ class Importer {
 	}
 }
 
-// MODULE // `tests/test.lox` // ============================================ //
+// MODULE // `tests/tests.lox` // =========================================== //
 
 // Run tests from LoxKrox's path and a logger.
 fun run_tests(path, logger){
@@ -1516,6 +1655,7 @@ fun run_tests(path, logger){
 	}
 	
 	run_test("imports/test_imports_main.krox");
+	run_test("test_items.krox");
 	
 	print "End of tests.";
 }

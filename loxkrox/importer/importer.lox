@@ -196,7 +196,7 @@ class Importer {
 		return true;
 	}
 	
-	// Split a path string to an array of path parts.
+	// Split a path string to a list of path parts.
 	split_path(path){
 		var length = x_length(path);
 		var part = "";

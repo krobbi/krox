@@ -8,6 +8,16 @@ class ASTVisitor {
 		return node.accept_visitor(this);
 	}
 	
+	// Visit a block statement AST node and return a value.
+	visit_block_stmt(node){
+		return nil;
+	}
+	
+	// Visit a function statement AST node and return a value.
+	visit_fn_stmt(node){
+		return nil;
+	}
+	
 	// Visit an import AST node and return a value.
 	visit_import(node){
 		return nil;

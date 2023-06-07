@@ -1,0 +1,18 @@
+// A function statement node of an abstract syntax tree.
+class FnStmtASTNode < ASTNode {
+	// Initialize the function statement AST node's identifier token and body.
+	init(identifier, body){
+		super.init();
+		
+		// The function statement AST node's identifier token.
+		this.identifier = identifier;
+		
+		// The function statement AST node's body.
+		this.body = body;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_fn_stmt(this);
+	}
+}

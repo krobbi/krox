@@ -1,0 +1,15 @@
+// Test top-level items.
+
+fn top_function(){}
+
+fn main(){
+	// Block statements can be nested.
+	{
+		// And so can functions.
+		fn foo(){}
+	}
+	
+	fn bar(){
+		fn baz(){}
+	}
+}

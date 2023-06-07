@@ -1,7 +1,13 @@
 (* Krox Reference Grammar *)
 
-module = { import }, EOF ;
+module = { import | item }, EOF ;
 
 import = ">", STRING, "{", [ import_items ], "}" ;
 import_items = import_item, [ ",", [ import_items ] ] ;
 import_item = IDENTIFIER, [ ">", IDENTIFIER ] ;
+
+item = fn_stmt ;
+
+stmt = fn_stmt | block_stmt ;
+fn_stmt = "fn", IDENTIFIER, "(", ")", block_stmt ;
+block_stmt = "{", { stmt }, "}" ;

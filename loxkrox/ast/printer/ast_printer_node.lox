@@ -1,11 +1,11 @@
 // A generic tree node for printing an AST.
 class ASTPrinterNode {
-	// Initialize the AST printer node's message and child array.
+	// Initialize the AST printer node's message and child list.
 	init(message){
 		// The AST printer node's message.
 		this.message = message;
 		
-		// The AST printer node's child array.
+		// The AST printer node's child list.
 		this.children = List();
 	}
 	

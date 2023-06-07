@@ -13,45 +13,19 @@ class ASTPrinter < ASTVisitor {
 		this.visit(node).print_node(List());
 	}
 	
-	// Begin a new current AST printer node from a name and an AST node.
-	begin(name, node){
-		this.current = ASTPrinterNode("(" + name + ") " + node.span.to_string());
+	// Visit a block statement AST node and return an AST printer node.
+	visit_block_stmt(node){
+		this.begin("BlockStmt", node);
+		this.append_node_list("statements", node.statements);
+		return this.end();
 	}
 	
-	// Append an AST node to the current AST printer node.
-	append_node(node){
-		var current = this.current;
-		current.append(this.visit(node));
-		this.current = current;
-	}
-	
-	// Append a token to the current AST printer node from a name.
-	append_token(name, token){
-		var message = "{" + name + ": ";
-		
-		if(token.type == TokenType.STRING){
-			message = message + String().append(token.value).quote().to_string();
-		} else if(token.type == TokenType.IDENTIFIER){
-			message = message + token.value;
-		} else {
-			message = message + token.to_string();
-		}
-		
-		this.current.append(ASTPrinterNode(message + "} " + token.span.to_string()));
-	}
-	
-	// Append a string to the current AST printer node from a name.
-	append_string(name, value){
-		this.current.append(
-			ASTPrinterNode("{" + name + ": " + String().append(value).quote().to_string() + "}")
-		);
-	}
-	
-	// End and return the current AST printer node.
-	end(){
-		var current = this.current;
-		this.current = nil;
-		return current;
+	// Visit a function statement AST node and return an AST printer node.
+	visit_fn_stmt(node){
+		this.begin("FnStmt", node);
+		this.append_token("identifier", node.identifier);
+		this.append_node("body", node.body);
+		return this.end();
 	}
 	
 	// Visit an import AST node and return an AST printer node.
@@ -63,7 +37,7 @@ class ASTPrinter < ASTVisitor {
 			this.append_string("name", node.name);
 		}
 		
-		node.items.for_each(this.append_node);
+		this.append_node_list("items", node.items);
 		return this.end();
 	}
 	
@@ -87,7 +61,8 @@ class ASTPrinter < ASTVisitor {
 			this.append_string("name", node.name);
 		}
 		
-		node.imports.for_each(this.append_node);
+		this.append_node_list("imports", node.imports);
+		this.append_node_list("functions", node.functions);
 		return this.end();
 	}
 	
@@ -95,7 +70,64 @@ class ASTPrinter < ASTVisitor {
 	visit_program(node){
 		this.begin("Program", node);
 		this.append_string("path", node.path);
-		node.modules.for_each(this.append_node);
+		this.append_node_list("modules", node.modules);
 		return this.end();
+	}
+	
+	// Begin a new current AST printer node from a name and an AST node.
+	begin(name, node){
+		this.current = ASTPrinterNode("(" + name + ") " + node.span.to_string());
+	}
+	
+	// Append a list of AST nodes to the current AST printer node from a name.
+	append_node_list(name, list){
+		var current = this.current;
+		var list_node = ASTPrinterNode("[" + name + "]");
+		var iter = list.iter();
+		
+		while(iter.has_next()){
+			list_node.append(this.visit(iter.get_next()));
+		}
+		
+		current.append(list_node);
+		this.current = current;
+	}
+	
+	// Append an AST node to the current AST printer node from a name.
+	append_node(name, node){
+		var current = this.current;
+		var wrapper_node = ASTPrinterNode("{" + name + "}");
+		wrapper_node.append(this.visit(node));
+		current.append(wrapper_node);
+		this.current = current;
+	}
+	
+	// Append a token to the current AST printer node from a name.
+	append_token(name, token){
+		var message = "{" + name + ": ";
+		
+		if(token.type == TokenType.STRING){
+			message = message + String().append(token.value).quote().to_string();
+		} else if(token.type == TokenType.IDENTIFIER){
+			message = message + token.value;
+		} else {
+			message = message + token.to_string();
+		}
+		
+		this.current.append(ASTPrinterNode(message + " " + token.span.to_string() + "}"));
+	}
+	
+	// Append a string to the current AST printer node from a name.
+	append_string(name, value){
+		this.current.append(
+			ASTPrinterNode("{" + name + ": " + String().append(value).quote().to_string() + "}")
+		);
+	}
+	
+	// End and return the current AST printer node.
+	end(){
+		var current = this.current;
+		this.current = nil;
+		return current;
 	}
 }

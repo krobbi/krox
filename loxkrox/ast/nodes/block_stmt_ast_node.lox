@@ -1,0 +1,15 @@
+// A block statement node of an abstract syntax tree.
+class BlockStmtASTNode < ASTNode {
+	// Initialize the block statement AST node's statement list.
+	init(){
+		super.init();
+		
+		// The block statement AST node's statement list.
+		this.statements = List();
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_block_stmt(this);
+	}
+}

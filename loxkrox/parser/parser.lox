@@ -31,10 +31,13 @@ class Parser {
 		
 		while(!this.match(TokenType.EOF)){
 			var bump_token = this.next;
-			var import = this.parse_import();
 			
-			if(import){
-				module.imports.push_back(import);
+			if(this.match(TokenType.GREATER)){
+				this.try(this.parse_import, module.imports);
+			} else if(this.match(TokenType.FN)){
+				this.try(this.parse_fn_stmt, module.functions);
+			} else {
+				this.logger.log_at("Expected an import or function.", this.next.span);
 			}
 			
 			if(this.next == bump_token){
@@ -59,11 +62,7 @@ class Parser {
 		var accepts_item = true;
 		
 		while(accepts_item and !this.match(TokenType.CLOSE_BRACE) and !this.match(TokenType.EOF)){
-			var import_item = this.parse_import_item();
-			
-			if(import_item){
-				import.items.push_back(import_item);
-			}
+			this.try(this.parse_import_item, import.items);
 			
 			if(!this.accept(TokenType.COMMA)){
 				accepts_item = false;
@@ -92,6 +91,54 @@ class Parser {
 		return this.end(ImportItemASTNode(external, internal));
 	}
 	
+	// Parse and return a statement AST node if possible.
+	parse_stmt(){
+		this.begin();
+		
+		if(this.match(TokenType.FN)){
+			return this.end(this.parse_fn_stmt());
+		} else if(this.match(TokenType.OPEN_BRACE)){
+			return this.end(this.parse_block_stmt());
+		} else {
+			this.logger.log_at("Expected a statement.", this.next.span);
+			return this.end(nil);
+		}
+	}
+	
+	// Parse and return a function statement AST node if possible.
+	parse_fn_stmt(){
+		this.begin();
+		this.expect(TokenType.FN);
+		var identifier = this.expect(TokenType.IDENTIFIER);
+		
+		if(!identifier){
+			return this.end(nil);
+		}
+		
+		this.expect(TokenType.OPEN_PARENTHESIS);
+		this.expect(TokenType.CLOSE_PARENTHESIS);
+		return this.end(FnStmtASTNode(identifier, this.parse_block_stmt()));
+	}
+	
+	// Parse and return a block statement AST node.
+	parse_block_stmt(){
+		this.begin();
+		this.expect(TokenType.OPEN_BRACE);
+		var block_stmt = BlockStmtASTNode();
+		
+		while(!this.match(TokenType.CLOSE_BRACE) and !this.match(TokenType.EOF)){
+			var bump_token = this.next;
+			this.try(this.parse_stmt, block_stmt.statements);
+			
+			if(this.next == bump_token){
+				this.advance(); // Prevent infinite loop.
+			}
+		}
+		
+		this.expect(TokenType.CLOSE_BRACE);
+		return this.end(block_stmt);
+	}
+	
 	// Begin an AST node.
 	begin(){
 		this.span_stack.push_back(this.next.span);
@@ -105,6 +152,15 @@ class Parser {
 		}
 		
 		return node;
+	}
+	
+	// Append the result of a parse rule to an AST node list if possible.
+	try(rule, list){
+		var node = rule();
+		
+		if(node){
+			list.push_back(node);
+		}
 	}
 	
 	// Return whether the next token matches a token type.

@@ -37,6 +37,15 @@ class TokenType {
 		// A token type representing an identifier.
 		this.IDENTIFIER = create_type("'identifier'");
 		
+		// A token type representing the `fn` keyword.
+		this.FN = create_type("fn");
+		
+		// A token type representing the `(` lexeme.
+		this.OPEN_PARENTHESIS = create_type("(");
+		
+		// A token type representing the `)` lexeme.
+		this.CLOSE_PARENTHESIS = create_type(")");
+		
 		// A token type representing the `,` lexeme.
 		this.COMMA = create_type(",");
 		

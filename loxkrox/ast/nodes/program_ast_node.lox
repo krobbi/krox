@@ -1,13 +1,13 @@
 // A program node of an abstract syntax tree.
 class ProgramASTNode < ASTNode {
-	// Initialize the program AST node's path and module array.
+	// Initialize the program AST node's path and module list.
 	init(path){
 		super.init();
 		
 		// The program AST node's path.
 		this.path = path;
 		
-		// The program AST node's module array.
+		// The program AST node's module list.
 		this.modules = List();
 	}
 	

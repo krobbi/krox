@@ -1,6 +1,6 @@
 // A module node of an abstract syntax tree.
 class ModuleASTNode < ASTNode {
-	// Initialize the module AST node's import list.
+	// Initialize the module AST node's import and function lists.
 	init(){
 		super.init();
 		
@@ -9,6 +9,9 @@ class ModuleASTNode < ASTNode {
 		
 		// The module AST node's import list.
 		this.imports = List();
+		
+		// The module AST node's function list.
+		this.functions = List();
 	}
 	
 	// Accept an AST visitor and return a value.
