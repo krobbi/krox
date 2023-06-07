@@ -116,8 +116,7 @@ class Parser {
 		} else if(this.match(TokenType.OPEN_BRACE)){
 			return this.end(this.parse_block_stmt());
 		} else {
-			this.logger.log_at("Expected a statement.", this.next.span);
-			return this.end(nil);
+			return this.end(this.parse_expr_stmt());
 		}
 	}
 	
@@ -153,6 +152,43 @@ class Parser {
 		
 		this.expect(TokenType.CLOSE_BRACE);
 		return this.end(block_stmt);
+	}
+	
+	// Parse and return an expression statement AST node if possible.
+	parse_expr_stmt(){
+		this.begin();
+		var expression = this.parse_expr();
+		
+		if(!expression){
+			return this.end(nil);
+		}
+		
+		this.expect(TokenType.SEMICOLON);
+		return this.end(ExprStmtASTNode(expression));
+	}
+	
+	// Parse and return an expression AST node if possible.
+	parse_expr(){
+		this.begin();
+		return this.end(this.parse_primary_expr());
+	}
+	
+	// Parse and return a primary expression AST node if possible.
+	parse_primary_expr(){
+		this.begin();
+		return this.end(this.parse_literal_expr());
+	}
+	
+	// Parse and return a literal expression AST node if possible.
+	parse_literal_expr(){
+		this.begin();
+		var value = this.expect(TokenType.STRING);
+		
+		if(!value){
+			return this.end(nil);
+		}
+		
+		return this.end(LiteralExprASTNode(value.value));
 	}
 	
 	// Begin an AST node.

@@ -10,6 +10,11 @@ export = "<", item ;
 
 item = fn_stmt ;
 
-stmt = fn_stmt | block_stmt ;
+stmt = fn_stmt | block_stmt | expr_stmt ;
 fn_stmt = "fn", IDENTIFIER, "(", ")", block_stmt ;
 block_stmt = "{", { stmt }, "}" ;
+expr_stmt = expr, ";" ;
+
+expr = primary_expr ;
+primary_expr = literal_expr ;
+literal_expr = STRING ;

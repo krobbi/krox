@@ -1,0 +1,15 @@
+// An expression statement node of an abstract syntax tree.
+class ExprStmtASTNode < ASTNode {
+	// Initialize the expression statement AST node's expression.
+	init(expression){
+		super.init();
+		
+		// The expression statement AST node's expression.
+		this.expression = expression;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_expr_stmt(this);
+	}
+}

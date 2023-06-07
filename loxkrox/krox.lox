@@ -508,6 +508,9 @@ class TokenType {
 		// A token type representing the `,` lexeme.
 		this.COMMA = create_type(",");
 		
+		// A token type representing the `;` lexeme.
+		this.SEMICOLON = create_type(";");
+		
 		// A token type representing the `<` lexeme.
 		this.LESS = create_type("<");
 		
@@ -886,6 +889,24 @@ class ExportASTNode < ASTNode {
 	}
 }
 
+// MODULE // `ast/nodes/expr_stmt_ast_node.lox` // ========================== //
+
+// An expression statement node of an abstract syntax tree.
+class ExprStmtASTNode < ASTNode {
+	// Initialize the expression statement AST node's expression.
+	init(expression){
+		super.init();
+		
+		// The expression statement AST node's expression.
+		this.expression = expression;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_expr_stmt(this);
+	}
+}
+
 // MODULE // `ast/nodes/fn_stmt_ast_node.lox` // ============================ //
 
 // A function statement node of an abstract syntax tree.
@@ -949,6 +970,24 @@ class ImportItemASTNode < ASTNode {
 	// Accept an AST visitor and return a value.
 	accept_visitor(visitor){
 		return visitor.visit_import_item(this);
+	}
+}
+
+// MODULE // `ast/nodes/literal_expr_ast_node.lox` // ======================= //
+
+// A literal expression node of an abstract syntax tree.
+class LiteralExprASTNode < ASTNode {
+	// Initialize the literal expression AST node's value.
+	init(value){
+		super.init();
+		
+		// The literal expression AST node's value.
+		this.value = value;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_literal_expr(this);
 	}
 }
 
@@ -1022,6 +1061,11 @@ class ASTVisitor {
 		return nil;
 	}
 	
+	// Visit an expression statement AST node and return a value.
+	visit_expr_stmt(node){
+		return nil;
+	}
+	
 	// Visit a function statement AST node and return a value.
 	visit_fn_stmt(node){
 		return nil;
@@ -1034,6 +1078,11 @@ class ASTVisitor {
 	
 	// Visit an import item AST node and return a value.
 	visit_import_item(node){
+		return nil;
+	}
+	
+	// Visit a literal expression AST node and return a value.
+	visit_literal_expr(node){
 		return nil;
 	}
 	
@@ -1132,6 +1181,13 @@ class ASTPrinter < ASTVisitor {
 		return this.end();
 	}
 	
+	// Visit an expression statement AST node and return an AST printer node.
+	visit_expr_stmt(node){
+		this.begin("ExprStmt", node);
+		this.append_node("expression", node.expression);
+		return this.end();
+	}
+	
 	// Visit a function statement AST node and return an AST printer node.
 	visit_fn_stmt(node){
 		this.begin("FnStmt", node);
@@ -1162,6 +1218,13 @@ class ASTPrinter < ASTVisitor {
 			this.append_token("internal", node.internal);
 		}
 		
+		return this.end();
+	}
+	
+	// Visit a literal expression AST node and return an AST printer node.
+	visit_literal_expr(node){
+		this.begin("LiteralExpr", node);
+		this.append_string("value", node.value);
 		return this.end();
 	}
 	
@@ -1367,8 +1430,7 @@ class Parser {
 		} else if(this.match(TokenType.OPEN_BRACE)){
 			return this.end(this.parse_block_stmt());
 		} else {
-			this.logger.log_at("Expected a statement.", this.next.span);
-			return this.end(nil);
+			return this.end(this.parse_expr_stmt());
 		}
 	}
 	
@@ -1404,6 +1466,43 @@ class Parser {
 		
 		this.expect(TokenType.CLOSE_BRACE);
 		return this.end(block_stmt);
+	}
+	
+	// Parse and return an expression statement AST node if possible.
+	parse_expr_stmt(){
+		this.begin();
+		var expression = this.parse_expr();
+		
+		if(!expression){
+			return this.end(nil);
+		}
+		
+		this.expect(TokenType.SEMICOLON);
+		return this.end(ExprStmtASTNode(expression));
+	}
+	
+	// Parse and return an expression AST node if possible.
+	parse_expr(){
+		this.begin();
+		return this.end(this.parse_primary_expr());
+	}
+	
+	// Parse and return a primary expression AST node if possible.
+	parse_primary_expr(){
+		this.begin();
+		return this.end(this.parse_literal_expr());
+	}
+	
+	// Parse and return a literal expression AST node if possible.
+	parse_literal_expr(){
+		this.begin();
+		var value = this.expect(TokenType.STRING);
+		
+		if(!value){
+			return this.end(nil);
+		}
+		
+		return this.end(LiteralExprASTNode(value.value));
 	}
 	
 	// Begin an AST node.

@@ -31,9 +31,11 @@ fun generate_loxkrox(add_line, add_module){
 	add_module("ast/ast_node.lox");
 	add_module("ast/nodes/block_stmt_ast_node.lox");
 	add_module("ast/nodes/export_ast_node.lox");
+	add_module("ast/nodes/expr_stmt_ast_node.lox");
 	add_module("ast/nodes/fn_stmt_ast_node.lox");
 	add_module("ast/nodes/import_ast_node.lox");
 	add_module("ast/nodes/import_item_ast_node.lox");
+	add_module("ast/nodes/literal_expr_ast_node.lox");
 	add_module("ast/nodes/module_ast_node.lox");
 	add_module("ast/nodes/program_ast_node.lox");
 	add_module("ast/ast_visitor.lox");

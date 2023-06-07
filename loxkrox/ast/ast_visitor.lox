@@ -18,6 +18,11 @@ class ASTVisitor {
 		return nil;
 	}
 	
+	// Visit an expression statement AST node and return a value.
+	visit_expr_stmt(node){
+		return nil;
+	}
+	
 	// Visit a function statement AST node and return a value.
 	visit_fn_stmt(node){
 		return nil;
@@ -30,6 +35,11 @@ class ASTVisitor {
 	
 	// Visit an import item AST node and return a value.
 	visit_import_item(node){
+		return nil;
+	}
+	
+	// Visit a literal expression AST node and return a value.
+	visit_literal_expr(node){
 		return nil;
 	}
 	

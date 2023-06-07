@@ -27,6 +27,13 @@ class ASTPrinter < ASTVisitor {
 		return this.end();
 	}
 	
+	// Visit an expression statement AST node and return an AST printer node.
+	visit_expr_stmt(node){
+		this.begin("ExprStmt", node);
+		this.append_node("expression", node.expression);
+		return this.end();
+	}
+	
 	// Visit a function statement AST node and return an AST printer node.
 	visit_fn_stmt(node){
 		this.begin("FnStmt", node);
@@ -57,6 +64,13 @@ class ASTPrinter < ASTVisitor {
 			this.append_token("internal", node.internal);
 		}
 		
+		return this.end();
+	}
+	
+	// Visit a literal expression AST node and return an AST printer node.
+	visit_literal_expr(node){
+		this.begin("LiteralExpr", node);
+		this.append_string("value", node.value);
 		return this.end();
 	}
 	

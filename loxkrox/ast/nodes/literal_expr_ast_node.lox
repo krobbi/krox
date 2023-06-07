@@ -1,0 +1,15 @@
+// A literal expression node of an abstract syntax tree.
+class LiteralExprASTNode < ASTNode {
+	// Initialize the literal expression AST node's value.
+	init(value){
+		super.init();
+		
+		// The literal expression AST node's value.
+		this.value = value;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_literal_expr(this);
+	}
+}
