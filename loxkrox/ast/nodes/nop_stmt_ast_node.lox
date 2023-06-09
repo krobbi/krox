@@ -1,0 +1,12 @@
+// A no operation statement node of an abstract syntax tree.
+class NopStmtASTNode < ASTNode {
+	// Initialize the no operation statement AST node.
+	init(){
+		super.init();
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_nop_stmt(this);
+	}
+}

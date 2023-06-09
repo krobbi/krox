@@ -15,6 +15,7 @@ fn main(){
 		fn baz(){}
 	}
 	
+	; // No operation statements.
 	"Literal expressions and expression statements.";
 	("Parenthesized expressions");
 	(("Nested parens"));

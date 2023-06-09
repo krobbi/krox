@@ -1018,6 +1018,21 @@ class ModuleASTNode < ASTNode {
 	}
 }
 
+// MODULE // `ast/nodes/nop_stmt_ast_node.lox` // =========================== //
+
+// A no operation statement node of an abstract syntax tree.
+class NopStmtASTNode < ASTNode {
+	// Initialize the no operation statement AST node.
+	init(){
+		super.init();
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_nop_stmt(this);
+	}
+}
+
 // MODULE // `ast/nodes/paren_expr_ast_node.lox` // ========================= //
 
 // A parenthesized expression node of an abstract syntax tree.
@@ -1106,6 +1121,11 @@ class ASTVisitor {
 	
 	// Visit a module AST node and return a value.
 	visit_module(node){
+		return nil;
+	}
+	
+	// Visit a no operation statement AST node and return a value.
+	visit_nop_stmt(node){
 		return nil;
 	}
 	
@@ -1262,6 +1282,12 @@ class ASTPrinter < ASTVisitor {
 		this.append_node_list("imports", node.imports);
 		this.append_node_list("exports", node.exports);
 		this.append_node_list("functions", node.functions);
+		return this.end();
+	}
+	
+	// Visit a no operation statement AST node and return an AST printer node.
+	visit_nop_stmt(node){
+		this.begin("NopStmt", node);
 		return this.end();
 	}
 	
@@ -1459,6 +1485,8 @@ class Parser {
 			return this.end(this.parse_fn_stmt());
 		} else if(this.match(TokenType.OPEN_BRACE)){
 			return this.end(this.parse_block_stmt());
+		} else if(this.match(TokenType.SEMICOLON)){
+			return this.end(this.parse_nop_stmt());
 		} else {
 			return this.end(this.parse_expr_stmt());
 		}
@@ -1496,6 +1524,13 @@ class Parser {
 		
 		this.expect(TokenType.CLOSE_BRACE);
 		return this.end(block_stmt);
+	}
+	
+	// Parse and return a no operation statement AST node.
+	parse_nop_stmt(){
+		this.begin();
+		this.expect(TokenType.SEMICOLON);
+		return this.end(NopStmtASTNode());
 	}
 	
 	// Parse and return an expression statement AST node if possible.

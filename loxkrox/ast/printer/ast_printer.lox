@@ -88,6 +88,12 @@ class ASTPrinter < ASTVisitor {
 		return this.end();
 	}
 	
+	// Visit a no operation statement AST node and return an AST printer node.
+	visit_nop_stmt(node){
+		this.begin("NopStmt", node);
+		return this.end();
+	}
+	
 	// Visit a parenthesized expression AST node and return an AST printer node.
 	visit_paren_expr(node){
 		this.begin("ParenExpr", node);

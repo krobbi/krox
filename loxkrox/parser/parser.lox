@@ -115,6 +115,8 @@ class Parser {
 			return this.end(this.parse_fn_stmt());
 		} else if(this.match(TokenType.OPEN_BRACE)){
 			return this.end(this.parse_block_stmt());
+		} else if(this.match(TokenType.SEMICOLON)){
+			return this.end(this.parse_nop_stmt());
 		} else {
 			return this.end(this.parse_expr_stmt());
 		}
@@ -152,6 +154,13 @@ class Parser {
 		
 		this.expect(TokenType.CLOSE_BRACE);
 		return this.end(block_stmt);
+	}
+	
+	// Parse and return a no operation statement AST node.
+	parse_nop_stmt(){
+		this.begin();
+		this.expect(TokenType.SEMICOLON);
+		return this.end(NopStmtASTNode());
 	}
 	
 	// Parse and return an expression statement AST node if possible.

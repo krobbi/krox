@@ -10,9 +10,10 @@ export = "<", item ;
 
 item = fn_stmt ;
 
-stmt = fn_stmt | block_stmt | expr_stmt ;
+stmt = fn_stmt | block_stmt | nop_stmt | expr_stmt ;
 fn_stmt = "fn", IDENTIFIER, "(", ")", block_stmt ;
 block_stmt = "{", { stmt }, "}" ;
+nop_stmt = ";" ;
 expr_stmt = expr, ";" ;
 
 expr = primary_expr ;

@@ -48,6 +48,11 @@ class ASTVisitor {
 		return nil;
 	}
 	
+	// Visit a no operation statement AST node and return a value.
+	visit_nop_stmt(node){
+		return nil;
+	}
+	
 	// Visit a parenthesized expression AST node and return a value.
 	visit_paren_expr(node){
 		return nil;
