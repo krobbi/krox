@@ -115,6 +115,8 @@ class Parser {
 			return this.end(this.parse_fn_stmt());
 		} else if(this.match(TokenType.OPEN_BRACE)){
 			return this.end(this.parse_block_stmt());
+		} else if(this.match(TokenType.PRINT)){
+			return this.end(this.parse_print_stmt());
 		} else if(this.match(TokenType.SEMICOLON)){
 			return this.end(this.parse_nop_stmt());
 		} else {
@@ -154,6 +156,20 @@ class Parser {
 		
 		this.expect(TokenType.CLOSE_BRACE);
 		return this.end(block_stmt);
+	}
+	
+	// Parse and return a print statement AST node.
+	parse_print_stmt(){
+		this.begin();
+		this.expect(TokenType.PRINT);
+		var expression = this.parse_paren_expr();
+		
+		if(!expression){
+			return this.end(nil);
+		}
+		
+		this.expect(TokenType.SEMICOLON);
+		return this.end(PrintStmtASTNode(expression));
 	}
 	
 	// Parse and return a no operation statement AST node.

@@ -1,0 +1,15 @@
+// A print statement node of an abstract syntax tree.
+class PrintStmtASTNode < ASTNode {
+	// Initialize the print statement AST node's expression.
+	init(expression){
+		super.init();
+		
+		// The print statement AST node's expression.
+		this.expression = expression;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_print_stmt(this);
+	}
+}

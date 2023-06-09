@@ -101,7 +101,14 @@ class ASTPrinter < ASTVisitor {
 		return this.end();
 	}
 	
-	// Visit a program AST node ad return an AST printer node.
+	// Visit a print statement AST node and return an AST printer node.
+	visit_print_stmt(node){
+		this.begin("PrintStmt", node);
+		this.append_node("expression", node.expression);
+		return this.end();
+	}
+	
+	// Visit a program AST node and return an AST printer node.
 	visit_program(node){
 		this.begin("Program", node);
 		this.append_string("path", node.path);

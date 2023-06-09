@@ -58,6 +58,11 @@ class ASTVisitor {
 		return nil;
 	}
 	
+	// Visit a print statement AST node and return a value.
+	visit_print_stmt(node){
+		return nil;
+	}
+	
 	// Visit a program AST node and return a value.
 	visit_program(node){
 		return nil;

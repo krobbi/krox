@@ -40,6 +40,9 @@ class TokenType {
 		// A token type representing the `fn` keyword.
 		this.FN = create_type("fn");
 		
+		// A token type representing the `print` keyword.
+		this.PRINT = create_type("print");
+		
 		// A token type representing the `(` lexeme.
 		this.OPEN_PAREN = create_type("(");
 		

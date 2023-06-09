@@ -499,6 +499,9 @@ class TokenType {
 		// A token type representing the `fn` keyword.
 		this.FN = create_type("fn");
 		
+		// A token type representing the `print` keyword.
+		this.PRINT = create_type("print");
+		
 		// A token type representing the `(` lexeme.
 		this.OPEN_PAREN = create_type("(");
 		
@@ -1051,6 +1054,24 @@ class ParenExprASTNode < ASTNode {
 	}
 }
 
+// MODULE // `ast/nodes/print_stmt_ast_node.lox` // ========================= //
+
+// A print statement node of an abstract syntax tree.
+class PrintStmtASTNode < ASTNode {
+	// Initialize the print statement AST node's expression.
+	init(expression){
+		super.init();
+		
+		// The print statement AST node's expression.
+		this.expression = expression;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_print_stmt(this);
+	}
+}
+
 // MODULE // `ast/nodes/program_ast_node.lox` // ============================ //
 
 // A program node of an abstract syntax tree.
@@ -1131,6 +1152,11 @@ class ASTVisitor {
 	
 	// Visit a parenthesized expression AST node and return a value.
 	visit_paren_expr(node){
+		return nil;
+	}
+	
+	// Visit a print statement AST node and return a value.
+	visit_print_stmt(node){
 		return nil;
 	}
 	
@@ -1298,7 +1324,14 @@ class ASTPrinter < ASTVisitor {
 		return this.end();
 	}
 	
-	// Visit a program AST node ad return an AST printer node.
+	// Visit a print statement AST node and return an AST printer node.
+	visit_print_stmt(node){
+		this.begin("PrintStmt", node);
+		this.append_node("expression", node.expression);
+		return this.end();
+	}
+	
+	// Visit a program AST node and return an AST printer node.
 	visit_program(node){
 		this.begin("Program", node);
 		this.append_string("path", node.path);
@@ -1485,6 +1518,8 @@ class Parser {
 			return this.end(this.parse_fn_stmt());
 		} else if(this.match(TokenType.OPEN_BRACE)){
 			return this.end(this.parse_block_stmt());
+		} else if(this.match(TokenType.PRINT)){
+			return this.end(this.parse_print_stmt());
 		} else if(this.match(TokenType.SEMICOLON)){
 			return this.end(this.parse_nop_stmt());
 		} else {
@@ -1524,6 +1559,20 @@ class Parser {
 		
 		this.expect(TokenType.CLOSE_BRACE);
 		return this.end(block_stmt);
+	}
+	
+	// Parse and return a print statement AST node.
+	parse_print_stmt(){
+		this.begin();
+		this.expect(TokenType.PRINT);
+		var expression = this.parse_paren_expr();
+		
+		if(!expression){
+			return this.end(nil);
+		}
+		
+		this.expect(TokenType.SEMICOLON);
+		return this.end(PrintStmtASTNode(expression));
 	}
 	
 	// Parse and return a no operation statement AST node.
@@ -1896,6 +1945,7 @@ fun run_tests(path, logger){
 	}
 	
 	run_test("test_imports/test_imports_main.krox");
+	run_test("test_hello.krox");
 	run_test("test_items.krox");
 	
 	print "End of tests.";

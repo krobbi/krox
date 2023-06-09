@@ -15,8 +15,9 @@ fn main(){
 		fn baz(){}
 	}
 	
+	print("Print statements.");
 	; // No operation statements.
 	"Literal expressions and expression statements.";
-	("Parenthesized expressions");
-	(("Nested parens"));
+	("Parenthesized expressions.");
+	(("Nested parens."));
 }

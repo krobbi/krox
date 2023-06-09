@@ -1,0 +1,8 @@
+// Test a hello world program.
+
+fn main(){
+	// Print is currently a keyword with its own statement type, but is intended
+	// to be migrated to an intrinsic function. Parentheses are required for
+	// print statements to reflect this intention.
+	print("Hello, Krox!");
+}
