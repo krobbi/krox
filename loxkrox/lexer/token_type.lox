@@ -41,10 +41,10 @@ class TokenType {
 		this.FN = create_type("fn");
 		
 		// A token type representing the `(` lexeme.
-		this.OPEN_PARENTHESIS = create_type("(");
+		this.OPEN_PAREN = create_type("(");
 		
 		// A token type representing the `)` lexeme.
-		this.CLOSE_PARENTHESIS = create_type(")");
+		this.CLOSE_PAREN = create_type(")");
 		
 		// A token type representing the `,` lexeme.
 		this.COMMA = create_type(",");

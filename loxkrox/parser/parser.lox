@@ -130,8 +130,8 @@ class Parser {
 			return this.end(nil);
 		}
 		
-		this.expect(TokenType.OPEN_PARENTHESIS);
-		this.expect(TokenType.CLOSE_PARENTHESIS);
+		this.expect(TokenType.OPEN_PAREN);
+		this.expect(TokenType.CLOSE_PAREN);
 		return this.end(FnStmtASTNode(identifier, this.parse_block_stmt()));
 	}
 	
@@ -177,8 +177,8 @@ class Parser {
 	parse_primary_expr(){
 		this.begin();
 		
-		if(this.match(TokenType.OPEN_PARENTHESIS)){
-			return this.end(this.parse_parenthetical_expr());
+		if(this.match(TokenType.OPEN_PAREN)){
+			return this.end(this.parse_paren_expr());
 		} else if(this.match(TokenType.STRING)){
 			return this.end(this.parse_literal_expr());
 		} else {
@@ -187,18 +187,18 @@ class Parser {
 		}
 	}
 	
-	// Parse and return a parenthetical expression AST node if possible.
-	parse_parenthetical_expr(){
+	// Parse and return a parenthesized expression AST node if possible.
+	parse_paren_expr(){
 		this.begin();
-		this.expect(TokenType.OPEN_PARENTHESIS);
+		this.expect(TokenType.OPEN_PAREN);
 		var expression = this.parse_expr();
 		
 		if(!expression){
 			return this.end(nil);
 		}
 		
-		this.expect(TokenType.CLOSE_PARENTHESIS);
-		return this.end(ParentheticalExprASTNode(expression));
+		this.expect(TokenType.CLOSE_PAREN);
+		return this.end(ParenExprASTNode(expression));
 	}
 	
 	// Parse and return a literal expression AST node if possible.

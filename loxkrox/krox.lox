@@ -500,10 +500,10 @@ class TokenType {
 		this.FN = create_type("fn");
 		
 		// A token type representing the `(` lexeme.
-		this.OPEN_PARENTHESIS = create_type("(");
+		this.OPEN_PAREN = create_type("(");
 		
 		// A token type representing the `)` lexeme.
-		this.CLOSE_PARENTHESIS = create_type(")");
+		this.CLOSE_PAREN = create_type(")");
 		
 		// A token type representing the `,` lexeme.
 		this.COMMA = create_type(",");
@@ -1018,21 +1018,21 @@ class ModuleASTNode < ASTNode {
 	}
 }
 
-// MODULE // `ast/nodes/parenthetical_expr_ast_node.lox` // ================= //
+// MODULE // `ast/nodes/paren_expr_ast_node.lox` // ========================= //
 
-// A parenthetical expression node of an abstract syntax tree.
-class ParentheticalExprASTNode < ASTNode {
-	// Initialize the parenthetical expression AST node's expression.
+// A parenthesized expression node of an abstract syntax tree.
+class ParenExprASTNode < ASTNode {
+	// Initialize the parenthesized expression AST node's expression.
 	init(expression){
 		super.init();
 		
-		// The parenthetical expression AST node's expression.
+		// The parenthesized expression AST node's expression.
 		this.expression = expression;
 	}
 	
 	// Accept an AST visitor and return a value.
 	accept_visitor(visitor){
-		return visitor.visit_parenthetical_expr(this);
+		return visitor.visit_paren_expr(this);
 	}
 }
 
@@ -1109,8 +1109,8 @@ class ASTVisitor {
 		return nil;
 	}
 	
-	// Visit a parenthetical expression AST node and return a value.
-	visit_parenthetical_expr(node){
+	// Visit a parenthesized expression AST node and return a value.
+	visit_paren_expr(node){
 		return nil;
 	}
 	
@@ -1265,9 +1265,9 @@ class ASTPrinter < ASTVisitor {
 		return this.end();
 	}
 	
-	// Visit a parenthetical expression AST node and return an AST printer node.
-	visit_parenthetical_expr(node){
-		this.begin("ParentheticalExpr", node);
+	// Visit a parenthesized expression AST node and return an AST printer node.
+	visit_paren_expr(node){
+		this.begin("ParenExpr", node);
 		this.append_node("expression", node.expression);
 		return this.end();
 	}
@@ -1474,8 +1474,8 @@ class Parser {
 			return this.end(nil);
 		}
 		
-		this.expect(TokenType.OPEN_PARENTHESIS);
-		this.expect(TokenType.CLOSE_PARENTHESIS);
+		this.expect(TokenType.OPEN_PAREN);
+		this.expect(TokenType.CLOSE_PAREN);
 		return this.end(FnStmtASTNode(identifier, this.parse_block_stmt()));
 	}
 	
@@ -1521,8 +1521,8 @@ class Parser {
 	parse_primary_expr(){
 		this.begin();
 		
-		if(this.match(TokenType.OPEN_PARENTHESIS)){
-			return this.end(this.parse_parenthetical_expr());
+		if(this.match(TokenType.OPEN_PAREN)){
+			return this.end(this.parse_paren_expr());
 		} else if(this.match(TokenType.STRING)){
 			return this.end(this.parse_literal_expr());
 		} else {
@@ -1531,18 +1531,18 @@ class Parser {
 		}
 	}
 	
-	// Parse and return a parenthetical expression AST node if possible.
-	parse_parenthetical_expr(){
+	// Parse and return a parenthesized expression AST node if possible.
+	parse_paren_expr(){
 		this.begin();
-		this.expect(TokenType.OPEN_PARENTHESIS);
+		this.expect(TokenType.OPEN_PAREN);
 		var expression = this.parse_expr();
 		
 		if(!expression){
 			return this.end(nil);
 		}
 		
-		this.expect(TokenType.CLOSE_PARENTHESIS);
-		return this.end(ParentheticalExprASTNode(expression));
+		this.expect(TokenType.CLOSE_PAREN);
+		return this.end(ParenExprASTNode(expression));
 	}
 	
 	// Parse and return a literal expression AST node if possible.

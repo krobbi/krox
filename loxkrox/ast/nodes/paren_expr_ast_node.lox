@@ -1,0 +1,15 @@
+// A parenthesized expression node of an abstract syntax tree.
+class ParenExprASTNode < ASTNode {
+	// Initialize the parenthesized expression AST node's expression.
+	init(expression){
+		super.init();
+		
+		// The parenthesized expression AST node's expression.
+		this.expression = expression;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_paren_expr(this);
+	}
+}

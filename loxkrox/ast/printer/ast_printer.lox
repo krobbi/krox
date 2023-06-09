@@ -88,9 +88,9 @@ class ASTPrinter < ASTVisitor {
 		return this.end();
 	}
 	
-	// Visit a parenthetical expression AST node and return an AST printer node.
-	visit_parenthetical_expr(node){
-		this.begin("ParentheticalExpr", node);
+	// Visit a parenthesized expression AST node and return an AST printer node.
+	visit_paren_expr(node){
+		this.begin("ParenExpr", node);
 		this.append_node("expression", node.expression);
 		return this.end();
 	}
