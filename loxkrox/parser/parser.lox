@@ -8,6 +8,9 @@ class Parser {
 		// The parser's lexer.
 		this.lexer = Lexer(logger);
 		
+		// Whether the parser has encountered any syntax errors.
+		this.has_errors = false;
+		
 		// The parser's next token.
 		this.next = Token(TokenType.EOF, nil, Span());
 		
@@ -21,6 +24,7 @@ class Parser {
 	// Reset the parser from a module name and an input stream.
 	reset(module, stream){
 		this.lexer.reset(module, stream);
+		this.has_errors = false;
 		this.advance();
 	}
 	
@@ -39,7 +43,7 @@ class Parser {
 			} else if(this.match(TokenType.FN)){
 				this.try(this.parse_fn_stmt, module.functions);
 			} else {
-				this.logger.log_at("Expected an import, export, or function.", this.next.span);
+				this.log_error("Expected an import, export, or function.");
 			}
 			
 			if(this.next == bump_token){
@@ -47,7 +51,7 @@ class Parser {
 			}
 		}
 		
-		if(this.lexer.has_errors){
+		if(this.has_errors or this.lexer.has_errors){
 			module.is_valid = false;
 		}
 		
@@ -211,7 +215,7 @@ class Parser {
 		} else if(this.match(TokenType.STRING)){
 			return this.end(this.parse_literal_expr());
 		} else {
-			this.logger.log_at("Expected a primary expression.", this.next.span);
+			this.log_error("Expected a primary expression.");
 			return this.end(nil);
 		}
 	}
@@ -240,6 +244,17 @@ class Parser {
 		}
 		
 		return this.end(LiteralExprASTNode(value.value));
+	}
+	
+	// Log an error message at the next token's span.
+	log_error(message){
+		this.log_error_at(message, this.next.span);
+	}
+	
+	// Log an error message at a span.
+	log_error_at(message, span){
+		this.logger.log_at(message, span);
+		this.has_errors = true;
 	}
 	
 	// Begin an AST node.
@@ -285,9 +300,8 @@ class Parser {
 		var consumed = this.accept(type);
 		
 		if(!consumed){
-			this.logger.log_at(
-				"Expected " + TokenType.get_name(type) + ", got " + this.next.to_string() + ".",
-				this.next.span
+			this.log_error(
+				"Expected " + TokenType.get_name(type) + ", got " + this.next.to_string() + "."
 			);
 		}
 		
