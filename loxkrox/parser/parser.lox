@@ -47,6 +47,10 @@ class Parser {
 			}
 		}
 		
+		if(this.lexer.has_errors){
+			module.is_valid = false;
+		}
+		
 		return this.end(module);
 	}
 	

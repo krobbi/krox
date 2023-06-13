@@ -586,6 +586,9 @@ class Lexer {
 		// The lexer's logger.
 		this.logger = logger;
 		
+		// Whether the lexer has encountered any syntax errors.
+		this.has_errors = false;
+		
 		// The lexer's span.
 		this.span = Span();
 		
@@ -600,6 +603,7 @@ class Lexer {
 	reset(module, stream){
 		this.span.reset(module);
 		this.stream = stream;
+		this.has_errors = false;
 		this.next = CHAR_EOF;
 		this.advance();
 	}
@@ -651,11 +655,6 @@ class Lexer {
 			return make_literal_token(type, nil);
 		}
 		
-		// Log an error message at the current span.
-		fun error(message){
-			this.logger.log_at(message, this.span);
-		}
-		
 		this.span.shrink_to_end();
 		
 		if(this.next == CHAR_EOF){
@@ -689,7 +688,7 @@ class Lexer {
 				}
 				
 				if(depth > 0){
-					error("Unterminated block comment.");
+					this.log_error("Unterminated block comment.");
 				}
 				
 				return make_token(TokenType.NONE);
@@ -705,7 +704,7 @@ class Lexer {
 				
 				return make_token(TokenType.NONE);
 			} else {
-				error("Illegal character `/`.");
+				this.log_error("Illegal character `/`.");
 				return make_token(TokenType.NONE);
 			}
 		} else if(accept(CHAR_QUOTE)){
@@ -737,10 +736,10 @@ class Lexer {
 						error_span.shrink_to_end();
 						
 						if(this.next == CHAR_EOF){
-							this.logger.log_at("Expected escape character after `\`.", error_span);
+							this.log_error_at("Expected escape character after `\`.", error_span);
 						} else {
 							error_span.extend_from_char(this.advance());
-							this.logger.log_at("Illegal escape character.", error_span);
+							this.log_error_at("Illegal escape character.", error_span);
 						}
 					}
 				} else {
@@ -749,12 +748,12 @@ class Lexer {
 			}
 			
 			if(!accept(CHAR_QUOTE)){
-				error("Unterminated string.");
+				this.log_error("Unterminated string.");
 			}
 			
 			return make_literal_token(TokenType.STRING, value);
 		} else if(match(is_alpha)){
-			// Return whether a character is an alphanumeric characteer.
+			// Return whether a character is an alphanumeric character.
 			fun is_alphanumeric(char){
 				return is_alpha(char) or char >= CHAR_0 and char <= CHAR_9;
 			}
@@ -780,9 +779,20 @@ class Lexer {
 				return make_token(type);
 			}
 			
-			error("Illegal character `" + lexeme + "`.");
+			this.log_error("Illegal character `" + lexeme + "`.");
 			return make_token(TokenType.NONE);
 		}
+	}
+	
+	// Log an error message at the current span.
+	log_error(message){
+		this.log_error_at(message, this.span);
+	}
+	
+	// Log an error message at a span.
+	log_error_at(message, span){
+		this.logger.log_at(message, span);
+		this.has_errors = true;
 	}
 	
 	// Return whether a character is a whitespace character.
@@ -797,7 +807,7 @@ class Lexer {
 			var error_span = this.span.clone();
 			error_span.shrink_to_end();
 			error_span.extend_from_char(CHAR_ILLEGAL);
-			this.logger.log_at(message, error_span);
+			this.log_error_at(message, error_span);
 			return CHAR_ILLEGAL;
 		}
 		
@@ -1463,6 +1473,10 @@ class Parser {
 			if(this.next == bump_token){
 				this.advance(); // Prevent infinite loop.
 			}
+		}
+		
+		if(this.lexer.has_errors){
+			module.is_valid = false;
 		}
 		
 		return this.end(module);
