@@ -57,17 +57,15 @@ declarations.
 
 An example of potential Krox code is shown below:
 ```
-// From `module.krox`, import `foo` and `bar` renamed to `baz`.
-> "module.krox" {
+import "module.krox" {
    foo,
-   bar > baz,
+   bar as baz,
 }
 
 // Renaming imports helps prevent collisions.
 fn bar(){}
 
-// Declarations can be exported using `<`.
-< fn square(x){
+export fn square(x){
    return x * x;
 }
 

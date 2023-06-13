@@ -36,14 +36,14 @@ class Parser {
 		while(!this.match(TokenType.EOF)){
 			var bump_token = this.next;
 			
-			if(this.match(TokenType.GREATER)){
+			if(this.match(TokenType.IMPORT)){
 				this.try(this.parse_import, module.imports);
-			} else if(this.match(TokenType.LESS)){
+			} else if(this.match(TokenType.EXPORT)){
 				this.try(this.parse_export, module.exports);
 			} else if(this.match(TokenType.FN)){
 				this.try(this.parse_fn_stmt, module.functions);
 			} else {
-				this.log_error("Expected an import, export, or function.");
+				this.log_error("Expected `import`, `export`, or `fn`.");
 			}
 			
 			if(this.next == bump_token){
@@ -61,7 +61,7 @@ class Parser {
 	// Parse and return an import AST node if possible.
 	parse_import(){
 		this.begin();
-		this.expect(TokenType.GREATER);
+		this.expect(TokenType.IMPORT);
 		var path = this.expect(TokenType.STRING);
 		
 		if(!path){
@@ -95,7 +95,7 @@ class Parser {
 		
 		var internal = nil;
 		
-		if(this.accept(TokenType.GREATER)){
+		if(this.accept(TokenType.AS)){
 			internal = this.expect(TokenType.IDENTIFIER);
 		}
 		
@@ -105,7 +105,7 @@ class Parser {
 	// Parse and return an export AST node if possible.
 	parse_export(){
 		this.begin();
-		this.expect(TokenType.LESS);
+		this.expect(TokenType.EXPORT);
 		var function = this.parse_fn_stmt();
 		
 		if(!function){

@@ -496,8 +496,17 @@ class TokenType {
 		// A token type representing an identifier.
 		this.IDENTIFIER = create_type("'identifier'");
 		
+		// A token type representing the `as` keyword.
+		this.AS = create_type("as");
+		
+		// A token type representing the `export` keyword.
+		this.EXPORT = create_type("export");
+		
 		// A token type representing the `fn` keyword.
 		this.FN = create_type("fn");
+		
+		// A token type representing the `import` keyword.
+		this.IMPORT = create_type("import");
 		
 		// A token type representing the `print` keyword.
 		this.PRINT = create_type("print");
@@ -513,12 +522,6 @@ class TokenType {
 		
 		// A token type representing the `;` lexeme.
 		this.SEMICOLON = create_type(";");
-		
-		// A token type representing the `<` lexeme.
-		this.LESS = create_type("<");
-		
-		// A token type representing the `>` lexeme.
-		this.GREATER = create_type(">");
 		
 		// A token type representing the `{` lexeme.
 		this.OPEN_BRACE = create_type("{");
@@ -1464,14 +1467,14 @@ class Parser {
 		while(!this.match(TokenType.EOF)){
 			var bump_token = this.next;
 			
-			if(this.match(TokenType.GREATER)){
+			if(this.match(TokenType.IMPORT)){
 				this.try(this.parse_import, module.imports);
-			} else if(this.match(TokenType.LESS)){
+			} else if(this.match(TokenType.EXPORT)){
 				this.try(this.parse_export, module.exports);
 			} else if(this.match(TokenType.FN)){
 				this.try(this.parse_fn_stmt, module.functions);
 			} else {
-				this.log_error("Expected an import, export, or function.");
+				this.log_error("Expected `import`, `export`, or `fn`.");
 			}
 			
 			if(this.next == bump_token){
@@ -1489,7 +1492,7 @@ class Parser {
 	// Parse and return an import AST node if possible.
 	parse_import(){
 		this.begin();
-		this.expect(TokenType.GREATER);
+		this.expect(TokenType.IMPORT);
 		var path = this.expect(TokenType.STRING);
 		
 		if(!path){
@@ -1523,7 +1526,7 @@ class Parser {
 		
 		var internal = nil;
 		
-		if(this.accept(TokenType.GREATER)){
+		if(this.accept(TokenType.AS)){
 			internal = this.expect(TokenType.IDENTIFIER);
 		}
 		
@@ -1533,7 +1536,7 @@ class Parser {
 	// Parse and return an export AST node if possible.
 	parse_export(){
 		this.begin();
-		this.expect(TokenType.LESS);
+		this.expect(TokenType.EXPORT);
 		var function = this.parse_fn_stmt();
 		
 		if(!function){

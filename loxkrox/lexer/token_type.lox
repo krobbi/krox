@@ -37,8 +37,17 @@ class TokenType {
 		// A token type representing an identifier.
 		this.IDENTIFIER = create_type("'identifier'");
 		
+		// A token type representing the `as` keyword.
+		this.AS = create_type("as");
+		
+		// A token type representing the `export` keyword.
+		this.EXPORT = create_type("export");
+		
 		// A token type representing the `fn` keyword.
 		this.FN = create_type("fn");
+		
+		// A token type representing the `import` keyword.
+		this.IMPORT = create_type("import");
 		
 		// A token type representing the `print` keyword.
 		this.PRINT = create_type("print");
@@ -54,12 +63,6 @@ class TokenType {
 		
 		// A token type representing the `;` lexeme.
 		this.SEMICOLON = create_type(";");
-		
-		// A token type representing the `<` lexeme.
-		this.LESS = create_type("<");
-		
-		// A token type representing the `>` lexeme.
-		this.GREATER = create_type(">");
 		
 		// A token type representing the `{` lexeme.
 		this.OPEN_BRACE = create_type("{");

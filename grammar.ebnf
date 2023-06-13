@@ -2,11 +2,11 @@
 
 module = { import | export | item }, EOF ;
 
-import = ">", STRING, "{", [ import_items ], "}" ;
+import = "import", STRING, "{", [ import_items ], "}" ;
 import_items = import_item, [ ",", [ import_items ] ] ;
-import_item = IDENTIFIER, [ ">", IDENTIFIER ] ;
+import_item = IDENTIFIER, [ "as", IDENTIFIER ] ;
 
-export = "<", item ;
+export = "export", item ;
 
 item = fn_stmt ;
 

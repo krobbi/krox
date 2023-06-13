@@ -1,5 +1,5 @@
 // Modules can import each other arbitrarily. The only restriction on cyclic
 // imports is that a module cannot import itself.
-> "test_imports_main.krox" {}
-> "deep/test_imports_bar.krox" {}
-> "deep/deeper/test_imports_foo.krox" {}
+import "test_imports_main.krox" {}
+import "deep/test_imports_bar.krox" {}
+import "deep/deeper/test_imports_foo.krox" {}
