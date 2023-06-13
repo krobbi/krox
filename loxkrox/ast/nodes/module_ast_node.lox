@@ -7,6 +7,9 @@ class ModuleASTNode < ASTNode {
 		// The module AST node's optional name.
 		this.name = nil;
 		
+		// Whether the module AST node was parsed with no syntax errors.
+		this.is_valid = true;
+		
 		// The module AST node's import list.
 		this.imports = List();
 		

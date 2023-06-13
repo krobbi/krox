@@ -82,6 +82,7 @@ class ASTPrinter < ASTVisitor {
 			this.append_string("name", node.name);
 		}
 		
+		this.append_bool("is_valid", node.is_valid);
 		this.append_node_list("imports", node.imports);
 		this.append_node_list("exports", node.exports);
 		this.append_node_list("functions", node.functions);
@@ -159,6 +160,17 @@ class ASTPrinter < ASTVisitor {
 		
 		wrapper_node.append(ASTPrinterNode("<" + message + " " + token.span.to_string() + ">"));
 		this.current.append(wrapper_node);
+	}
+	
+	// Append a boolean value to the current AST printer node from a name.
+	append_bool(name, value){
+		if(value){
+			value = "true";
+		} else {
+			value = "false";
+		}
+		
+		this.current.append(ASTPrinterNode("{" + name + ": " + value + "}"));
 	}
 	
 	// Append a string to the current AST printer node from a name.
