@@ -1,11 +1,11 @@
 // An export node of an abstract syntax tree.
 class ExportASTNode < ASTNode {
-	// Initialize the export AST node's function.
-	init(function){
+	// Initialize the export AST node's export item list.
+	init(){
 		super.init();
 		
-		// The export AST node's function.
-		this.function = function;
+		// The export AST node's export item list.
+		this.items = List();
 	}
 	
 	// Accept an AST visitor and return a value.

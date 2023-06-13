@@ -891,17 +891,38 @@ class BlockStmtASTNode < ASTNode {
 
 // An export node of an abstract syntax tree.
 class ExportASTNode < ASTNode {
-	// Initialize the export AST node's function.
-	init(function){
+	// Initialize the export AST node's export item list.
+	init(){
 		super.init();
 		
-		// The export AST node's function.
-		this.function = function;
+		// The export AST node's export item list.
+		this.items = List();
 	}
 	
 	// Accept an AST visitor and return a value.
 	accept_visitor(visitor){
 		return visitor.visit_export(this);
+	}
+}
+
+// MODULE // `ast/nodes/export_item_ast_node.lox` // ======================== //
+
+// An export item node of an abstract syntax tree.
+class ExportItemASTNode < ASTNode {
+	// Initialize the export item AST node's identifier tokens.
+	init(internal, external){
+		super.init();
+		
+		// The export item AST node's internal identifier token.
+		this.internal = internal;
+		
+		// The export item AST node's optional external identifier token.
+		this.external = external;
+	}
+	
+	// Accept an AST visitor and return a value.
+	accept_visitor(visitor){
+		return visitor.visit_export_item(this);
 	}
 }
 
@@ -1131,6 +1152,11 @@ class ASTVisitor {
 		return nil;
 	}
 	
+	// Visit an export item AST node and return a value.
+	visit_export_item(node){
+		return nil;
+	}
+	
 	// Visit an expression statement AST node and return a value.
 	visit_expr_stmt(node){
 		return nil;
@@ -1262,7 +1288,19 @@ class ASTPrinter < ASTVisitor {
 	// Visit an export AST node and return an AST printer node.
 	visit_export(node){
 		this.begin("Export", node);
-		this.append_node("function", node.function);
+		this.append_node_list("items", node.items);
+		return this.end();
+	}
+	
+	// Visit an export item AST node and return an AST printer node.
+	visit_export_item(node){
+		this.begin("ExportItem", node);
+		this.append_token("internal", node.internal);
+		
+		if(node.external){
+			this.append_token("external", node.external);
+		}
+		
 		return this.end();
 	}
 	
@@ -1533,17 +1571,42 @@ class Parser {
 		return this.end(ImportItemASTNode(external, internal));
 	}
 	
-	// Parse and return an export AST node if possible.
+	// Parse and return an export AST node.
 	parse_export(){
 		this.begin();
 		this.expect(TokenType.EXPORT);
-		var function = this.parse_fn_stmt();
+		this.expect(TokenType.OPEN_BRACE);
+		var accepts_item = true;
+		var export = ExportASTNode();
 		
-		if(!function){
+		while(accepts_item and !this.match(TokenType.CLOSE_BRACE) and !this.match(TokenType.EOF)){
+			this.try(this.parse_export_item, export.items);
+			
+			if(!this.accept(TokenType.COMMA)){
+				accepts_item = false;
+			}
+		}
+		
+		this.expect(TokenType.CLOSE_BRACE);
+		return this.end(export);
+	}
+	
+	// Parse and return an export item AST node if possible.
+	parse_export_item(){
+		this.begin();
+		var internal = this.expect(TokenType.IDENTIFIER);
+		
+		if(!internal){
 			return this.end(nil);
 		}
 		
-		return this.end(ExportASTNode(function));
+		var external = nil;
+		
+		if(this.accept(TokenType.AS)){
+			external = this.expect(TokenType.IDENTIFIER);
+		}
+		
+		return this.end(ExportItemASTNode(internal, external));
 	}
 	
 	// Parse and return a statement AST node if possible.
@@ -1973,7 +2036,7 @@ class Importer {
 	}
 }
 
-// MODULE // `tests/tests.lox` // =========================================== //
+// MODULE // `tests/run_tests.lox` // ======================================= //
 
 // Run tests from LoxKrox's path and a logger.
 fun run_tests(path, logger){
@@ -1991,6 +2054,7 @@ fun run_tests(path, logger){
 	}
 	
 	run_test("test_imports/test_imports_main.krox");
+	run_test("test_exports.krox");
 	run_test("test_hello.krox");
 	run_test("test_items.krox");
 	

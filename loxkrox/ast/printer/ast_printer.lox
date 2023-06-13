@@ -23,7 +23,19 @@ class ASTPrinter < ASTVisitor {
 	// Visit an export AST node and return an AST printer node.
 	visit_export(node){
 		this.begin("Export", node);
-		this.append_node("function", node.function);
+		this.append_node_list("items", node.items);
+		return this.end();
+	}
+	
+	// Visit an export item AST node and return an AST printer node.
+	visit_export_item(node){
+		this.begin("ExportItem", node);
+		this.append_token("internal", node.internal);
+		
+		if(node.external){
+			this.append_token("external", node.external);
+		}
+		
 		return this.end();
 	}
 	

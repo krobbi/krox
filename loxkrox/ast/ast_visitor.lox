@@ -18,6 +18,11 @@ class ASTVisitor {
 		return nil;
 	}
 	
+	// Visit an export item AST node and return a value.
+	visit_export_item(node){
+		return nil;
+	}
+	
 	// Visit an expression statement AST node and return a value.
 	visit_expr_stmt(node){
 		return nil;

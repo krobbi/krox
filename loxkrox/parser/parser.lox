@@ -102,17 +102,42 @@ class Parser {
 		return this.end(ImportItemASTNode(external, internal));
 	}
 	
-	// Parse and return an export AST node if possible.
+	// Parse and return an export AST node.
 	parse_export(){
 		this.begin();
 		this.expect(TokenType.EXPORT);
-		var function = this.parse_fn_stmt();
+		this.expect(TokenType.OPEN_BRACE);
+		var accepts_item = true;
+		var export = ExportASTNode();
 		
-		if(!function){
+		while(accepts_item and !this.match(TokenType.CLOSE_BRACE) and !this.match(TokenType.EOF)){
+			this.try(this.parse_export_item, export.items);
+			
+			if(!this.accept(TokenType.COMMA)){
+				accepts_item = false;
+			}
+		}
+		
+		this.expect(TokenType.CLOSE_BRACE);
+		return this.end(export);
+	}
+	
+	// Parse and return an export item AST node if possible.
+	parse_export_item(){
+		this.begin();
+		var internal = this.expect(TokenType.IDENTIFIER);
+		
+		if(!internal){
 			return this.end(nil);
 		}
 		
-		return this.end(ExportASTNode(function));
+		var external = nil;
+		
+		if(this.accept(TokenType.AS)){
+			external = this.expect(TokenType.IDENTIFIER);
+		}
+		
+		return this.end(ExportItemASTNode(internal, external));
 	}
 	
 	// Parse and return a statement AST node if possible.

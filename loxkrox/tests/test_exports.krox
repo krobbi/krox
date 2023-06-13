@@ -1,0 +1,12 @@
+// Test exporting top-level items.
+
+export {
+	foo,
+	bar as baz,
+}
+
+// An example function to export as-is.
+fn foo(){}
+
+// An example function to export renamed.
+fn bar(){}

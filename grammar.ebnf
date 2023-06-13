@@ -1,14 +1,14 @@
 (* Krox Reference Grammar *)
 
-module = { import | export | item }, EOF ;
+module = { import | export | fn_stmt }, EOF ;
 
 import = "import", STRING, "{", [ import_items ], "}" ;
 import_items = import_item, [ ",", [ import_items ] ] ;
 import_item = IDENTIFIER, [ "as", IDENTIFIER ] ;
 
-export = "export", item ;
-
-item = fn_stmt ;
+export = "export", "{", [ export_items ], "}" ;
+export_items = export_item, [ ",", [ export_items ] ] ;
+export_item = IDENTIFIER, [ "as", IDENTIFIER ] ;
 
 stmt = fn_stmt | block_stmt | print_stmt | nop_stmt | expr_stmt ;
 fn_stmt = "fn", IDENTIFIER, "(", ")", block_stmt ;

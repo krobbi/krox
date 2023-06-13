@@ -59,13 +59,19 @@ An example of potential Krox code is shown below:
 ```
 import "module.krox" {
    foo,
-   bar as baz,
+   bar as baz, // Imports can be renamed.
 }
 
 // Renaming imports helps prevent collisions.
 fn bar(){}
 
-export fn square(x){
+// Imports and exports can appear at any point at the top level.
+export {
+   square,
+   baz as qux, // Exports can be renamed and use imported identifiers.
+}
+
+fn square(x){
    return x * x;
 }
 
