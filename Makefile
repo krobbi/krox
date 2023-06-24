@@ -34,6 +34,11 @@ clean:
 regen: $(CLOX)
 	$(CLOX) $(LOXKROX_GENERATOR)
 
+# Regenerate LoxKrox in debug mode:
+.PHONY: regen-debug
+regen-debug: $(CLOX)
+	$(CLOX) $(LOXKROX_GENERATOR) --debug
+
 # Generate LoxKrox:
 $(LOXKROX): $(CLOX)
 	$(CLOX) $(LOXKROX_GENERATOR)
