@@ -10,36 +10,36 @@ CLOX_OBJECTS_DIR := $(CLOX_SOURCES_DIR)\obj
 CLOX_HEADERS := $(wildcard $(CLOX_SOURCES_DIR)/*.h)
 CLOX_SOURCES := $(wildcard $(CLOX_SOURCES_DIR)/*.c)
 CLOX_OBJECTS := $(addprefix $(CLOX_OBJECTS_DIR)/, $(notdir $(CLOX_SOURCES:.c=.o)))
-CLOX_EXECUTABLE := lox.exe
+CLOX := lox.exe
 
 # LoxKrox:
 LOXKROX_DIR := loxkrox
 LOXKROX_GENERATOR := $(LOXKROX_DIR)\generator.lox
-LOXKROX_SOURCE := $(LOXKROX_DIR)\krox.lox
+LOXKROX := $(LOXKROX_DIR)\krox.lox
 
 # Bootstrap Krox:
 .PHONY: all
-all: $(LOXKROX_SOURCE)
-	$(CLOX_EXECUTABLE) $(LOXKROX_SOURCE)
+all: $(LOXKROX)
+	$(CLOX) $(LOXKROX)
 
 # Clean all build output:
 .PHONY: clean
 clean:
-	if exist "$(LOXKROX_SOURCE)" del /f /q "$(LOXKROX_SOURCE)"
-	if exist "$(CLOX_EXECUTABLE)" del /f /q "$(CLOX_EXECUTABLE)"
+	if exist "$(LOXKROX)" del /f /q "$(LOXKROX)"
+	if exist "$(CLOX)" del /f /q "$(CLOX)"
 	if exist "$(CLOX_OBJECTS_DIR)" rd /s /q "$(CLOX_OBJECTS_DIR)"
 
-# Regenerate LoxKrox source:
+# Regenerate LoxKrox:
 .PHONY: regen
-regen: $(CLOX_EXECUTABLE)
-	$(CLOX_EXECUTABLE) $(LOXKROX_GENERATOR)
+regen: $(CLOX)
+	$(CLOX) $(LOXKROX_GENERATOR)
 
-# Generate LoxKrox source:
-$(LOXKROX_SOURCE): $(CLOX_EXECUTABLE)
-	$(CLOX_EXECUTABLE) $(LOXKROX_GENERATOR)
+# Generate LoxKrox:
+$(LOXKROX): $(CLOX)
+	$(CLOX) $(LOXKROX_GENERATOR)
 
-# Link clox executable:
-$(CLOX_EXECUTABLE): $(CLOX_OBJECTS) | $(CLOX_OBJECTS_DIR)
+# Link clox:
+$(CLOX): $(CLOX_OBJECTS) | $(CLOX_OBJECTS_DIR)
 	$(C_COMPILER) $(C_COMPILER_FLAGS) $^ -o $@
 
 # Compile clox objects:
