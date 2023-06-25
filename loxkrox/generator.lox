@@ -74,6 +74,48 @@ fun generate_loxkrox(is_debug, add_line, add_module){
 	add_module("core/main.lox");
 }
 
+// Define reserved keywords and identifiers.
+fun reserve_words(reserve){
+	// Keywords.
+	reserve("and");
+	reserve("class");
+	reserve("else");
+	reserve("false");
+	reserve("for");
+	reserve("fun");
+	reserve("if");
+	reserve("nil");
+	reserve("or");
+	reserve("print");
+	reserve("return");
+	reserve("super");
+	reserve("this");
+	reserve("true");
+	reserve("var");
+	reserve("while");
+	
+	// Special identifiers.
+	reserve("clock");
+	reserve("init");
+	
+	// Extensions.
+	reserve("x_arg");
+	reserve("x_args");
+	reserve("x_chr");
+	reserve("x_close");
+	reserve("x_get");
+	reserve("x_length");
+	reserve("x_ord");
+	reserve("x_put");
+	reserve("x_read");
+	reserve("x_stderr");
+	reserve("x_stdin");
+	reserve("x_stdout");
+	reserve("x_substring");
+	reserve("x_trunc");
+	reserve("x_write");
+}
+
 // Character constants.
 var CHAR_TAB = 9; // Tab.
 var CHAR_LF = 10; // Line feed.
@@ -342,11 +384,6 @@ fun create_minifier(output_stream){
 		manglings = Mangling(source, target, manglings);
 	}
 	
-	// Reserve a word as unmangled.
-	fun reserve(word){
-		define_mangling(word, word);
-	}
-	
 	// Return a new word from an index.
 	fun create_word(index){
 		var chars = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -408,44 +445,12 @@ fun create_minifier(output_stream){
 		return mangled;
 	}
 	
-	// Reserve keywords.
-	reserve("and");
-	reserve("class");
-	reserve("else");
-	reserve("false");
-	reserve("for");
-	reserve("fun");
-	reserve("if");
-	reserve("nil");
-	reserve("or");
-	reserve("print");
-	reserve("return");
-	reserve("super");
-	reserve("this");
-	reserve("true");
-	reserve("var");
-	reserve("while");
+	// Reserve a word as unmangled.
+	fun reserve(word){
+		define_mangling(word, word);
+	}
 	
-	// Reserve special identifiers.
-	reserve("clock");
-	reserve("init");
-	
-	// Reserve extensions.
-	reserve("x_arg");
-	reserve("x_args");
-	reserve("x_chr");
-	reserve("x_close");
-	reserve("x_get");
-	reserve("x_length");
-	reserve("x_ord");
-	reserve("x_put");
-	reserve("x_read");
-	reserve("x_stderr");
-	reserve("x_stdin");
-	reserve("x_stdout");
-	reserve("x_substring");
-	reserve("x_trunc");
-	reserve("x_write");
+	reserve_words(reserve);
 	
 	// Minify an input stream to the output stream.
 	fun minify_input(input_stream){
