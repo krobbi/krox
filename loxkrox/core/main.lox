@@ -2,8 +2,8 @@
 fun main(){
 	var logger = Logger();
 	
-	if(_args() == 1){
-		run_tests(_arg(0), logger);
+	if(_argc() == 1){
+		run_tests(_argv(0), logger);
 	} else {
 		logger.log("Expected arguments `krox.lox`.");
 	}

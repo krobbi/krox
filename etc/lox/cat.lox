@@ -28,11 +28,11 @@ fun cat(path, target){
 }
 
 fun main(){
-	if(_args() == 2){
-		cat(_arg(1), _stdout());
-	} else if (_args() == 3){
-		var source_path = _arg(1);
-		var target_path = _arg(2);
+	if(_argc() == 2){
+		cat(_argv(1), _stdout());
+	} else if (_argc() == 3){
+		var source_path = _argv(1);
+		var target_path = _argv(2);
 		
 		if(source_path == target_path){
 			print "Cannot copy file to itself.";

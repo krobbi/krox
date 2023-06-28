@@ -41,8 +41,13 @@ static Value openFileHandle(int argCount, Value* args, const char* mode) {
 	return NIL_VAL; /* No file handles available. */
 }
 
-/* The arg intrinsic. */
-static Value argIntrinsic(int argCount, Value* args) {
+/* The argc intrinsic. */
+static Value argcIntrinsic(int argCount, Value* args) {
+	return NUMBER_VAL((double)loxArgc);
+}
+
+/* The argv intrinsic. */
+static Value argvIntrinsic(int argCount, Value* args) {
 	if (argCount != 1 || !IS_NUMBER(args[0])) {
 		return NIL_VAL; /* Invalid arguments. */
 	}
@@ -55,11 +60,6 @@ static Value argIntrinsic(int argCount, Value* args) {
 	
 	char* arg = loxArgv[index];
 	return OBJ_VAL(copyString(arg, strlen(arg)));
-}
-
-/* The args intrinsic. */
-static Value argsIntrinsic(int argCount, Value* args) {
-	return NUMBER_VAL((double)loxArgc);
 }
 
 /* The chr intrinsic. */
@@ -268,8 +268,8 @@ void initIntrinsics(int argc, char** argv) {
 
 /* Install the intrinsics. */
 void installIntrinsics(DefineNativeFn defineNative) {
-	defineNative("_arg", argIntrinsic);
-	defineNative("_args", argsIntrinsic);
+	defineNative("_argc", argcIntrinsic);
+	defineNative("_argv", argvIntrinsic);
 	defineNative("_chr", chrIntrinsic);
 	defineNative("_close", closeIntrinsic);
 	defineNative("_get", getIntrinsic);

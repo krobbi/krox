@@ -33,8 +33,8 @@ fun reverse(message){
 }
 
 fun main(){
-	if(_args() == 2){
-		var text = slurp(_arg(1));
+	if(_argc() == 2){
+		var text = slurp(_argv(1));
 		text = reverse(text);
 		print text;
 	} else {

@@ -156,5 +156,5 @@ return false;}var S=nil;for(var E=0;E<C;E=E+1){var cG=_substring(eI,E,1);if(cG==
 ){eK.be(eI);eI="";}else{eI=eI+F;}}if(eI!=""){eK.be(eI);}return eK;}}fun eL(dd,cm){var eM=eu(cm);var
 eN=eM.ex(dd);eN.bf();eN=eN.bg("/")+"/tests/";fun eO(dd){print"Testing `"+dd+"`.";dG().dH(eM.ew(eN+dd
 ));cm.bH();print"";}eO("test_imports/test_imports_main.krox");eO("test_exports.krox");eO(
-"test_hello.krox");eO("test_items.krox");print"End of tests.";}fun eP(){var cm=bF();if(_args()==1){
-eL(_arg(0),cm);}else{cm.bI("Expected arguments `krox.lox`.");}cm.bH();}eP();
+"test_hello.krox");eO("test_items.krox");print"End of tests.";}fun eP(){var cm=bF();if(_argc()==1){
+eL(_argv(0),cm);}else{cm.bI("Expected arguments `krox.lox`.");}cm.bH();}eP();

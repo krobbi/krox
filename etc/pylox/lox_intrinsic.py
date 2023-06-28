@@ -19,8 +19,14 @@ STREAMS: list[BinaryIO | None] = [
 FILE_HANDLE_MIN: int = 3
 """ The minimum file handle available to lox. """
 
-def arg_intrinsic(arguments: list[Any]) -> str | None:
-    """ The arg intrinsic. """
+def argc_intrinsic(arguments: list[Any]) -> float:
+    """ The argc intrinsic. """
+    
+    return float(max(len(sys.argv) - 1, 0))
+
+
+def argv_intrinsic(arguments: list[Any]) -> str | None:
+    """ The argv intrinsic. """
     
     index: int = int(arguments[0]) + 1
     
@@ -28,12 +34,6 @@ def arg_intrinsic(arguments: list[Any]) -> str | None:
         return None # Argument out of range.
     
     return sys.argv[index]
-
-
-def args_intrinsic(arguments: list[Any]) -> float:
-    """ The args intrinsic. """
-    
-    return float(max(len(sys.argv) - 1, 0))
 
 
 def chr_intrinsic(arguments: list[Any]) -> str | None:
@@ -210,8 +210,8 @@ def install_intrinsics(
                 [str, int, Callable[[list[Any]], Any]], None]) -> None:
     """ Install the intrinsics. """
     
-    define_native("_arg", 1, arg_intrinsic)
-    define_native("_args", 0, args_intrinsic)
+    define_native("_argc", 1, argc_intrinsic)
+    define_native("_argv", 0, argv_intrinsic)
     define_native("_chr", 1, chr_intrinsic)
     define_native("_close", 1, close_intrinsic)
     define_native("_get", 1, get_intrinsic)

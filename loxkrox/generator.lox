@@ -99,8 +99,8 @@ fun reserve_words(reserve){
 	reserve("init");
 	
 	// Intrinsics.
-	reserve("_arg");
-	reserve("_args");
+	reserve("_argc");
+	reserve("_argv");
 	reserve("_chr");
 	reserve("_close");
 	reserve("_get");
@@ -559,19 +559,18 @@ fun run_generator(base_path, is_debug){
 
 // Run LoxKrox generator from arguments.
 fun main(){
-	var argument_count = _args();
 	var has_valid_arguments = false;
 	var is_debug = false;
 	
-	if(argument_count == 1){
+	if(_argc() == 1){
 		has_valid_arguments = true;
-	} else if(argument_count == 2 and _arg(1) == "--debug"){
+	} else if(_argc() == 2 and _argv(1) == "--debug"){
 		has_valid_arguments = true;
 		is_debug = true;
 	}
 	
 	if(has_valid_arguments){
-		run_generator(get_path_parent(_arg(0)), is_debug);
+		run_generator(get_path_parent(_argv(0)), is_debug);
 	} else {
 		print_error("Expected arguments `generator.lox [--debug]`.");
 	}

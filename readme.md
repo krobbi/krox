@@ -8,8 +8,8 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 3. [About Lox](#about-lox)
 4. [Lox Implementation Details](#lox-implementation-details)
 5. [Lox Intrinsics](#lox-intrinsics)
-   * [`_arg(index)`](#_argindex)
-   * [`_args()`](#_args)
+   * [`_argc()`](#_argc)
+   * [`_argv(index)`](#_argvindex)
    * [`_chr(code)`](#_chrcode)
    * [`_close(handle)`](#_closehandle)
    * [`_get(handle)`](#_gethandle)
@@ -116,15 +116,14 @@ not normally possible to implement in Lox. These non-standard intrinsics are
 marked with an `_` prefix to indicate that they have a special implementation
 and reduce namespace pollution.
 
-## `_arg(index)`
-Return the command line argument string at index `index`, following the same
-range as `_args()`. The first argument is at index `0`. Using an out of range
-index returns `nil`.
-
-## `_args()`
+## `_argc()`
 Return the number of command line arguments, starting at and including the Lox
-script file's name. This function should always return `0` in REPL mode, and
-always return at least `1` when outside of REPL mode.
+script file's name. Always returns `0` in REPL mode and at least `1` outside of
+REPL mode.
+
+## `_argv(index)`
+Return the command line argument string at index `index`. Returns `nil` if
+`index` is less than `0` or greater than or equal to `_argc()`.
 
 ## `_chr(code)`
 Return a single character string with the number code point `code`. Returns
