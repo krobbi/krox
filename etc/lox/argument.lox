@@ -1,9 +1,9 @@
 // Argument demonstration.
 // Demonstrates accessing command line arguments in Lox using non-standard
-// extension functions.
+// intrinsic functions.
 
 print "Arguments:";
 
-for(var index = 0; index < x_args(); index = index + 1){
-	print " * '" + x_arg(index) + "'";
+for(var index = 0; index < _args(); index = index + 1){
+	print " * '" + _arg(index) + "'";
 }

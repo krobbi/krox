@@ -6,7 +6,7 @@
 #include "common.h"
 #include "compiler.h"
 #include "debug.h"
-#include "extension.h"
+#include "intrinsic.h"
 #include "object.h"
 #include "memory.h"
 #include "vm.h"
@@ -51,7 +51,7 @@ static void runtimeError(const char* format, ...) {
 
 /* Define a native function. */
 static void defineNative(const char* name, NativeFn function) {
-	/* Use stack to evade garbage collector. */
+	/* GC safety. */
 	push(OBJ_VAL(copyString(name, (int)strlen(name))));
 	push(OBJ_VAL(newNative(function)));
 	tableSet(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
@@ -76,8 +76,9 @@ void initVM() {
 	vm.initString = NULL; /* GC safety. */
 	vm.initString = copyString("init", 4);
 	
+	/* Install the standard library. */
 	defineNative("clock", clockNative);
-	installExtensions(defineNative);
+	installIntrinsics(defineNative);
 }
 
 /* Free the VM's objects. */

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "extension.h"
+#include "intrinsic.h"
 #include "memory.h"
 
 /* Stream IDs. */
@@ -13,9 +13,8 @@
 #define STREAM_FILES  3
 #define STREAM_MAX    7
 
-static int loxArgCount = 0;
-static char** loxArgs = NULL;
-static int* loxArgLengths = NULL;
+static int loxArgc = 0;
+static char** loxArgv = NULL;
 static FILE* loxStreams[] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 /* Open and return a new file handle from arguments and a mode. */
@@ -42,28 +41,29 @@ static Value openFileHandle(int argCount, Value* args, const char* mode) {
 	return NIL_VAL; /* No file handles available. */
 }
 
-/* The arg extension. */
-static Value argExtension(int argCount, Value* args) {
+/* The arg intrinsic. */
+static Value argIntrinsic(int argCount, Value* args) {
 	if (argCount != 1 || !IS_NUMBER(args[0])) {
 		return NIL_VAL; /* Invalid arguments. */
 	}
 	
 	int index = (int)AS_NUMBER(args[0]);
 	
-	if (index < 0 || index >= loxArgCount) {
+	if (index < 0 || index >= loxArgc) {
 		return NIL_VAL; /* Argument index out of range. */
 	}
 	
-	return OBJ_VAL(copyString(loxArgs[index], loxArgLengths[index]));
+	char* arg = loxArgv[index];
+	return OBJ_VAL(copyString(arg, strlen(arg)));
 }
 
-/* The args extension. */
-static Value argsExtension(int argCount, Value* args) {
-	return NUMBER_VAL((double)loxArgCount);
+/* The args intrinsic. */
+static Value argsIntrinsic(int argCount, Value* args) {
+	return NUMBER_VAL((double)loxArgc);
 }
 
-/* The chr extension. */
-static Value chrExtension(int argCount, Value* args) {
+/* The chr intrinsic. */
+static Value chrIntrinsic(int argCount, Value* args) {
 	if (argCount != 1 || !IS_NUMBER(args[0])) {
 		return NIL_VAL; /* Invalid arguments. */
 	}
@@ -80,8 +80,8 @@ static Value chrExtension(int argCount, Value* args) {
 	return OBJ_VAL(takeString(chars, 1));
 }
 
-/* The close extension. */
-static Value closeExtension(int argCount, Value* args) {
+/* The close intrinsic. */
+static Value closeIntrinsic(int argCount, Value* args) {
 	if (argCount != 1 || !IS_NUMBER(args[0])) {
 		return BOOL_VAL(false); /* Invalid arguments. */
 	}
@@ -108,8 +108,8 @@ static Value closeExtension(int argCount, Value* args) {
 	return BOOL_VAL(true);
 }
 
-/* The get extension. */
-static Value getExtension(int argCount, Value* args) {
+/* The get intrinsic. */
+static Value getIntrinsic(int argCount, Value* args) {
 	if (argCount != 1 || !IS_NUMBER(args[0])) {
 		return NIL_VAL; /* Invalid arguments. */
 	}
@@ -135,8 +135,8 @@ static Value getExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)result);
 }
 
-/* The length extension. */
-static Value lengthExtension(int argCount, Value* args) {
+/* The length intrinsic. */
+static Value lengthIntrinsic(int argCount, Value* args) {
 	if (argCount != 1 || !IS_STRING(args[0])) {
 		return NUMBER_VAL(0.0); /* Invalid arguments. */
 	}
@@ -144,8 +144,8 @@ static Value lengthExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)(AS_STRING(args[0])->length));
 }
 
-/* The ord extension. */
-static Value ordExtension(int argCount, Value* args) {
+/* The ord intrinsic. */
+static Value ordIntrinsic(int argCount, Value* args) {
 	if (argCount != 1 || !IS_STRING(args[0])) {
 		return NIL_VAL; /* Invalid arguments. */
 	}
@@ -165,8 +165,8 @@ static Value ordExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)value);
 }
 
-/* The put extension. */
-static Value putExtension(int argCount, Value* args) {
+/* The put intrinsic. */
+static Value putIntrinsic(int argCount, Value* args) {
 	if (argCount != 2 || !IS_NUMBER(args[0]) || !IS_NUMBER(args[1])) {
 		return NIL_VAL; /* Invalid arguments. */
 	}
@@ -198,28 +198,28 @@ static Value putExtension(int argCount, Value* args) {
 	return NUMBER_VAL((double)byte);
 }
 
-/* The read extension. */
-static Value readExtension(int argCount, Value* args) {
+/* The read intrinsic. */
+static Value readIntrinsic(int argCount, Value* args) {
 	return openFileHandle(argCount, args, "rb");
 }
 
-/* The stderr extension. */
-static Value stderrExtension(int argCount, Value* args) {
+/* The stderr intrinsic. */
+static Value stderrIntrinsic(int argCount, Value* args) {
 	return NUMBER_VAL((double)STREAM_STDERR);
 }
 
-/* The stdin extension. */
-static Value stdinExtension(int argCount, Value* args) {
+/* The stdin intrinsic. */
+static Value stdinIntrinsic(int argCount, Value* args) {
 	return NUMBER_VAL((double)STREAM_STDIN);
 }
 
-/* The stdout extension. */
-static Value stdoutExtension(int argCount, Value* args) {
+/* The stdout intrinsic. */
+static Value stdoutIntrinsic(int argCount, Value* args) {
 	return NUMBER_VAL((double)STREAM_STDOUT);
 }
 
-/* The substring extension. */
-static Value substringExtension(int argCount, Value* args) {
+/* The substring intrinsic. */
+static Value substringIntrinsic(int argCount, Value* args) {
 	if (argCount != 3 || !IS_STRING(args[0]) || !IS_NUMBER(args[1]) || !IS_NUMBER(args[2]))	{
 		return NIL_VAL; /* Invalid arguments. */
 	}
@@ -239,8 +239,8 @@ static Value substringExtension(int argCount, Value* args) {
 	return OBJ_VAL(copyString(string->chars + start, length));
 }
 
-/* The trunc extension. */
-static Value truncExtension(int argCount, Value* args) {
+/* The trunc intrinsic. */
+static Value truncIntrinsic(int argCount, Value* args) {
 	if (argCount != 1 || !IS_NUMBER(args[0])) {
 		return NUMBER_VAL(0.0); /* Invalid arguments. */
 	}
@@ -248,25 +248,16 @@ static Value truncExtension(int argCount, Value* args) {
 	return NUMBER_VAL(trunc(AS_NUMBER(args[0])));
 }
 
-/* The write extension. */
-static Value writeExtension(int argCount, Value* args) {
+/* The write intrinsic. */
+static Value writeIntrinsic(int argCount, Value* args) {
 	return openFileHandle(argCount, args, "wb");
 }
 
-/* Initialize the extensions. */
-void initExtensions(int argc, char** argv) {
-	loxArgCount = argc - 1;
-	loxArgs = argv + 1;
-	
-	/* Cache argument lengths. */
-	if (loxArgCount > 0) {
-		loxArgLengths = (int*)malloc(sizeof(int) * loxArgCount);
-		
-		for (int i = 0; i < loxArgCount; i++) {
-			loxArgLengths[i] = strlen(loxArgs[i]);
-		}
-	} else if (loxArgCount < 0) {
-		loxArgCount = 0; /* Probably unreachable. Makes argc extension safer. */
+/* Initialize the intrinsics. */
+void initIntrinsics(int argc, char** argv) {
+	if (argc > 1) {
+		loxArgc = argc - 1;
+		loxArgv = &argv[1];
 	}
 	
 	/* Populate standard streams. */
@@ -275,28 +266,21 @@ void initExtensions(int argc, char** argv) {
 	loxStreams[STREAM_STDERR] = stderr;
 }
 
-/* Free the extensions. */
-void freeExtensions() {
-	if (loxArgCount > 0) {
-		free(loxArgLengths);
-	}
-}
-
-/* Install the extensions. */
-void installExtensions(DefineNativeFn defineNative) {
-	defineNative("x_arg", argExtension);
-	defineNative("x_args", argsExtension);
-	defineNative("x_chr", chrExtension);
-	defineNative("x_close", closeExtension);
-	defineNative("x_get", getExtension);
-	defineNative("x_length", lengthExtension);
-	defineNative("x_ord", ordExtension);
-	defineNative("x_put", putExtension);
-	defineNative("x_read", readExtension);
-	defineNative("x_stderr", stderrExtension);
-	defineNative("x_stdin", stdinExtension);
-	defineNative("x_stdout", stdoutExtension);
-	defineNative("x_substring", substringExtension);
-	defineNative("x_trunc", truncExtension);
-	defineNative("x_write", writeExtension);
+/* Install the intrinsics. */
+void installIntrinsics(DefineNativeFn defineNative) {
+	defineNative("_arg", argIntrinsic);
+	defineNative("_args", argsIntrinsic);
+	defineNative("_chr", chrIntrinsic);
+	defineNative("_close", closeIntrinsic);
+	defineNative("_get", getIntrinsic);
+	defineNative("_length", lengthIntrinsic);
+	defineNative("_ord", ordIntrinsic);
+	defineNative("_put", putIntrinsic);
+	defineNative("_read", readIntrinsic);
+	defineNative("_stderr", stderrIntrinsic);
+	defineNative("_stdin", stdinIntrinsic);
+	defineNative("_stdout", stdoutIntrinsic);
+	defineNative("_substring", substringIntrinsic);
+	defineNative("_trunc", truncIntrinsic);
+	defineNative("_write", writeIntrinsic);
 }

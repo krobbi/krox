@@ -5,7 +5,7 @@
 #include "common.h"
 #include "chunk.h"
 #include "debug.h"
-#include "extension.h"
+#include "intrinsic.h"
 #include "vm.h"
 
 /* Run Lox from a REPL. */
@@ -74,7 +74,7 @@ static void runFile(const char* path) {
 
 /* Main function. Run Lox from arguments. */
 int main(int argc, char** argv) {
-	initExtensions(argc, argv);
+	initIntrinsics(argc, argv);
 	initVM();
 	
 	if (argc > 1) {
@@ -84,6 +84,5 @@ int main(int argc, char** argv) {
 	}
 	
 	freeVM();
-	freeExtensions();
 	return 0;
 }

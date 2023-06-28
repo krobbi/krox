@@ -8,13 +8,13 @@ class String {
 	
 	// Wrap the boxed string in quotes and return the boxed string.
 	quote(){
-		var quote_string = x_chr(CHAR_QUOTE);
-		var length = x_length(this.string);
+		var quote_string = _chr(CHAR_QUOTE);
+		var length = _length(this.string);
 		var escaped = "";
 		
 		for(var i = 0; i < length; i = i + 1){
-			var char_string = x_substring(this.string, i, 1);
-			var char = x_ord(char_string);
+			var char_string = _substring(this.string, i, 1);
+			var char = _ord(char_string);
 			
 			if(char == CHAR_TAB){
 				escaped = escaped + "\t";
@@ -60,9 +60,9 @@ class String {
 		
 		while(place >= 10){
 			place = place / 10;
-			var digit = x_trunc(value / place);
+			var digit = _trunc(value / place);
 			value = value - digit * place;
-			formatted = formatted + x_chr(CHAR_0 + digit);
+			formatted = formatted + _chr(CHAR_0 + digit);
 		}
 		
 		this.string = this.string + formatted;
@@ -71,13 +71,13 @@ class String {
 	
 	// Put the boxed string to an output stream with a trailing line feed.
 	put_line(stream){
-		var length = x_length(this.string);
+		var length = _length(this.string);
 		
 		for(var i = 0; i < length; i = i + 1){
-			x_put(x_ord(x_substring(this.string, i, 1)), stream);
+			_put(_ord(_substring(this.string, i, 1)), stream);
 		}
 		
-		x_put(CHAR_LINE, stream);
+		_put(CHAR_LINE, stream);
 	}
 	
 	// Return the boxed string represented as a string.

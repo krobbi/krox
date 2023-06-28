@@ -7,22 +7,22 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
 2. [Design](#design)
 3. [About Lox](#about-lox)
 4. [Lox Implementation Details](#lox-implementation-details)
-5. [Lox Extensions](#lox-extensions)
-   * [`x_arg(index)`](#x_argindex)
-   * [`x_args()`](#x_args)
-   * [`x_chr(code)`](#x_chrcode)
-   * [`x_close(handle)`](#x_closehandle)
-   * [`x_get(handle)`](#x_gethandle)
-   * [`x_length(string)`](#x_lengthstring)
-   * [`x_ord(character)`](#x_ordcharacter)
-   * [`x_put(byte, handle)`](#x_putbyte-handle)
-   * [`x_read(path)`](#x_readpath)
-   * [`x_stderr()`](#x_stderr)
-   * [`x_stdin()`](#x_stdin)
-   * [`x_stdout()`](#x_stdout)
-   * [`x_substring(string, start, length)`](#x_substringstring-start-length)
-   * [`x_trunc(number)`](#x_truncnumber)
-   * [`x_write(path)`](#x_writepath)
+5. [Lox Intrinsics](#lox-intrinsics)
+   * [`_arg(index)`](#_argindex)
+   * [`_args()`](#_args)
+   * [`_chr(code)`](#_chrcode)
+   * [`_close(handle)`](#_closehandle)
+   * [`_get(handle)`](#_gethandle)
+   * [`_length(string)`](#_lengthstring)
+   * [`_ord(character)`](#_ordcharacter)
+   * [`_put(byte, handle)`](#_putbyte-handle)
+   * [`_read(path)`](#_readpath)
+   * [`_stderr()`](#_stderr)
+   * [`_stdin()`](#_stdin)
+   * [`_stdout()`](#_stdout)
+   * [`_substring(string, start, length)`](#_substringstring-start-length)
+   * [`_trunc(number)`](#_truncnumber)
+   * [`_write(path)`](#_writepath)
 6. [License](#license)
 
 # About
@@ -109,81 +109,82 @@ to 16 bits. This adds a lot of redundant data to the internal bytecode in most
 cases, but was simpler to implement than separate long constant opcodes.
 Additional constant IDs have become necessary to implement the Krox compiler.
 
-# Lox Extensions
+# Lox Intrinsics
 In addition to the standard `clock()` function, my implementation of Lox
-includes some extension functions to improve its I/O capabilities. These
-non-standard extensions are marked with an `x_` prefix to indicate that they
-have a special implementation and reduce namespace pollution.
+includes some intrinsic functions to improve its capabilities in ways that are
+not normally possible to implement in Lox. These non-standard intrinsics are
+marked with an `_` prefix to indicate that they have a special implementation
+and reduce namespace pollution.
 
-## `x_arg(index)`
+## `_arg(index)`
 Return the command line argument string at index `index`, following the same
-range as `x_args()`. The first argument is at index `0`. Using an out of range
+range as `_args()`. The first argument is at index `0`. Using an out of range
 index returns `nil`.
 
-## `x_args()`
+## `_args()`
 Return the number of command line arguments, starting at and including the Lox
 script file's name. This function should always return `0` in REPL mode, and
 always return at least `1` when outside of REPL mode.
 
-## `x_chr(code)`
+## `_chr(code)`
 Return a single character string with the number code point `code`. Returns
 `nil` if `code` is not a number from `0` to `255`.
 
-## `x_close(handle)`
+## `_close(handle)`
 Flush and close the stream at the file handle number `handle`. Returns `true`
 if a file stream was closed successfully. Otherwise, returns `false`.
 Attempting to close a standard stream will do nothing and always return
 `false`.
 
-## `x_get(handle)`
+## `_get(handle)`
 Get and return the next byte from the stream at the file handle number
 `handle`. Returns `nil` if an error or the end of file was encountered.
 Otherwise, returns a number from `0` to `255`.
 
-## `x_length(string)`
+## `_length(string)`
 Return the number length of the string `string` in characters. Returns an
 undefined number value if `string` is not a string.
 
-## `x_ord(character)`
+## `_ord(character)`
 Return the number code point of the single character string `character`.
 Returns `nil` if `character` is not a single character or has a code point
 outside of the range of `0` to `255`.
 
-## `x_put(byte, handle)`
+## `_put(byte, handle)`
 Put a byte number `byte` from `0` to `255` to the stream at the file handle
 number `handle`. Returns `nil` if the byte number could not be put to a stream
 for any reason. Otherwise, returns the byte number that was written.
 
-## `x_read(path)`
+## `_read(path)`
 Open the file at the path string `path` for reading and return a file handle
 number. Returns `nil` if the file could not be opened for any reason. Any
-returned file handle number must later be closed with `x_close(handle)`.
+returned file handle number must later be closed with `_close(handle)`.
 
-## `x_stderr()`
+## `_stderr()`
 Return a file handle number representing the standard error stream. Always
 returns `2`.
 
-## `x_stdin()`
+## `_stdin()`
 Return a file handle number representing the standard input stream. Always
 returns `0`.
 
-## `x_stdout()`
+## `_stdout()`
 Return a file handle number representing the standard output stream. Always
 returns `1`.
 
-## `x_substring(string, start, length)`
+## `_substring(string, start, length)`
 Return a new substring of `string` starting at index `start` with length
 `length`. Returns `nil` if `length` is negative or if the substring would be
 out of bounds of `string`.
 
-## `x_trunc(number)`
+## `_trunc(number)`
 Return the number `number` with any fractional part truncated, rounding towards
 `0`. Returns an undefined number value if `number` is not a number.
 
-## `x_write(path)`
+## `_write(path)`
 Open the file at the path string `path` for writing and return a file hande
 number. Returns `nil` if the file could not be opened for any reason. Any
-returned file handle number must later be closed with `x_close(handle)`.
+returned file handle number must later be closed with `_close(handle)`.
 
 # License
 Krox is released under the MIT License:  

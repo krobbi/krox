@@ -14,8 +14,8 @@ class TokenType {
 		fun create_type(name){
 			var type = type_count;
 			
-			if(x_substring(name, 0, 1) == "'"){
-				this.type_names.insert(type, x_substring(name, 1, x_length(name) - 2));
+			if(_substring(name, 0, 1) == "'"){
+				this.type_names.insert(type, _substring(name, 1, _length(name) - 2));
 			} else {
 				this.type_names.insert(type, "`" + name + "`");
 				this.lexeme_types.insert(name, type);

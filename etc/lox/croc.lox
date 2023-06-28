@@ -2,9 +2,9 @@
 // Demonstrates printing a UTF-8 crocodile emoji to standard output. Tests
 // whether bytes are being handled correctly.
 
-x_put(240, x_stdout());
-x_put(159, x_stdout());
-x_put(144, x_stdout());
-x_put(138, x_stdout());
+_put(240, _stdout());
+_put(159, _stdout());
+_put(144, _stdout());
+_put(138, _stdout());
 
 print "";

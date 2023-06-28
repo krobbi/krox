@@ -6,9 +6,9 @@ from lox_error_reporter import ErrorReporter
 from lox_expr import AssignExpr, BinaryExpr, CallExpr, Expr, ExprVisitor
 from lox_expr import GetExpr, GroupingExpr, LiteralExpr, LogicalExpr, SetExpr
 from lox_expr import SuperExpr, ThisExpr, UnaryExpr, VariableExpr
-from lox_extension import install_extensions
 from lox_function import ReturnException, LoxFunction
 from lox_instance import LoxInstance
+from lox_intrinsic import install_intrinsics
 from lox_native_function import NativeFunction
 from lox_stmt import BlockStmt, ClassStmt, ExpressionStmt, FunctionStmt
 from lox_stmt import IfStmt, PrintStmt, ReturnStmt, Stmt, StmtVisitor, VarStmt
@@ -68,7 +68,7 @@ class Interpreter(StmtVisitor, ExprVisitor):
         
         # Install the standard library.
         self.define_native("clock", 0, create_clock(perf_counter()))
-        install_extensions(self.define_native)
+        install_intrinsics(self.define_native)
         
         try:
             for statement in statements:

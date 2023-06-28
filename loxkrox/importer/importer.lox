@@ -43,7 +43,7 @@ class Importer {
 			return; // Empty queue or module already imported.
 		}
 		
-		var stream = x_read(program.path + "/" + name);
+		var stream = _read(program.path + "/" + name);
 		
 		if(!stream){
 			this.logger.log("Failed to open `" + name + "` for reading. File may not exist.");
@@ -53,7 +53,7 @@ class Importer {
 		this.parser.reset(name, stream);
 		var module = this.parser.parse_module();
 		
-		if(x_close(stream)){
+		if(_close(stream)){
 			this.logger.log("Parser failed to close `" + name + "` after reading.");
 		}
 		
@@ -76,11 +76,11 @@ class Importer {
 			return;
 		}
 		
-		var import_path_leader = x_substring(import_path, 0, 1);
+		var import_path_leader = _substring(import_path, 0, 1);
 		var imported_name;
 		
 		if(import_path_leader == "/" or import_path_leader == "\"){
-			import_path = x_substring(import_path, 1, x_length(import_path) - 1);
+			import_path = _substring(import_path, 1, _length(import_path) - 1);
 			imported_name = List(); // Absolute import path.
 		} else {
 			imported_name = this.split_path(name);
@@ -146,17 +146,17 @@ class Importer {
 	
 	// Return whether a path part is valid.
 	is_part_valid(part){
-		var length = x_length(part);
+		var length = _length(part);
 		
 		if(length < 1){
 			return false; // Empty path parts are invalid.
 		}
 		
-		if(x_substring(part, 0, 1) == " "){
+		if(_substring(part, 0, 1) == " "){
 			return false; // Leading spaces are invalid.
 		}
 		
-		var trailer = x_substring(part, length - 1, 1);
+		var trailer = _substring(part, length - 1, 1);
 		
 		if(trailer == " " or trailer == "."){
 			return false; // Trailing spaces or dots are invalid.
@@ -165,7 +165,7 @@ class Importer {
 		var previous = nil;
 		
 		for(var i = 0; i < length; i = i + 1){
-			var current = x_substring(part, i, 1);
+			var current = _substring(part, i, 1);
 			
 			if(current == previous and (current == " " or current == ".")){
 				return false; // Adjacent spaces or dots are invalid.
@@ -184,7 +184,7 @@ class Importer {
 				return false; // Typical special characters are invalid.
 			}
 			
-			var char = x_ord(current);
+			var char = _ord(current);
 			
 			if(char == CHAR_QUOTE or char < CHAR_SPACE or char >= CHAR_DELETE){
 				return false; // Non printable characters are invalid.
@@ -198,12 +198,12 @@ class Importer {
 	
 	// Split a path string to a list of path parts.
 	split_path(path){
-		var length = x_length(path);
+		var length = _length(path);
 		var part = "";
 		var parts = List();
 		
 		for(var i = 0; i < length; i = i + 1){
-			var char_string = x_substring(path, i, 1);
+			var char_string = _substring(path, i, 1);
 			
 			if(char_string == "/" or char_string == "\"){
 				parts.push_back(part);

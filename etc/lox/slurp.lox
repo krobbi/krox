@@ -4,37 +4,37 @@
 // in memory using substrings.
 
 fun slurp(path){
-	var file = x_read(path);
+	var file = _read(path);
 	
 	if(file == nil){
 		return "";
 	}
 	
-	var code = x_get(file);
+	var code = _get(file);
 	var result = "";
 	
 	while(code != nil){
-		result = result + x_chr(code);
-		code = x_get(file);
+		result = result + _chr(code);
+		code = _get(file);
 	}
 	
-	x_close(file);
+	_close(file);
 	return result;
 }
 
 fun reverse(message){
 	var result = "";
 	
-	for(var i = x_length(message) - 1; i >= 0; i = i - 1){
-		result = result + x_substring(message, i, 1);
+	for(var i = _length(message) - 1; i >= 0; i = i - 1){
+		result = result + _substring(message, i, 1);
 	}
 	
 	return result;
 }
 
 fun main(){
-	if(x_args() == 2){
-		var text = slurp(x_arg(1));
+	if(_args() == 2){
+		var text = slurp(_arg(1));
 		text = reverse(text);
 		print text;
 	} else {

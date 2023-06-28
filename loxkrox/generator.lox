@@ -98,67 +98,67 @@ fun reserve_words(reserve){
 	reserve("clock");
 	reserve("init");
 	
-	// Extensions.
-	reserve("x_arg");
-	reserve("x_args");
-	reserve("x_chr");
-	reserve("x_close");
-	reserve("x_get");
-	reserve("x_length");
-	reserve("x_ord");
-	reserve("x_put");
-	reserve("x_read");
-	reserve("x_stderr");
-	reserve("x_stdin");
-	reserve("x_stdout");
-	reserve("x_substring");
-	reserve("x_trunc");
-	reserve("x_write");
+	// Intrinsics.
+	reserve("_arg");
+	reserve("_args");
+	reserve("_chr");
+	reserve("_close");
+	reserve("_get");
+	reserve("_length");
+	reserve("_ord");
+	reserve("_put");
+	reserve("_read");
+	reserve("_stderr");
+	reserve("_stdin");
+	reserve("_stdout");
+	reserve("_substring");
+	reserve("_trunc");
+	reserve("_write");
 }
 
 // Character constants.
 var CHAR_TAB = 9; // Tab.
 var CHAR_LF = 10; // Line feed.
 var CHAR_CR = 13; // Carriage return.
-var CHAR_SPACE = x_ord(" "); // Space.
-var CHAR_BANG = x_ord("!"); // Exclamation mark.
+var CHAR_SPACE = _ord(" "); // Space.
+var CHAR_BANG = _ord("!"); // Exclamation mark.
 var CHAR_QUOTE = 34; // Quotation mark.
-var CHAR_DOT = x_ord("."); // Dot.
-var CHAR_SLASH = x_ord("/"); // Slash.
-var CHAR_0 = x_ord("0"); // Digit 0.
-var CHAR_9 = x_ord("9"); // Digit 9.
-var CHAR_LT = x_ord("<"); // Less than.
-var CHAR_EQ = x_ord("="); // Equals.
-var CHAR_GT = x_ord(">"); // Greater than.
-var CHAR_UPPER_A = x_ord("A"); // Uppercase letter A.
-var CHAR_UPPER_Z = x_ord("Z"); // Uppercase letter Z.
-var CHAR_UNDERSCORE = x_ord("_"); // Underscore.
-var CHAR_LOWER_A = x_ord("a"); // Lowercase letter A.
-var CHAR_LOWER_Z = x_ord("z"); // Lowercase letter Z.
+var CHAR_DOT = _ord("."); // Dot.
+var CHAR_SLASH = _ord("/"); // Slash.
+var CHAR_0 = _ord("0"); // Digit 0.
+var CHAR_9 = _ord("9"); // Digit 9.
+var CHAR_LT = _ord("<"); // Less than.
+var CHAR_EQ = _ord("="); // Equals.
+var CHAR_GT = _ord(">"); // Greater than.
+var CHAR_UPPER_A = _ord("A"); // Uppercase letter A.
+var CHAR_UPPER_Z = _ord("Z"); // Uppercase letter Z.
+var CHAR_UNDERSCORE = _ord("_"); // Underscore.
+var CHAR_LOWER_A = _ord("a"); // Lowercase letter A.
+var CHAR_LOWER_Z = _ord("z"); // Lowercase letter Z.
 
 // Put a string of text to an output stream.
 fun put_string(string, stream){
-	var string_length = x_length(string);
+	var string_length = _length(string);
 	
 	for(var i = 0; i < string_length; i = i + 1){
-		x_put(x_ord(x_substring(string, i, 1)), stream);
+		_put(_ord(_substring(string, i, 1)), stream);
 	}
 }
 
 // Put a line of text to an output stream.
 fun put_line(line, stream){
 	put_string(line, stream);
-	x_put(CHAR_LF, stream);
+	_put(CHAR_LF, stream);
 }
 
 // Print an error message.
 fun print_error(message){
-	put_line(message, x_stderr());
+	put_line(message, _stderr());
 }
 
 // Pad a message to a length with a suffix.
 fun pad(message, length, suffix){
-	var message_length = x_length(message);
+	var message_length = _length(message);
 	
 	while(message_length < length){
 		message = message + suffix;
@@ -170,12 +170,12 @@ fun pad(message, length, suffix){
 
 // Return a path's parent path.
 fun get_path_parent(path){
-	var path_length = x_length(path);
+	var path_length = _length(path);
 	var parent_path = "";
 	var parent_path_length = 0;
 	
 	for(var i = 0; i < path_length; i = i + 1){
-		var char_string = x_substring(path, i, 1);
+		var char_string = _substring(path, i, 1);
 		
 		if(char_string == "/" or char_string == "\"){
 			parent_path = parent_path + "/";
@@ -185,7 +185,7 @@ fun get_path_parent(path){
 		}
 	}
 	
-	return x_substring(parent_path, 0, parent_path_length);
+	return _substring(parent_path, 0, parent_path_length);
 }
 
 // Token types.
@@ -229,7 +229,7 @@ class Token {
 
 // Return a new lexer closure from an input stream.
 fun create_lexer(stream){
-	var next = x_get(stream);
+	var next = _get(stream);
 	
 	// Return whether a character is a whitespace character.
 	fun is_whitespace(char){
@@ -252,8 +252,8 @@ fun create_lexer(stream){
 	
 	// Advance the next character and return it as a string.
 	fun advance(){
-		var char_string = x_chr(next);
-		next = x_get(stream);
+		var char_string = _chr(next);
+		next = _get(stream);
 		return char_string;
 	}
 	
@@ -387,7 +387,7 @@ fun create_minifier(output_stream){
 	// Return a new word from an index.
 	fun create_word(index){
 		var chars = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		var base = x_length(chars);
+		var base = _length(chars);
 		var place = base;
 		
 		while(place <= index){
@@ -398,9 +398,9 @@ fun create_minifier(output_stream){
 		
 		while(place >= base){
 			place = place / base;
-			var digit = x_trunc(index / place);
+			var digit = _trunc(index / place);
 			index = index - digit * place;
-			word = word + x_substring(chars, digit, 1);
+			word = word + _substring(chars, digit, 1);
 		}
 		
 		return word;
@@ -464,17 +464,17 @@ fun create_minifier(output_stream){
 			}
 			
 			var is_separated = previous_token.has_separation(token);
-			var token_length = x_length(token.lexeme);
+			var token_length = _length(token.lexeme);
 			
 			if(is_separated){
 				width = width + 1;
 			}
 			
 			if(width + token_length > 100){
-				x_put(CHAR_LF, output_stream);
+				_put(CHAR_LF, output_stream);
 				width = 0;
 			} else if(is_separated){
-				x_put(CHAR_SPACE, output_stream);
+				_put(CHAR_SPACE, output_stream);
 			}
 			
 			width = width + token_length;
@@ -489,7 +489,7 @@ fun create_minifier(output_stream){
 
 // Run LoxKrox generator from a base path and debug status.
 fun run_generator(base_path, is_debug){
-	var write_stream = x_write(base_path + "krox.lox");
+	var write_stream = _write(base_path + "krox.lox");
 	
 	if(!write_stream){
 		print_error("Failed to open `krox.lox` for writing.");
@@ -511,7 +511,7 @@ fun run_generator(base_path, is_debug){
 			add_line("");
 		}
 		
-		var read_stream = x_read(base_path + module);
+		var read_stream = _read(base_path + module);
 		
 		if(!read_stream){
 			print_error("Failed to open `" + module + "` for reading. File may not exist.");
@@ -531,17 +531,17 @@ fun run_generator(base_path, is_debug){
 		}
 		
 		if(is_debug){
-			var char = x_get(read_stream);
+			var char = _get(read_stream);
 			
 			while(char){
-				x_put(char, write_stream);
-				char = x_get(read_stream);
+				_put(char, write_stream);
+				char = _get(read_stream);
 			}
 		} else {
 			minify_input(read_stream);
 		}
 		
-		if(!x_close(read_stream)){
+		if(!_close(read_stream)){
 			print_error("Failed to close `" + module + "` after reading.");
 		}
 	}
@@ -552,26 +552,26 @@ fun run_generator(base_path, is_debug){
 		add_line("");
 	}
 	
-	if(!x_close(write_stream)){
+	if(!_close(write_stream)){
 		print_error("Failed to close `krox.lox` after writing.");
 	}
 }
 
 // Run LoxKrox generator from arguments.
 fun main(){
-	var argument_count = x_args();
+	var argument_count = _args();
 	var has_valid_arguments = false;
 	var is_debug = false;
 	
 	if(argument_count == 1){
 		has_valid_arguments = true;
-	} else if(argument_count == 2 and x_arg(1) == "--debug"){
+	} else if(argument_count == 2 and _arg(1) == "--debug"){
 		has_valid_arguments = true;
 		is_debug = true;
 	}
 	
 	if(has_valid_arguments){
-		run_generator(get_path_parent(x_arg(0)), is_debug);
+		run_generator(get_path_parent(_arg(0)), is_debug);
 	} else {
 		print_error("Expected arguments `generator.lox [--debug]`.");
 	}

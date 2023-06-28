@@ -19,8 +19,8 @@ STREAMS: list[BinaryIO | None] = [
 FILE_HANDLE_MIN: int = 3
 """ The minimum file handle available to lox. """
 
-def arg_extension(arguments: list[Any]) -> str | None:
-    """ The arg extension. """
+def arg_intrinsic(arguments: list[Any]) -> str | None:
+    """ The arg intrinsic. """
     
     index: int = int(arguments[0]) + 1
     
@@ -30,14 +30,14 @@ def arg_extension(arguments: list[Any]) -> str | None:
     return sys.argv[index]
 
 
-def args_extension(arguments: list[Any]) -> float:
-    """ The args extension. """
+def args_intrinsic(arguments: list[Any]) -> float:
+    """ The args intrinsic. """
     
     return float(max(len(sys.argv) - 1, 0))
 
 
-def chr_extension(arguments: list[Any]) -> str | None:
-    """ The chr extension. """
+def chr_intrinsic(arguments: list[Any]) -> str | None:
+    """ The chr intrinsic. """
     
     code: int = int(arguments[0])
     
@@ -47,8 +47,8 @@ def chr_extension(arguments: list[Any]) -> str | None:
     return chr(code)
 
 
-def close_extension(arguments: list[Any]) -> bool:
-    """ The close extension. """
+def close_intrinsic(arguments: list[Any]) -> bool:
+    """ The close intrinsic. """
     
     handle: int = int(arguments[0])
     
@@ -65,8 +65,8 @@ def close_extension(arguments: list[Any]) -> bool:
     return True
 
 
-def get_extension(arguments: list[Any]) -> float | None:
-    """ The get extension. """
+def get_intrinsic(arguments: list[Any]) -> float | None:
+    """ The get intrinsic. """
     
     handle: int = int(arguments[0])
     
@@ -89,14 +89,14 @@ def get_extension(arguments: list[Any]) -> float | None:
     return float(result[0])
 
 
-def length_extension(arguments: list[Any]) -> float:
-    """ The length extension. """
+def length_intrinsic(arguments: list[Any]) -> float:
+    """ The length intrinsic. """
     
     return float(len(str(arguments[0])))
 
 
-def ord_extension(arguments: list[Any]) -> float | None:
-    """ The ord extension. """
+def ord_intrinsic(arguments: list[Any]) -> float | None:
+    """ The ord intrinsic. """
     
     character: str = str(arguments[0])
     
@@ -111,8 +111,8 @@ def ord_extension(arguments: list[Any]) -> float | None:
     return float(code)
 
 
-def put_extension(arguments: list[Any]) -> float | None:
-    """ The put extension. """
+def put_intrinsic(arguments: list[Any]) -> float | None:
+    """ The put intrinsic. """
     
     byte: int = int(arguments[0])
     
@@ -137,32 +137,32 @@ def put_extension(arguments: list[Any]) -> float | None:
     return float(byte)
 
 
-def read_extension(arguments: list[Any]) -> float | None:
-    """ The read extension. """
+def read_intrinsic(arguments: list[Any]) -> float | None:
+    """ The read intrinsic. """
     
     return open_file_handle(str(arguments[0]), "rb")
 
 
-def stderr_extension(arguments: list[Any]) -> float:
-    """ The stderr extension. """
+def stderr_intrinsic(arguments: list[Any]) -> float:
+    """ The stderr intrinsic. """
     
     return 2.0
 
 
-def stdin_extension(arguments: list[Any]) -> float:
-    """ The stdin extension. """
+def stdin_intrinsic(arguments: list[Any]) -> float:
+    """ The stdin intrinsic. """
     
     return 0.0
 
 
-def stdout_extension(arguments: list[Any]) -> float:
-    """ The stdout extension. """
+def stdout_intrinsic(arguments: list[Any]) -> float:
+    """ The stdout intrinsic. """
     
     return 1.0
 
 
-def substring_extension(arguments: list[Any]) -> str | None:
-    """ The substring extension. """
+def substring_intrinsic(arguments: list[Any]) -> str | None:
+    """ The substring intrinsic. """
     
     string: str = str(arguments[0])
     start: int = int(arguments[1])
@@ -174,14 +174,14 @@ def substring_extension(arguments: list[Any]) -> str | None:
     return string[start:end]
 
 
-def write_extension(arguments: list[Any]) -> float | None:
-    """ The write extension. """
+def write_intrinsic(arguments: list[Any]) -> float | None:
+    """ The write intrinsic. """
     
     return open_file_handle(str(arguments[0]), "wb")
 
 
-def trunc_extension(arguments: list[Any]) -> float:
-    """ The trunc extension. """
+def trunc_intrinsic(arguments: list[Any]) -> float:
+    """ The trunc intrinsic. """
     
     return float(math.trunc(float(arguments[0])))
 
@@ -205,23 +205,23 @@ def open_file_handle(path: str, mode: str) -> float | None:
     return None # No file handles available.
 
 
-def install_extensions(
+def install_intrinsics(
         define_native: Callable[
                 [str, int, Callable[[list[Any]], Any]], None]) -> None:
-    """ Install the extensions. """
+    """ Install the intrinsics. """
     
-    define_native("x_arg", 1, arg_extension)
-    define_native("x_args", 0, args_extension)
-    define_native("x_chr", 1, chr_extension)
-    define_native("x_close", 1, close_extension)
-    define_native("x_get", 1, get_extension)
-    define_native("x_length", 1, length_extension)
-    define_native("x_ord", 1, ord_extension)
-    define_native("x_put", 2, put_extension)
-    define_native("x_read", 1, read_extension)
-    define_native("x_stderr", 0, stderr_extension)
-    define_native("x_stdin", 0, stdin_extension)
-    define_native("x_stdout", 0, stdout_extension)
-    define_native("x_substring", 3, substring_extension)
-    define_native("x_trunc", 1, trunc_extension)
-    define_native("x_write", 1, write_extension)
+    define_native("_arg", 1, arg_intrinsic)
+    define_native("_args", 0, args_intrinsic)
+    define_native("_chr", 1, chr_intrinsic)
+    define_native("_close", 1, close_intrinsic)
+    define_native("_get", 1, get_intrinsic)
+    define_native("_length", 1, length_intrinsic)
+    define_native("_ord", 1, ord_intrinsic)
+    define_native("_put", 2, put_intrinsic)
+    define_native("_read", 1, read_intrinsic)
+    define_native("_stderr", 0, stderr_intrinsic)
+    define_native("_stdin", 0, stdin_intrinsic)
+    define_native("_stdout", 0, stdout_intrinsic)
+    define_native("_substring", 3, substring_intrinsic)
+    define_native("_trunc", 1, trunc_intrinsic)
+    define_native("_write", 1, write_intrinsic)

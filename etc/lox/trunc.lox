@@ -1,17 +1,17 @@
 // Truncation demonstration.
-// Demonstrates truncating numbers in Lox using a non-standard extension
+// Demonstrates truncating numbers in Lox using a non-standard intrinsic
 // function.
 
-print x_trunc(0); // 0.
+print _trunc(0); // 0.
 
-print x_trunc(0.0000000001); // 0.
-print x_trunc(1); // 1.
-print x_trunc(2.718); // 2.
-print x_trunc(3.142); // 3.
-print x_trunc(123); // 123.
+print _trunc(0.0000000001); // 0.
+print _trunc(1); // 1.
+print _trunc(2.718); // 2.
+print _trunc(3.142); // 3.
+print _trunc(123); // 123.
 
-print x_trunc(-0.0000000001); // 0.
-print x_trunc(-1); // -1.
-print x_trunc(-2.718); // -2.
-print x_trunc(-3.142); // -3.
-print x_trunc(-123); // -123.
+print _trunc(-0.0000000001); // 0.
+print _trunc(-1); // -1.
+print _trunc(-2.718); // -2.
+print _trunc(-3.142); // -3.
+print _trunc(-123); // -123.

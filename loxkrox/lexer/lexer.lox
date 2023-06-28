@@ -139,17 +139,17 @@ class Lexer {
 			while(!match(is_string_terminator)){
 				if(accept(CHAR_BACKSLASH)){
 					if(accept(CHAR_QUOTE)){
-						value = value + x_chr(CHAR_QUOTE);
+						value = value + _chr(CHAR_QUOTE);
 					} else if(accept(CHAR_APOSTROPHE)){
 						value = value + "'";
 					} else if(accept(CHAR_BACKSLASH)){
 						value = value + "\";
 					} else if(accept(CHAR_LOWER_N)){
-						value = value + x_chr(CHAR_LINE);
+						value = value + _chr(CHAR_LINE);
 					} else if(accept(CHAR_LOWER_R)){
-						value = value + x_chr(CHAR_CR);
+						value = value + _chr(CHAR_CR);
 					} else if(accept(CHAR_LOWER_T)){
-						value = value + x_chr(CHAR_TAB);
+						value = value + _chr(CHAR_TAB);
 					} else {
 						var error_span = this.span.clone();
 						error_span.shrink_to_end();
@@ -162,7 +162,7 @@ class Lexer {
 						}
 					}
 				} else {
-					value = value + x_chr(this.advance());
+					value = value + _chr(this.advance());
 				}
 			}
 			
@@ -177,10 +177,10 @@ class Lexer {
 				return is_alpha(char) or char >= CHAR_0 and char <= CHAR_9;
 			}
 			
-			var value = x_chr(this.advance());
+			var value = _chr(this.advance());
 			
 			while(match(is_alphanumeric)){
-				value = value + x_chr(this.advance());
+				value = value + _chr(this.advance());
 			}
 			
 			var type = TokenType.from_lexeme(value);
@@ -191,7 +191,7 @@ class Lexer {
 				return make_literal_token(TokenType.IDENTIFIER, value);
 			}
 		} else {
-			var lexeme = x_chr(this.advance());
+			var lexeme = _chr(this.advance());
 			var type = TokenType.from_lexeme(lexeme);
 			
 			if(type){
@@ -232,10 +232,10 @@ class Lexer {
 		
 		var current = this.next;
 		this.span.extend_from_char(current);
-		var next = x_get(this.stream);
+		var next = _get(this.stream);
 		
 		if(!next){
-			x_close(this.stream);
+			_close(this.stream);
 			next = CHAR_EOF;
 		} else if(next == CHAR_DELETE or next < CHAR_SPACE and !this.is_whitespace(next)){
 			next = illegal("Krox source cannot contain control characters.");
@@ -252,11 +252,11 @@ class Lexer {
 			
 			// Assume UTF-8, skip continuation bytes.
 			while(skip_count > 0){
-				next = x_get(this.stream);
+				next = _get(this.stream);
 				skip_count = skip_count - 1;
 				
 				if(!next){
-					x_close(this.stream);
+					_close(this.stream);
 					skip_count = 0;
 				}
 			}

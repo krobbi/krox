@@ -2,7 +2,7 @@
 // Demonstrates dumping the printable ASCII characters to standard output.
 
 for(var character = 32; character < 127; character = character + 1){
-	x_put(character, x_stdout());
+	_put(character, _stdout());
 }
 
 print "";

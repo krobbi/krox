@@ -9,7 +9,7 @@ class Logger {
 	// Output and clear the logger's messages.
 	flush(){
 		var iter = this.records.iter();
-		var stream = x_stderr();
+		var stream = _stderr();
 		
 		while(iter.has_next()){
 			String().append(iter.get_next().to_string()).put_line(stream);

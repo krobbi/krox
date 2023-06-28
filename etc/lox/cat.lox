@@ -3,7 +3,7 @@
 // file to a target file.
 
 fun cat(path, target){
-	var source = x_read(path);
+	var source = _read(path);
 	
 	if(source == nil){
 		print "Failed to open '" + path + "' for reading.";
@@ -11,35 +11,35 @@ fun cat(path, target){
 	}
 	
 	var is_writing = true;
-	var character = x_get(source);
+	var character = _get(source);
 	
 	while(is_writing and character != nil){
-		if(x_put(character, target)){
-			character = x_get(source);
+		if(_put(character, target)){
+			character = _get(source);
 		} else {
 			print "Failed to write output.";
 			is_writing = false;
 		}
 	}
 	
-	if(!x_close(source)){
+	if(!_close(source)){
 		print "Failed to close source file '" + path + "'.";
 	}
 }
 
 fun main(){
-	if(x_args() == 2){
-		cat(x_arg(1), x_stdout());
-	} else if (x_args() == 3){
-		var source_path = x_arg(1);
-		var target_path = x_arg(2);
+	if(_args() == 2){
+		cat(_arg(1), _stdout());
+	} else if (_args() == 3){
+		var source_path = _arg(1);
+		var target_path = _arg(2);
 		
 		if(source_path == target_path){
 			print "Cannot copy file to itself.";
 			return;
 		}
 		
-		var target = x_write(target_path);
+		var target = _write(target_path);
 		
 		if(target == nil){
 			print "Failed to open '" + target_path + "' for writing.";
@@ -48,7 +48,7 @@ fun main(){
 		
 		cat(source_path, target);
 		
-		if(!x_close(target)){
+		if(!_close(target)){
 			print "Failed to close target file '" + target_path + "'.";
 		}
 	} else {
