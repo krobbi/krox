@@ -108,6 +108,17 @@ static Value closeIntrinsic(int argCount, Value* args) {
 	return BOOL_VAL(true);
 }
 
+/* The exit intrinsic. */
+static Value exitIntrinsic(int argCount, Value* args) {
+	if (argCount != 1 || !IS_NUMBER(args[0])) {
+		exit(70); /* Invalid arguments. */
+		return NIL_VAL;
+	}
+	
+	exit((int)AS_NUMBER(args[0]));
+	return NIL_VAL;
+}
+
 /* The get intrinsic. */
 static Value getIntrinsic(int argCount, Value* args) {
 	if (argCount != 1 || !IS_NUMBER(args[0])) {
@@ -272,6 +283,7 @@ void installIntrinsics(DefineNativeFn defineNative) {
 	defineNative("_argv", argvIntrinsic);
 	defineNative("_chr", chrIntrinsic);
 	defineNative("_close", closeIntrinsic);
+	defineNative("_exit", exitIntrinsic);
 	defineNative("_get", getIntrinsic);
 	defineNative("_length", lengthIntrinsic);
 	defineNative("_ord", ordIntrinsic);

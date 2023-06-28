@@ -65,6 +65,12 @@ def close_intrinsic(arguments: list[Any]) -> bool:
     return True
 
 
+def exit_intrinsic(arguments: list[Any]) -> None:
+    """ The exit intrinsic. """
+    
+    sys.exit(int(arguments[0]))
+
+
 def get_intrinsic(arguments: list[Any]) -> float | None:
     """ The get intrinsic. """
     
@@ -214,6 +220,7 @@ def install_intrinsics(
     define_native("_argv", 0, argv_intrinsic)
     define_native("_chr", 1, chr_intrinsic)
     define_native("_close", 1, close_intrinsic)
+    define_native("_exit", 1, exit_intrinsic)
     define_native("_get", 1, get_intrinsic)
     define_native("_length", 1, length_intrinsic)
     define_native("_ord", 1, ord_intrinsic)

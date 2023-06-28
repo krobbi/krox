@@ -103,6 +103,7 @@ fun reserve_words(reserve){
 	reserve("_argv");
 	reserve("_chr");
 	reserve("_close");
+	reserve("_exit");
 	reserve("_get");
 	reserve("_length");
 	reserve("_ord");
@@ -115,6 +116,11 @@ fun reserve_words(reserve){
 	reserve("_trunc");
 	reserve("_write");
 }
+
+// Exit codes.
+var EX_OK = 0; // Exited successfully.
+var EX_USAGE = 64; // Invalid arguments.
+var EX_IOERR = 74; // Error occured during file I/O.
 
 // Character constants.
 var CHAR_TAB = 9; // Tab.
@@ -487,21 +493,22 @@ fun create_minifier(output_stream){
 	return minify_input;
 }
 
-// Run LoxKrox generator from a base path and debug status.
+// Run LoxKrox generator and return an exit code.
 fun run_generator(base_path, is_debug){
 	var write_stream = _write(base_path + "krox.lox");
 	
 	if(!write_stream){
 		print_error("Failed to open `krox.lox` for writing.");
-		return;
+		return EX_IOERR;
 	}
+	
+	var exit_status = EX_OK;
+	var minify_input = create_minifier(write_stream);
 	
 	// Add a line to the write stream.
 	fun add_line(line){
 		put_line(line, write_stream);
 	}
-	
-	var minify_input = create_minifier(write_stream);
 	
 	// Add a module to the write stream.
 	fun add_module(module){
@@ -515,6 +522,7 @@ fun run_generator(base_path, is_debug){
 		
 		if(!read_stream){
 			print_error("Failed to open `" + module + "` for reading. File may not exist.");
+			exit_status = EX_IOERR;
 			
 			if(!is_debug){
 				add_line("");
@@ -543,6 +551,7 @@ fun run_generator(base_path, is_debug){
 		
 		if(!_close(read_stream)){
 			print_error("Failed to close `" + module + "` after reading.");
+			exit_status = EX_IOERR;
 		}
 	}
 	
@@ -554,26 +563,31 @@ fun run_generator(base_path, is_debug){
 	
 	if(!_close(write_stream)){
 		print_error("Failed to close `krox.lox` after writing.");
+		exit_status = EX_IOERR;
 	}
+	
+	return exit_status;
 }
 
-// Run LoxKrox generator from arguments.
+// Run LoxKrox generator from arguments and return an exit code.
 fun main(){
+	var argument_count = _argc();
 	var has_valid_arguments = false;
 	var is_debug = false;
 	
-	if(_argc() == 1){
+	if(argument_count == 1){
 		has_valid_arguments = true;
-	} else if(_argc() == 2 and _argv(1) == "--debug"){
+	} else if(argument_count == 2 and _argv(1) == "--debug"){
 		has_valid_arguments = true;
 		is_debug = true;
 	}
 	
 	if(has_valid_arguments){
-		run_generator(get_path_parent(_argv(0)), is_debug);
+		return run_generator(get_path_parent(_argv(0)), is_debug);
 	} else {
 		print_error("Expected arguments `generator.lox [--debug]`.");
+		return EX_USAGE;
 	}
 }
 
-main();
+_exit(main());

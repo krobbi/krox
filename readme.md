@@ -12,6 +12,7 @@ __Copyright &copy; 2023 Chris Roberts__ (Krobbizoid).
    * [`_argv(index)`](#_argvindex)
    * [`_chr(code)`](#_chrcode)
    * [`_close(handle)`](#_closehandle)
+   * [`_exit(code)`](#_exitcode)
    * [`_get(handle)`](#_gethandle)
    * [`_length(string)`](#_lengthstring)
    * [`_ord(character)`](#_ordcharacter)
@@ -134,6 +135,11 @@ Flush and close the stream at the file handle number `handle`. Returns `true`
 if a file stream was closed successfully. Otherwise, returns `false`.
 Attempting to close a standard stream will do nothing and always return
 `false`.
+
+## `_exit(code)`
+Exit the Lox interpreter with the exit code number `code`. Always returns
+`nil`, but any subsequent code will be unreachable. Exits the Lox interpreter
+with an undefined exit code if `code` is not a number.
 
 ## `_get(handle)`
 Get and return the next byte from the stream at the file handle number
